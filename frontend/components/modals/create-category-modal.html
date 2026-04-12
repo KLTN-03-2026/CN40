@@ -1,0 +1,380 @@
+<div class="modal-overlay" data-modal-close></div>
+
+<div
+  class="modal-content rounded-lg shadow-xl w-full max-w-md"
+  id="createCategoryModalContent"
+>
+  <div
+    class="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-purple-600 text-white border-b px-6 py-4 flex justify-between items-center rounded-t-lg"
+  >
+    <h2 class="text-lg font-bold">Tạo danh mục mới</h2>
+    <button
+      id="closeCategoryBtn"
+      class="text-white hover:text-gray-200 transition-colors text-xl"
+      aria-label="Close"
+    >
+      &#x2715;
+    </button>
+  </div>
+
+  <div class="p-6">
+    <form id="createCategoryForm" class="space-y-4">
+      <div id="categoryMessages"></div>
+
+      <div>
+        <label
+          for="newCategoryName"
+          class="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Tên danh mục <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="newCategoryName"
+          name="name"
+          required
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Nhập tên danh mục..."
+        />
+      </div>
+
+      <div>
+        <label
+          for="newCategoryDesc"
+          class="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Mô tả (tùy chọn)
+        </label>
+        <textarea
+          id="newCategoryDesc"
+          name="description"
+          rows="3"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Nhập mô tả danh mục..."
+        ></textarea>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4 border-t">
+        <button
+          type="button"
+          id="cancelCategoryBtn"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+        >
+          Hủy
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-md transition-all flex items-center gap-2"
+        >
+          <span class="submit-text">Tạo danh mục</span>
+          <span class="submit-loading hidden">
+            ...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  #createCategoryModal.active .modal-content,
+  #createCategoryModal.show .modal-content {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  #createCategoryModalContent {
+    animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 500px;
+    width: 95%;
+    margin: auto;
+    display: block !important;
+    position: relative;
+    z-index: 10051;
+  }
+
+  #createCategoryForm input,
+  #createCategoryForm textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: var(--np-bg-card, #faf7f2);
+  }
+
+  #createCategoryForm input:focus,
+  #createCategoryForm textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: #f8fafc;
+  }
+
+  #createCategoryForm textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  #createCategoryForm label {
+    display: block;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  #createCategoryForm button[type="button"],
+  #createCategoryForm button[type="submit"] {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  #createCategoryForm button[type="button"] {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  #createCategoryForm button[type="button"]:hover {
+    background: #e2e8f0;
+  }
+
+  #createCategoryForm button[type="submit"] {
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  #createCategoryForm button[type="submit"]:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  #createCategoryForm button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-30px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  #categoryMessages {
+    margin-bottom: 16px;
+  }
+
+  .category-success {
+    background: #ecfdf5;
+    border-left: 4px solid #10b981;
+    padding: 12px;
+    border-radius: 6px;
+    color: #065f46;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .category-error {
+    background: #fef2f2;
+    border-left: 4px solid #ef4444;
+    padding: 12px;
+    border-radius: 6px;
+    color: #7f1d1d;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @media (max-width: 480px) {
+    #createCategoryModalContent {
+      max-width: 95vw;
+      margin: 10px;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    console.log(" [CREATE-CATEGORY-MODAL] Script loaded");
+
+    function initializeModal() {
+      const form = document.getElementById("createCategoryForm");
+      const closeBtn = document.getElementById("closeCategoryBtn");
+      const cancelBtn = document.getElementById("cancelCategoryBtn");
+      const messagesContainer = document.getElementById("categoryMessages");
+
+      if (!form || !closeBtn || !cancelBtn) {
+        console.warn(
+          " [CREATE-CATEGORY-MODAL] Elements not ready, retrying..."
+        );
+        setTimeout(initializeModal, 100);
+        return;
+      }
+
+      console.log(" [CREATE-CATEGORY-MODAL] Initializing...");
+
+      function showMessage(message, type = "success") {
+        if (!messagesContainer) return;
+        messagesContainer.innerHTML = "";
+        const messageEl = document.createElement("div");
+        messageEl.className = `category-${type}`;
+        messageEl.innerHTML = `<span>${message}</span>`;
+        messagesContainer.appendChild(messageEl);
+
+        if (type !== "error") {
+          setTimeout(() => {
+            if (messageEl.parentNode) messageEl.remove();
+          }, 3000);
+        }
+      }
+
+      function closeModal() {
+        if (window.ModalManager && window.ModalManager.hideModalById) {
+          window.ModalManager.hideModalById("createCategoryModal");
+        }
+        if (form) form.reset();
+        if (messagesContainer) messagesContainer.innerHTML = "";
+      }
+
+      closeBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal();
+      });
+
+      cancelBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal();
+      });
+
+      const modal = document.getElementById("createCategoryModal");
+      if (modal) {
+        const overlay = modal.querySelector(".modal-overlay");
+        if (overlay) {
+          overlay.addEventListener("click", function (e) {
+            if (e.target === overlay || e.target === this) {
+              closeModal();
+            }
+          });
+        }
+      }
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const nameInput = document.getElementById("newCategoryName");
+        const descInput = document.getElementById("newCategoryDesc");
+        const submitBtn = form.querySelector("button[type='submit']");
+        const submitText = submitBtn.querySelector(".submit-text");
+        const submitLoading = submitBtn.querySelector(".submit-loading");
+
+        if (!nameInput.value.trim()) {
+          showMessage("Vui lòng nhập tên danh mục", "error");
+          return;
+        }
+
+        if (submitText && submitLoading) {
+          submitText.classList.add("hidden");
+          submitLoading.classList.remove("hidden");
+          submitBtn.disabled = true;
+        }
+
+        try {
+          const token = localStorage.getItem("auth_token");
+          if (!token) {
+            throw new Error("Vui lòng đăng nhập lại");
+          }
+
+          const categoryData = {
+            TenLoai: nameInput.value.trim(),
+            MoTa: descInput.value.trim(),
+          };
+
+          console.log(
+            "📡 [CREATE-CATEGORY-MODAL] Creating category:",
+            categoryData
+          );
+
+          const response = await fetch("/api/categories", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(categoryData),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(result.message || "Lỗi tạo danh mục");
+          }
+
+          console.log(
+            " [CREATE-CATEGORY-MODAL] Category created:",
+            result.data
+          );
+
+          showMessage("Tạo danh mục thành công!", "success");
+
+          if (window.loadCategoriesForModal) {
+            setTimeout(() => {
+              window.loadCategoriesForModal();
+            }, 500);
+          }
+
+          setTimeout(() => {
+            closeModal();
+          }, 1000);
+
+          document.dispatchEvent(
+            new CustomEvent("categoryCreated", {
+              detail: { category: result.data },
+            })
+          );
+        } catch (error) {
+          console.error(" [CREATE-CATEGORY-MODAL] Error:", error);
+          showMessage(error.message || "Lỗi kết nối máy chủ", "error");
+        } finally {
+          if (submitText && submitLoading) {
+            submitText.classList.remove("hidden");
+            submitLoading.classList.add("hidden");
+            submitBtn.disabled = false;
+          }
+        }
+      });
+
+      window.closeCategoryModal = closeModal;
+
+      console.log(" [CREATE-CATEGORY-MODAL] Initialization complete");
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initializeModal);
+    } else {
+      setTimeout(initializeModal, 50);
+    }
+  })();
+</script>

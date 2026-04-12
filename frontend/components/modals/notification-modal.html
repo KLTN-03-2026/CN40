@@ -1,0 +1,317 @@
+<div id="notificationModal" class="modal hidden">
+  <div
+    class="modal-content rounded-2xl shadow-2xl w-full max-w-2xl mx-4 my-8 transform transition-all"
+  >
+    <div
+      class="flex justify-between items-center p-6 border-b border-gray-200 bg-gradient-to-r from-cyan-50 to-teal-50"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-lg bg-cyan-500 flex items-center justify-center text-white"
+        >
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800">Thông Báo</h3>
+          <p class="text-xs text-gray-500">
+            Kết nối với Telegram để nhận thông báo
+          </p>
+        </div>
+      </div>
+      <button
+        id="closeNotificationModal"
+        class="text-gray-500 hover:text-gray-700 text-2xl transition-colors"
+      >
+        &#x2715;
+      </button>
+    </div>
+
+    <div class="p-8 max-h-[calc(100vh-300px)] overflow-y-auto">
+      <div
+        class="mb-8 p-6 rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-lg font-semibold text-gray-800">
+            Trạng Thái Kết Nối
+          </h4>
+          <div
+            id="connectionStatus"
+            class="flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-700 font-medium text-sm"
+          >
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            <span>Chưa kết nối</span>
+          </div>
+        </div>
+        <p class="text-sm text-gray-600" id="connectionStatusText">
+          Để nhận thông báo công việc và lịch trình, bạn cần kết nối với
+          Telegram bot.
+        </p>
+      </div>
+
+      <div id="connectionSection" class="mb-8 pb-8 border-b border-gray-200">
+        <h5
+          class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
+        >
+          Kết Nối Telegram
+        </h5>
+
+        <div class="space-y-4">
+          <div
+            class="flex gap-4 p-4 rounded-lg bg-cyan-50 border border-cyan-200"
+          >
+            <div class="flex-shrink-0">
+              <div
+                class="flex items-center justify-center h-8 w-8 rounded-full bg-cyan-500 text-white font-semibold"
+              >
+                1
+              </div>
+            </div>
+            <div class="flex-1">
+              <h6 class="font-semibold text-gray-800">Nhấn Nút Kết Nối</h6>
+              <p class="text-sm text-gray-600 mt-1">
+                Nhấn vào nút "Kết Nối Telegram" để mở Telegram bot
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex gap-4 p-4 rounded-lg bg-cyan-50 border border-cyan-200"
+          >
+            <div class="flex-shrink-0">
+              <div
+                class="flex items-center justify-center h-8 w-8 rounded-full bg-cyan-500 text-white font-semibold"
+              >
+                2
+              </div>
+            </div>
+            <div class="flex-1">
+              <h6 class="font-semibold text-gray-800">Xác Nhận Trên Bot</h6>
+              <p class="text-sm text-gray-600 mt-1">
+                Gửi lệnh /start hoặc click nút được gửi để xác nhận kết nối
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex gap-4 p-4 rounded-lg bg-cyan-50 border border-cyan-200"
+          >
+            <div class="flex-shrink-0">
+              <div
+                class="flex items-center justify-center h-8 w-8 rounded-full bg-cyan-500 text-white font-semibold"
+              >
+                3
+              </div>
+            </div>
+            <div class="flex-1">
+              <h6 class="font-semibold text-gray-800">Hoàn Thành</h6>
+              <p class="text-sm text-gray-600 mt-1">
+                Kết nối sẽ được xác thực tự động
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form id="notificationForm" class="space-y-6">
+        <div
+          id="notificationStatusMessage"
+          class="hidden p-4 rounded-lg text-sm"
+        ></div>
+
+        <div class="form-group" id="connectButtonGroup">
+          <button
+            type="button"
+            id="connectTelegramBtn"
+            class="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+          >
+            Kết Nối Telegram
+          </button>
+          <p class="text-xs text-gray-500 mt-2 text-center">
+            Sẽ mở Telegram trong cửa sổ mới
+          </p>
+        </div>
+      </form>
+
+      <div class="mt-8 pt-8 border-t border-gray-200">
+        <h5
+          class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
+        >
+          Cài Đặt Thông Báo
+        </h5>
+
+        <div class="space-y-4">
+          <div
+            class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition"
+          >
+            <div class="flex items-center gap-3">
+              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <div>
+                <p class="font-medium text-gray-800">Thông báo công việc</p>
+                <p class="text-sm text-gray-500">
+                  Nhận thông báo khi công việc sắp đến hạn
+                </p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="taskNotifications"
+                name="taskNotifications"
+                class="sr-only peer"
+                checked
+              />
+              <div
+                class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"
+              ></div>
+            </label>
+          </div>
+
+          <div
+            class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition bg-gray-50"
+          >
+            <div class="flex items-center gap-3 flex-1">
+              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <div class="flex-1">
+                <p class="font-medium text-gray-800">
+                  Thời gian nhắc nhở công việc
+                </p>
+                <p class="text-sm text-gray-500">
+                  Nhắc nhở công việc sắp tới lúc
+                </p>
+              </div>
+            </div>
+            <input
+              type="time"
+              id="taskReminderTime"
+              class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              value="14:00"
+            />
+          </div>
+
+          <div
+            class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition"
+          >
+            <div class="flex items-center gap-3">
+              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <div>
+                <p class="font-medium text-gray-800">Nhắc nhở sự kiện</p>
+                <p class="text-sm text-gray-500">
+                  Nhận nhắc nhở trước khi sự kiện bắt đầu
+                </p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="eventReminders"
+                name="eventReminders"
+                class="sr-only peer"
+                checked
+              />
+              <div
+                class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"
+              ></div>
+            </label>
+          </div>
+
+          <div
+            class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition bg-gray-50"
+          >
+            <div class="flex items-center gap-3 flex-1">
+              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <div class="flex-1">
+                <p class="font-medium text-gray-800">Lịch trình hằng ngày</p>
+                <p class="text-sm text-gray-500">
+                  Nhận lịch trình hằng ngày lúc
+                </p>
+              </div>
+            </div>
+            <input
+              type="time"
+              id="dailyScheduleTime"
+              class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              value="08:00"
+            />
+          </div>
+
+          <div
+            class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition"
+          >
+            <div class="flex items-center gap-3">
+              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <div>
+                <p class="font-medium text-gray-800">Gợi ý từ AI</p>
+                <p class="text-sm text-gray-500">
+                  Nhận gợi ý về lịch trình từ AI
+                </p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="aiSuggestions"
+                name="aiSuggestions"
+                class="sr-only peer"
+                checked
+              />
+              <div
+                class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"
+              ></div>
+            </label>
+          </div>
+
+          <div
+            class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition bg-gray-50"
+          >
+            <div class="flex items-center gap-3 flex-1">
+              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <div class="flex-1">
+                <p class="font-medium text-gray-800">Tổng kết hàng ngày</p>
+                <p class="text-sm text-gray-500">
+                  Tổng kết công việc hàng ngày lúc
+                </p>
+              </div>
+            </div>
+            <input
+              type="time"
+              id="dailySummaryTime"
+              class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              value="18:00"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+      <button
+        type="button"
+        id="cancelNotificationBtn"
+        class="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
+      >
+        Hủy
+      </button>
+      <button
+        type="button"
+        id="saveNotificationSettingsBtn"
+        class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-medium hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+      >
+        Lưu Cài Đặt
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  #notificationModal {
+    z-index: 10100 !important;
+  }
+
+  #notificationModal .modal-content {
+    max-height: 90vh !important;
+  }
+
+  /* Hidden class for toggling sections */
+  .hidden {
+    display: none !important;
+  }
+</style>

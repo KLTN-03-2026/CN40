@@ -1,0 +1,69 @@
+/* ===== AI SUGGESTION MODAL — display control ===== */
+/* Modal shell visibility (works with .modal.hidden pattern) */
+#aiSuggestionModal {
+  display: none !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 10000 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+#aiSuggestionModal.active,
+#aiSuggestionModal.show,
+#aiSuggestionModal:not(.hidden) {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+#aiSuggestionModal.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* ===== NP-CARD modal content — newspaper palette ===== */
+/* The new ai-suggestion-modal uses .np-card.ai-modal-np directly.      */
+/* These rules ensure old .modal-content selectors don't override it.   */
+#aiSuggestionModal .modal-content {
+  background: var(--np-bg-card, #faf7f2) !important;
+  border: 1.5px solid var(--np-border, #1a1a1a) !important;
+  border-radius: var(--np-radius, 2px) !important;
+  box-shadow: var(--np-shadow, 4px 4px 0 #1a1a1a) !important;
+  color: var(--np-text, #1a1a1a) !important;
+}
+
+#aiSuggestionModal .ai-modal-header {
+  background: var(--np-bg-card, #faf7f2) !important;
+  color: var(--np-text, #1a1a1a) !important;
+}
+
+#aiSuggestionModal .ai-modal-body {
+  background: var(--np-bg-card, #faf7f2) !important;
+  color: var(--np-text, #1a1a1a) !important;
+}
+
+#aiSuggestionModal .ai-modal-footer {
+  background: var(--np-bg, #f4efe6) !important;
+  border-top: 1px solid var(--np-border-muted, #c8b99a) !important;
+}
+
+/* Dark mode */
+body.dark #aiSuggestionModal .modal-content,
+body.dark #aiSuggestionModal .ai-modal-header,
+body.dark #aiSuggestionModal .ai-modal-body {
+  background: var(--np-bg-card, #221e19) !important;
+  color: var(--np-text, #e8e0d0) !important;
+  border-color: var(--np-border, #4a4238) !important;
+}
+
+body.dark #aiSuggestionModal .ai-modal-footer {
+  background: var(--np-bg, #1a1612) !important;
+  border-top-color: var(--np-border-muted, #3a3028) !important;
+}

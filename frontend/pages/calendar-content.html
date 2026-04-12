@@ -1,0 +1,105 @@
+<div class="flex h-full">
+  <!-- Sidebar — rendered by calendar-sidebar.html component -->
+  <div
+    id="calendar-sidebar"
+    class="calendar-sidebar w-56"
+    style="flex-shrink:0;background:var(--np-bg-card,#faf7f2);border-right:1px solid var(--np-border-muted,#c8b99a)"
+  ></div>
+
+  <!-- Main calendar area -->
+  <div class="flex-1 flex flex-col min-w-0" style="background:var(--np-bg,#f4efe6)">
+
+    <!-- Navbar — newspaper chrome -->
+    <nav class="cal-toolbar border-b px-5 py-3"
+         style="background:var(--np-bg-card,#faf7f2);border-color:var(--np-border-muted,#c8b99a);flex-shrink:0">
+      <div class="flex items-center justify-between gap-4">
+
+        <!-- Left: icon + nav + title -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 flex items-center justify-center flex-shrink-0"
+               style="background:var(--np-accent,#8b0000);border-radius:var(--np-radius,2px);box-shadow:var(--np-shadow-sm,2px 2px 0 #1a1a1a);font-size:1rem;color:#fff"
+               aria-hidden="true"></div>
+
+          <div class="flex items-center gap-1">
+            <button id="cal-prev-btn"
+              class="w-8 h-8 flex items-center justify-center transition-colors"
+              style="color:var(--np-text-muted,#6b5f4a);border-radius:var(--np-radius,2px);border:1px solid var(--np-border-muted,#c8b99a);background:transparent;font-size:1rem;cursor:pointer"
+              onmouseover="this.style.background='var(--np-bg-input,#f0ebe1)'"
+              onmouseout="this.style.background='transparent'"
+              title="Trước">&#8249;</button>
+            <button id="cal-today-btn"
+              class="px-3 py-1.5 text-sm font-semibold transition-colors"
+              style="color:var(--np-accent,#8b0000);font-family:var(--np-font-body,'Merriweather',serif);border-radius:var(--np-radius,2px);border:1px solid var(--np-border-muted,#c8b99a);background:transparent;cursor:pointer"
+              onmouseover="this.style.background='var(--np-bg-input,#f0ebe1)'"
+              onmouseout="this.style.background='transparent'">
+              Hôm nay
+            </button>
+            <button id="cal-next-btn"
+              class="w-8 h-8 flex items-center justify-center transition-colors"
+              style="color:var(--np-text-muted,#6b5f4a);border-radius:var(--np-radius,2px);border:1px solid var(--np-border-muted,#c8b99a);background:transparent;font-size:1rem;cursor:pointer"
+              onmouseover="this.style.background='var(--np-bg-input,#f0ebe1)'"
+              onmouseout="this.style.background='transparent'"
+              title="Sau">&#8250;</button>
+          </div>
+
+          <h2 id="calendar-title"
+            class="text-lg font-bold"
+            style="color:var(--np-text,#1a1a1a);font-family:var(--np-font-heading,'Playfair Display',Georgia,serif);min-width:180px">
+            Tháng 12 năm 2025
+          </h2>
+        </div>
+
+        <!-- Right: view switcher — np-button style -->
+        <div class="flex items-center gap-1 p-1"
+             style="background:var(--np-bg-input,#f0ebe1);border:1px solid var(--np-border-muted,#c8b99a);border-radius:var(--np-radius,2px)">
+          <button id="cal-day-view" data-view="timeGridDay"
+            class="cal-view-btn px-3 py-1.5 text-sm font-medium transition-all"
+            style="color:var(--np-text-muted,#6b5f4a);font-family:var(--np-font-body,'Merriweather',serif);border-radius:var(--np-radius,2px)">
+            Ngày
+          </button>
+          <button id="cal-week-view" data-view="timeGridWeek"
+            class="cal-view-btn px-3 py-1.5 text-sm font-medium transition-all"
+            style="color:var(--np-text-muted,#6b5f4a);font-family:var(--np-font-body,'Merriweather',serif);border-radius:var(--np-radius,2px)">
+            Tuần
+          </button>
+          <button id="cal-month-view" data-view="dayGridMonth"
+            class="cal-view-btn px-3 py-1.5 text-sm font-medium transition-all"
+            style="color:var(--np-text-muted,#6b5f4a);font-family:var(--np-font-body,'Merriweather',serif);border-radius:var(--np-radius,2px)">
+            Tháng
+          </button>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- Calendar container -->
+    <div id="calendar" class="flex-1 overflow-hidden" style="min-height:0;background:var(--np-bg,#f4efe6)">
+      <div class="flex items-center justify-center h-full">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+               style="border-color:var(--np-accent,#8b0000)"></div>
+          <p class="font-medium" style="color:var(--np-text-muted,#6b5f4a);font-family:var(--np-font-body,'Merriweather',serif)">
+            Đang tải lịch trình...
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    function initCalendar() {
+      if (typeof CalendarModule === "undefined") { setTimeout(initCalendar, 200); return; }
+      if (typeof FullCalendar === "undefined") { setTimeout(initCalendar, 200); return; }
+      if (typeof Utils === "undefined") { setTimeout(initCalendar, 200); return; }
+
+      CalendarModule.init()
+        .then(() => console.log("Calendar initialized"))
+        .catch((err) => console.error("Calendar init failed:", err));
+    }
+
+    setTimeout(initCalendar, 100);
+  })();
+</script>

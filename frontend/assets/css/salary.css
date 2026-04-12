@@ -1,0 +1,427 @@
+/* ==========================================================================
+   salary.css — Newspaper / financial-ledger style
+   Palette: cream paper (#faf8f3), ink black (#1a1a1a), rule grey (#ccc)
+   Dark mode: dark newsprint (#1c1c1c bg, #e5e5e5 text)
+   ========================================================================== */
+
+/* ---------- Custom properties (light) ------------------------------------ */
+.salary-page {
+  --np-bg:        #faf8f3;
+  --np-bg-alt:    #f2efe8;
+  --np-ink:       #1a1a1a;
+  --np-ink-mid:   #444;
+  --np-ink-mute:  #888;
+  --np-rule:      #bbb;
+  --np-rule-thin: #ddd;
+  --np-accent:    #1a1a1a;
+  --np-paper:     #fff;
+  --np-shadow:    4px 4px 0 #1a1a1a;
+  --np-font-serif: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+  --np-font-sans:  -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ---------- Dark mode overrides ------------------------------------------ */
+body.dark .salary-page {
+  --np-bg:        #1c1c1c;
+  --np-bg-alt:    #242424;
+  --np-ink:       #e5e5e5;
+  --np-ink-mid:   #bbb;
+  --np-ink-mute:  #777;
+  --np-rule:      #444;
+  --np-rule-thin: #333;
+  --np-accent:    #e5e5e5;
+  --np-paper:     #262626;
+  --np-shadow:    4px 4px 0 #e5e5e5;
+}
+
+/* ---------- Page shell ---------------------------------------------------- */
+.salary-page {
+  background: var(--np-bg);
+  color: var(--np-ink);
+  min-height: 100vh;
+  font-family: var(--np-font-sans);
+}
+
+.np-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* ---------- Masthead ------------------------------------------------------- */
+.np-masthead {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.np-masthead-rule {
+  height: 3px;
+  background: var(--np-ink);
+  margin-bottom: 10px;
+}
+
+.np-masthead-title {
+  font-family: var(--np-font-serif);
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--np-ink);
+  margin: 0 0 6px;
+  line-height: 1;
+}
+
+.np-masthead-subtitle {
+  font-family: var(--np-font-serif);
+  font-size: 0.95rem;
+  color: var(--np-ink-mute);
+  font-style: italic;
+  margin: 0 0 10px;
+}
+
+/* ---------- Stat cards row ------------------------------------------------ */
+.np-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 800px) {
+  .np-stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .np-stats-row { grid-template-columns: 1fr; }
+}
+
+.np-card {
+  background: var(--np-paper);
+  border: 1px solid var(--np-ink);
+  box-shadow: var(--np-shadow);
+  padding: 18px 20px;
+}
+
+.np-card-label {
+  font-family: var(--np-font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--np-ink-mute);
+  margin-bottom: 8px;
+}
+
+.np-card-value {
+  font-family: var(--np-font-serif);
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--np-ink);
+  line-height: 1;
+  word-break: break-all;
+}
+
+.np-card-value--sm {
+  font-size: 1.1rem;
+  line-height: 1.3;
+  word-break: normal;
+}
+
+.np-card-unit {
+  font-size: 0.72rem;
+  color: var(--np-ink-mute);
+  margin-top: 4px;
+  font-family: var(--np-font-sans);
+}
+
+/* ---------- Toolbar ------------------------------------------------------- */
+.np-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--np-paper);
+  border: 1px solid var(--np-rule);
+  padding: 14px 18px;
+  margin-bottom: 12px;
+}
+
+.np-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.np-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--np-ink-mid);
+  white-space: nowrap;
+}
+
+.np-input {
+  border: 1px solid var(--np-rule);
+  background: var(--np-bg);
+  color: var(--np-ink);
+  padding: 7px 10px;
+  font-size: 0.85rem;
+  font-family: var(--np-font-sans);
+  outline: none;
+  border-radius: 0;
+  transition: border-color 0.15s;
+}
+
+.np-input:focus {
+  border-color: var(--np-ink);
+}
+
+.np-select {
+  cursor: pointer;
+  min-width: 160px;
+}
+
+.np-search {
+  min-width: 200px;
+}
+
+/* ---------- Preset buttons ------------------------------------------------ */
+.np-toolbar-presets {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.np-preset {
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid var(--np-rule);
+  background: transparent;
+  color: var(--np-ink-mid);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  font-family: var(--np-font-sans);
+}
+
+.np-preset:hover,
+.np-preset.active {
+  background: var(--np-ink);
+  color: var(--np-bg);
+  border-color: var(--np-ink);
+}
+
+/* Quick tab active state — overrides base .np-preset.active for period buttons */
+.quick-tab.active {
+  background: var(--np-accent, #8b0000) !important;
+  color: #fff !important;
+  border-color: var(--np-accent, #8b0000) !important;
+}
+
+/* ---------- Action buttons ------------------------------------------------ */
+.np-btn {
+  padding: 7px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--np-font-sans);
+  border: 1px solid var(--np-ink);
+  transition: background 0.12s, color 0.12s;
+}
+
+.np-btn--primary {
+  background: var(--np-ink);
+  color: var(--np-bg);
+}
+
+.np-btn--primary:hover {
+  background: var(--np-ink-mid);
+}
+
+.np-btn--ghost {
+  background: transparent;
+  color: var(--np-ink);
+}
+
+.np-btn--ghost:hover {
+  background: var(--np-ink);
+  color: var(--np-bg);
+}
+
+/* ---------- Secondary filter row ----------------------------------------- */
+.np-filter-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+/* ---------- Section dividers ---------------------------------------------- */
+.np-section {
+  margin-bottom: 40px;
+}
+
+.np-section-rule {
+  height: 3px;
+  background: var(--np-ink);
+  margin-bottom: 6px;
+}
+
+.np-section-rule--thin {
+  height: 1px;
+  background: var(--np-rule-thin);
+  margin-top: 6px;
+  margin-bottom: 16px;
+}
+
+.np-section-title {
+  font-family: var(--np-font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--np-ink);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* ---------- Table --------------------------------------------------------- */
+.np-table-wrap {
+  overflow-x: auto;
+}
+
+.np-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--np-font-serif);
+  min-width: 640px;
+  border: 1px solid var(--np-ink);
+}
+
+.np-th {
+  border: 1px solid var(--np-ink);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--np-ink);
+  background: var(--np-bg-alt);
+  white-space: nowrap;
+  font-family: var(--np-font-sans);
+}
+
+.np-th--num {
+  text-align: right;
+}
+
+.np-td {
+  border: 1px solid var(--np-rule);
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  color: var(--np-ink);
+  vertical-align: middle;
+}
+
+.np-td--title {
+  font-weight: 600;
+  max-width: 240px;
+}
+
+.np-td--cat {
+  font-size: 0.82rem;
+  color: var(--np-ink-mid);
+  font-style: italic;
+}
+
+.np-td--num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.np-td--amount {
+  font-weight: 700;
+}
+
+.np-td--date {
+  white-space: nowrap;
+  font-size: 0.82rem;
+  color: var(--np-ink-mid);
+}
+
+/* Alternating rows — subtle paper tint */
+.np-tr-even {
+  background: var(--np-paper);
+}
+
+.np-tr-odd {
+  background: var(--np-bg-alt);
+}
+
+/* Table footer / totals row */
+.np-tf {
+  border: 1px solid var(--np-ink);
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: var(--np-font-sans);
+  color: var(--np-ink);
+  background: var(--np-bg-alt);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.np-tf--num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.np-tf--total {
+  font-size: 1rem;
+  letter-spacing: 0;
+}
+
+/* ---------- Chart --------------------------------------------------------- */
+.np-chart-wrap {
+  background: var(--np-paper);
+  border: 1px solid var(--np-rule);
+  padding: 20px;
+  position: relative;
+  height: 280px;
+}
+
+.np-chart-wrap canvas {
+  max-height: 240px !important;
+}
+
+/* ---------- States -------------------------------------------------------- */
+.np-loading {
+  padding: 40px 24px;
+  text-align: center;
+  font-style: italic;
+  color: var(--np-ink-mute);
+  font-family: var(--np-font-serif);
+}
+
+.np-empty {
+  padding: 40px 24px;
+  text-align: center;
+  font-style: italic;
+  color: var(--np-ink-mute);
+  font-family: var(--np-font-serif);
+}
+
+.np-empty--error {
+  color: #b91c1c;
+}
+
+/* ---------- Responsive ---------------------------------------------------- */
+@media (max-width: 640px) {
+  .np-masthead-title { font-size: 1.8rem; }
+  .np-container { padding: 20px 14px 48px; }
+  .np-toolbar { flex-direction: column; align-items: flex-start; }
+  .np-filter-row { flex-direction: column; align-items: stretch; }
+  .np-search { min-width: unset; width: 100%; }
+  .np-select { min-width: unset; width: 100%; }
+}

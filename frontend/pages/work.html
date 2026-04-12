@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý công việc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome removed -->
+    <link rel="stylesheet" href="/frontend/assets/css/newspaper-theme.css" />
+    <link rel="stylesheet" href="/frontend/assets/css/work.css" />
+  </head>
+  <body>
+    <div class="wk-page">
+      <!-- Page Header -->
+      <div class="wk-header">
+        <div>
+          <h1 class="np-h2 wk-title">Công việc</h1>
+          <p class="np-label wk-subtitle">Quản lý và theo dõi tất cả công việc của bạn</p>
+        </div>
+        <button id="create-task-btn" class="np-button np-button--primary">
+          &#43; Tạo công việc mới
+        </button>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="wk-filter-bar">
+        <div class="wk-search-wrap">
+          <span class="wk-search-icon" aria-hidden="true"></span>
+          <input
+            type="text"
+            id="task-search"
+            placeholder="Tìm kiếm theo tiêu đề, mô tả..."
+            class="np-input wk-search-input"
+          />
+        </div>
+        <div class="wk-filter-selects">
+          <select id="status-filter" class="np-input wk-select">
+            <option value="all">Tất cả trạng thái</option>
+            <option value="pending">Đang chờ</option>
+            <option value="completed">Hoàn thành</option>
+          </select>
+          <select id="priority-filter" class="np-input wk-select">
+            <option value="all">Tất cả ưu tiên</option>
+            <option value="low">Thấp</option>
+            <option value="medium">Trung bình</option>
+            <option value="high">Cao</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Priority Legend — compact inline chips -->
+      <div class="wk-legend">
+        <span class="np-label wk-legend-label">Mức ưu tiên:</span>
+        <span class="np-chip wk-chip-priority wk-chip-low">Thấp</span>
+        <span class="np-chip wk-chip-priority wk-chip-medium">Trung bình</span>
+        <span class="np-chip wk-chip-priority wk-chip-high">Cao</span>
+        <span class="np-chip wk-chip-priority wk-chip-urgent">Khẩn cấp</span>
+      </div>
+
+      <!-- Main Task List Container -->
+      <div id="work-items-container" class="wk-container">
+        <div class="wk-loading hidden" id="loading-indicator">
+          <div class="wk-spinner"></div>
+          <p>Đang tải công việc...</p>
+        </div>
+
+        <div class="empty-state hidden" id="empty-state-indicator">
+          <div class="empty-state-icon" aria-hidden="true">&#9635;</div>
+          <h2 class="empty-state-title">Bắt đầu quản lý công việc của bạn</h2>
+          <p class="empty-state-description">
+            Chào mừng! Hãy tạo công việc đầu tiên để bắt đầu hành trình quản lý
+            hiệu quả. Với tính năng AI thông minh, chúng tôi sẽ giúp bạn lên
+            lịch trình làm việc tối ưu.
+          </p>
+          <div class="empty-state-features">
+            <div class="feature-item">
+              <span aria-hidden="true"></span>
+              <span>AI thông minh lên lịch</span>
+            </div>
+            <div class="feature-item">
+              <span aria-hidden="true"></span>
+              <span>Theo dõi tiến độ</span>
+            </div>
+            <div class="feature-item">
+              <span aria-hidden="true"></span>
+              <span>Quản lý thời gian</span>
+            </div>
+          </div>
+          <button
+            class="np-button np-button--primary"
+            onclick="if(window.ModalManager) window.ModalManager.showCreateTaskModal();"
+          >
+            &#43; Tạo công việc đầu tiên
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk Action Bar (sticky bottom, hidden by default) -->
+    <div id="bulk-action-bar" class="wk-bulk-bar hidden">
+      <span id="bulk-count" class="wk-bulk-count">0 đã chọn</span>
+      <div class="wk-bulk-actions">
+        <button id="bulk-complete-btn" class="np-button np-button--primary wk-bulk-btn">
+          Hoàn thành
+        </button>
+        <button id="bulk-delete-btn" class="np-button wk-bulk-btn wk-bulk-delete">
+          Xoá
+        </button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const createBtn = document.getElementById("create-task-btn");
+        if (createBtn) {
+          createBtn.addEventListener("click", function () {
+            if (window.ModalManager) {
+              window.ModalManager.showCreateTaskModal();
+            }
+          });
+        }
+
+        setTimeout(() => {
+          if (window.WorkManager && !window.WorkManager.initialized) {
+            window.WorkManager.init();
+          } else if (window.WorkManager && window.WorkManager.loadTasks) {
+            window.WorkManager.loadTasks();
+          }
+        }, 300);
+      });
+    </script>
+  </body>
+</html>

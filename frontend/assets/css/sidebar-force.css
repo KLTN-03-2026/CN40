@@ -1,0 +1,15 @@
+/*
+ * sidebar-force.css — AUDIT RESULT (Phase 11 refactor)
+ *
+ * This file previously forced:
+ *   - width: 256px !important  (conflicts with Phase 07/11 collapsible sidebar: 72px collapsed / 240px expanded)
+ *   - background: white !important  (breaks dark mode and newspaper theme)
+ *
+ * Both rules are now REMOVED. Sidebar width and background are controlled by:
+ *   - Inline <style> block in index.html (72px / 240px via .sb-expanded)
+ *   - sidebar.html scoped <style> block (collapsible rules, dark-mode CSS vars)
+ *   - CSS vars: --bg-sidebar, --np-bg-card in newspaper-theme.css
+ *
+ * This file is intentionally empty and may be deleted once confirmed safe.
+ * It is NOT loaded in index.html as of Phase 11 — keep it that way.
+ */

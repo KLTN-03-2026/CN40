@@ -1,0 +1,943 @@
+<div
+  class="flex flex-col h-full"
+  style="width:224px;flex-shrink:0;background:var(--np-bg-card,#faf7f2);border-right:1px solid var(--np-border-muted,#c8b99a)"
+  id="calendar-sidebar"
+>
+  <!-- Mini calendar rendered here by CalendarModule.initMiniCalendar() -->
+  <div id="mini-cal-container" class="flex-shrink-0"></div>
+
+  <div class="p-3" style="border-bottom:1px solid var(--np-border-muted,#c8b99a)">
+    <h3
+      class="flex items-center justify-between"
+      style="font-family:var(--np-font-heading,'Playfair Display',Georgia,serif);font-weight:700;font-size:15px;color:var(--np-text,#1a1a1a)"
+    >
+      Công việc của tôi
+      <button
+        id="refresh-tasks-btn"
+        class="text-sm hover:rotate-180 transition-transform duration-300"
+        style="color:var(--np-accent,#8b0000)"
+        title="Làm mới"
+      >
+        Tải lại
+      </button>
+    </h3>
+    <p class="text-xs mt-1" style="color:var(--np-text-muted,#6b5f4a);font-family:var(--np-font-body,'Merriweather',serif)">Kéo thả vào lịch để lên kế hoạch</p>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-4" id="task-list">
+    <div class="text-center text-gray-500 py-8" id="empty-tasks">
+      <div class="animate-pulse">Đang tải công việc...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    console.log(" Calendar sidebar loaded");
+
+    window.loadUserTasks = async function (forceRefresh = false) {
+      console.log(
+        "🔄 Loading user tasks for sidebar...",
+        forceRefresh ? "(force refresh)" : ""
+      );
+
+      const container = document.getElementById("task-list");
+      if (!container) {
+        console.error(" Task list container not found");
+        return;
+      }
+
+      try {
+        container.innerHTML = `
+      <div class="text-center py-8">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p class="mt-2 text-gray-500">Đang tải công việc...</p>
+      </div>
+    `;
+
+        const url = forceRefresh ? `/api/tasks?t=${Date.now()}` : "/api/tasks";
+
+        const result = await Utils.makeRequest(url, "GET");
+
+        if (!result.success) {
+          throw new Error(result.message || "Lỗi tải công việc");
+        }
+
+        const allTasks = result.data || [];
+        console.log(` Loaded ${allTasks.length} tasks from API`);
+
+        const pendingTasks = allTasks.filter((task) => {
+          const status =
+            task.TrangThaiThucHien || task.Status || task.DaHoanThanh || 0;
+          return status !== 2 && status !== "completed" && status !== "done";
+        });
+
+        console.log(` Pending tasks: ${pendingTasks.length}`);
+
+        container.innerHTML = "";
+
+        if (pendingTasks.length === 0) {
+          container.innerHTML = `
+        <div class="text-center text-gray-500 py-8">
+          <p class="font-medium">Không có công việc nào</p>
+          <p class="text-sm mt-1">Chuyển sang tab "Công việc" để tạo mới</p>
+        </div>`;
+          return;
+        }
+
+        //  HELPER: Hàm lấy màu theo độ ưu tiên
+        const getPriorityColor = (priority) => {
+          const colors = {
+            1: "#34D399", // Xanh lá - Low
+            2: "#60A5FA", // Xanh dương - Normal
+            3: "#FBBF24", // Vàng - High
+            4: "#F87171", // Đỏ - Urgent
+          };
+          return colors[priority] || "#60A5FA"; // Mặc định Normal (2)
+        };
+
+        // Render từng task (giữ nguyên phần render)
+        pendingTasks.forEach((task, index) => {
+          const taskId = task.MaCongViec || task.ID || task.id;
+          const title = task.TieuDe || task.Title || `Công việc ${index + 1}`;
+          const description = task.MoTa || task.Description || "";
+          const priority = parseInt(task.MucDoUuTien || task.Priority || 2);
+          const color = getPriorityColor(priority); //  Lấy màu từ priority thay vì MauSac
+          const tag = task.Tag || task.Category || "";
+
+          const taskElement = document.createElement("div");
+          taskElement.className =
+            "task-item mb-1.5 rounded-lg bg-white border border-gray-200 cursor-move transition-all";
+          taskElement.style.borderLeft = `4px solid ${color}`;
+          taskElement.style.background = `linear-gradient(135deg, ${color}15, ${color}08)`;
+          taskElement.draggable = true;
+
+          taskElement.dataset.taskId = taskId;
+          taskElement.dataset.taskTitle = title;
+          taskElement.dataset.taskDescription = description;
+          taskElement.dataset.taskColor = color;
+          taskElement.dataset.taskPriority = priority;
+          taskElement.dataset.taskDuration = task.ThoiGianUocTinh || 60; // Thêm độ dài ước tính (phút)
+          taskElement.dataset.dragInitialized = "true";
+
+          taskElement.innerHTML = `
+    <div class="flex items-center gap-2">
+      <div class="text-gray-300 flex-shrink-0" style="font-size:10px;letter-spacing:1px" aria-hidden="true"></div>
+      <div class="flex-1 min-w-0">
+        <div class="font-medium text-gray-800 truncate text-xs leading-snug">${title}</div>
+        ${tag ? `<span class="text-gray-400 text-xs">${tag}</span>` : '<span class="text-gray-400 text-xs">Kéo vào lịch</span>'}
+      </div>
+    </div>
+  `;
+
+          taskElement.addEventListener("dragstart", (e) => {
+            console.log(
+              `🎯 Drag start: ${title} (ID: ${taskId}, Priority: ${priority}, Duration: ${task.ThoiGianUocTinh}min, Color: ${color})`
+            );
+            e.dataTransfer.setData("text/plain", taskId.toString());
+            e.dataTransfer.setData(
+              "application/json",
+              JSON.stringify({
+                taskId,
+                title,
+                color,
+                description,
+                priority,
+                duration: task.ThoiGianUocTinh || 60,
+              })
+            );
+            e.dataTransfer.effectAllowed = "move";
+            taskElement.classList.add("opacity-50", "bg-blue-50");
+          });
+
+          taskElement.addEventListener("dragend", () => {
+            console.log("🔄 Drag ended");
+            taskElement.classList.remove("opacity-50", "bg-blue-50");
+          });
+
+          container.appendChild(taskElement);
+        });
+
+        console.log(` Rendered ${pendingTasks.length} tasks in sidebar`);
+
+        enhanceDragAndDrop();
+
+        setTimeout(() => {
+          if (
+            window.CalendarModule &&
+            typeof CalendarModule.setupExternalDraggable === "function"
+          ) {
+            console.log("Re-setup external draggable after task reload");
+            CalendarModule.setupExternalDraggable();
+          }
+          if (
+            window.CalendarModule &&
+            typeof CalendarModule.setupNativeDragDrop === "function"
+          ) {
+            CalendarModule.setupNativeDragDrop();
+          }
+        }, 200);
+      } catch (error) {
+        console.error(" Error loading tasks in sidebar:", error);
+
+        const container = document.getElementById("task-list");
+        if (container) {
+          container.innerHTML = `
+        <div class="text-center text-red-600 py-8">
+          <p class="font-medium">Lỗi tải công việc</p>
+          <p class="text-sm mt-1">${error.message || "Không thể kết nối"}</p>
+          <button onclick="window.loadUserTasks(true)"
+                  class="mt-3 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium">
+            Thử lại
+          </button>
+        </div>`;
+        }
+      }
+    };
+
+    window.setupTaskEventListeners = function () {
+      console.log(" Setting up global task event listeners");
+
+      window.addEventListener("storage", function (e) {
+        if (
+          e.key === "task-updated" ||
+          e.key === "task-created" ||
+          e.key === "task-deleted"
+        ) {
+          console.log("📢 Storage event detected:", e.key);
+          setTimeout(() => window.loadUserTasks(true), 1000);
+        }
+      });
+
+      document.addEventListener("task-changed", function (e) {
+        console.log("📢 Custom task-changed event received:", e.detail);
+        setTimeout(() => window.loadUserTasks(true), 1000);
+      });
+
+      document.addEventListener("taskCreated", function () {
+        console.log("📢 Task created → force reload sidebar");
+        setTimeout(() => window.loadUserTasks(true), 1000);
+      });
+
+      window.addEventListener("message", function (e) {
+        if (e.data && e.data.type === "task-update") {
+          console.log("📢 Message event received:", e.data.type);
+          setTimeout(() => window.loadUserTasks(true), 1000);
+        }
+      });
+
+      // Removed aggressive 3-second polling that re-fetched on every count change.
+      // Tasks reload via: taskCreated/task-changed events + section-changed event + manual refresh btn.
+      // A slow 5-minute background refresh handles stale data without hammering the API.
+      setInterval(() => {
+        if (document.getElementById("calendar-sidebar")?.offsetParent !== null) {
+          window.loadUserTasks();
+        }
+      }, 5 * 60 * 1000);
+
+      document.addEventListener("section-changed", (e) => {
+        if (e.detail?.section === "schedule") {
+          console.log("Switched to Schedule tab → reload sidebar tasks");
+          setTimeout(() => window.loadUserTasks(true), 500);
+        }
+      });
+    };
+  })();
+
+  function enhanceDragAndDrop() {
+    console.log(" Enhancing drag and drop for tasks...");
+    const taskItems = document.querySelectorAll(".task-item");
+    taskItems.forEach((item) => {
+      if (item.dataset.dragInitialized !== "true") {
+        item.addEventListener("dragstart", handleDragStart);
+        item.addEventListener("dragend", handleDragEnd);
+        item.dataset.dragInitialized = "true";
+        console.log(` Drag enabled for task: ${item.dataset.taskTitle}`);
+      }
+    });
+  }
+
+  (function initSidebar() {
+    console.log(" Calendar sidebar loaded - Initializing tasks...");
+    setTimeout(() => {
+      if (typeof window.loadUserTasks === "function") {
+        console.log("🔄 Auto-loading tasks for sidebar...");
+        window.loadUserTasks();
+        if (typeof window.setupTaskEventListeners === "function") {
+          window.setupTaskEventListeners();
+        }
+      } else {
+        console.error(" loadUserTasks function not found!");
+        const taskList = document.getElementById("task-list");
+        if (taskList) {
+          taskList.innerHTML = `
+        <div class="text-red-600 text-center py-4">
+          <p>Lỗi khởi tạo sidebar</p>
+          <button onclick="location.reload()" class="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 rounded text-sm">
+            Tải lại
+          </button>
+        </div>`;
+        }
+      }
+    }, 1000);
+  })();
+
+  window.triggerSidebarRefresh = function () {
+    console.log("📢 Manual sidebar refresh triggered");
+
+    localStorage.setItem("task-updated", Date.now().toString());
+    setTimeout(() => {
+      localStorage.removeItem("task-updated");
+    }, 100);
+
+    setTimeout(() => {
+      if (window.loadUserTasks) {
+        window.loadUserTasks(true);
+      }
+    }, 200);
+  };
+
+  function handleDragStart(e) {
+    const taskId = this.dataset.taskId;
+    const taskTitle = this.dataset.taskTitle || "Công việc";
+    const priority = parseInt(this.dataset.taskPriority) || 2; //  Lấy priority
+
+    const dragPreview = this.cloneNode(true);
+    dragPreview.classList.add("task-item-drag-preview");
+    dragPreview.style.width = `${this.offsetWidth}px`;
+    document.body.appendChild(dragPreview);
+
+    e.dataTransfer.setDragImage(dragPreview, 20, 20);
+
+    e.dataTransfer.setData("text/plain", taskId);
+    e.dataTransfer.setData(
+      "application/json",
+      JSON.stringify({
+        taskId: taskId,
+        title: taskTitle,
+        color: this.dataset.taskColor || "#3B82F6",
+        description: this.dataset.taskDescription || "",
+        priority: priority, //  Thêm priority
+      })
+    );
+    e.dataTransfer.effectAllowed = "move";
+
+    this.classList.add("dragging", "dragging-task");
+
+    setTimeout(() => {
+      if (dragPreview.parentNode) {
+        dragPreview.parentNode.removeChild(dragPreview);
+      }
+    }, 0);
+
+    console.log(`🎯 Bắt đầu kéo: "${taskTitle}" (Priority: ${priority})`);
+
+    if (window.Utils && Utils.showToast) {
+      Utils.showToast(`📤 Đang kéo: "${taskTitle}"`, "info");
+    }
+  }
+
+  function handleDragEnd() {
+    this.classList.remove("dragging", "dragging-task");
+
+    document.querySelectorAll(".task-item-drag-preview").forEach((el) => {
+      el.parentNode?.removeChild(el);
+    });
+
+    console.log("🔄 Kết thúc kéo");
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const refreshBtn = document.getElementById("refresh-tasks-btn");
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", () => {
+        refreshBtn.classList.add("animate-spin");
+        if (window.loadUserTasks) {
+          window.loadUserTasks(true).finally(() => {
+            setTimeout(() => {
+              refreshBtn.classList.remove("animate-spin");
+            }, 500);
+          });
+        }
+      });
+    }
+
+    // Background refresh handled by 5-min interval in setupTaskEventListeners
+  });
+
+  // updateUserInfo is defined in sidebar.html — only assign if available
+  if (typeof updateUserInfo === 'function') {
+    window.updateSidebarUser = updateUserInfo;
+  }
+
+  window.reloadWorkData = function () {
+    console.log("🔄 reloadWorkData called from sidebar");
+    if (window.WorkManager && typeof WorkManager.loadTasks === "function") {
+      WorkManager.loadTasks();
+    }
+    if (window.loadUserTasks) {
+      window.loadUserTasks();
+    }
+  };
+
+  document.addEventListener("taskCreated", () => {
+    console.log("Task created → force reload sidebar");
+    setTimeout(() => window.loadUserTasks(true), 400);
+  });
+
+  const originalLoadUserTasks = window.loadUserTasks;
+  window.loadUserTasks = async function (forceRefresh = false) {
+    await originalLoadUserTasks(forceRefresh);
+
+    setTimeout(() => {
+      {
+        if (
+          window.CalendarModule &&
+          typeof CalendarModule.setupExternalDraggable === "function"
+        ) {
+          console.log("Re-setup external draggable after task reload");
+          CalendarModule.setupExternalDraggable();
+        }
+
+        if (
+          window.CalendarModule &&
+          typeof CalendarModule.setupNativeDragDrop === "function"
+        ) {
+          CalendarModule.setupNativeDragDrop();
+        }
+      }
+    }, 200);
+  };
+
+  document.addEventListener("section-changed", (e) => {
+    if (e.detail?.section === "schedule") {
+      console.log("Switched to Schedule tab → reload sidebar tasks");
+      setTimeout(() => window.loadUserTasks(true), 500);
+    }
+  });
+
+  console.log("FIXED: Sidebar auto-reload + drag-to-calendar restored");
+</script>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  #calendar-sidebar {
+    background: var(--np-bg-card, #faf7f2);
+    transition: background 0.3s ease;
+  }
+
+  #calendar-sidebar h3 + p {
+    font-size: 12px;
+    letter-spacing: 0.3px;
+  }
+
+  #refresh-tasks-btn {
+    background: transparent;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    color: #64748b;
+  }
+
+  #refresh-tasks-btn:hover {
+    background: #f1f5f9;
+    border-color: #3b82f6;
+    color: #3b82f6;
+  }
+
+  #refresh-tasks-btn.animate-spin {
+    animation: spin-once 0.6s ease;
+  }
+
+  @keyframes spin-once {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  #task-list {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 200px;
+  }
+
+  .task-item {
+    background: var(--np-bg, #f4efe6);
+    border-radius: var(--np-radius, 2px);
+    padding: 7px 10px;
+    border: 1px solid var(--np-border-muted, #c8b99a);
+    box-shadow: none;
+    transition: all 0.15s ease;
+    cursor: grab;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .task-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.05) 0%,
+      transparent 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .task-item:hover {
+    transform: translateX(2px);
+    box-shadow: var(--np-shadow-sm, 2px 2px 0 #1a1a1a);
+    border-color: var(--np-border, #1a1a1a);
+  }
+
+  .task-item:hover::before {
+    opacity: 1;
+  }
+
+  .task-item:hover .drag-handle {
+    color: #3b82f6;
+    transform: scale(1.1);
+  }
+
+  .task-item:active {
+    cursor: grabbing;
+    transform: translateY(-1px) scale(0.995);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .task-item.dragging-task {
+    opacity: 0.6;
+    transform: scale(0.98);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    border-style: dashed;
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  }
+
+  .task-item {
+    border-left-width: 3px;
+    border-left-style: solid;
+  }
+
+  .task-item .font-medium {
+    color: var(--np-text, #1a1a1a);
+    font-family: var(--np-font-body, 'Merriweather', serif);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .task-item .text-gray-400 {
+    font-size: 10px;
+    color: var(--np-text-muted, #6b5f4a);
+    font-family: var(--np-font-ui, 'Inter', system-ui, sans-serif);
+  }
+
+  .task-item .drag-handle {
+    color: var(--np-border-muted, #c8b99a);
+    font-size: 10px;
+  }
+
+  #task-list .text-center {
+    padding: 60px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+  }
+
+  /* FA icon classes removed — no longer used */
+
+  #task-list .text-center p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 4px 0;
+  }
+
+  #task-list .text-center .text-xs {
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  #task-list .animate-pulse {
+    padding: 60px 20px;
+    text-align: center;
+  }
+
+  #task-list .animate-pulse .inline-block {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: pulse-spin 1s linear infinite;
+  }
+
+  @keyframes pulse-spin {
+    0% {
+      transform: rotate(0deg);
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: rotate(360deg);
+      opacity: 0.5;
+    }
+  }
+
+  #task-list .animate-pulse p {
+    margin-top: 12px;
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  #task-list .text-red-600 {
+    padding: 40px 20px;
+    text-align: center;
+    background: #fef2f2;
+    border-radius: 12px;
+    margin: 8px;
+  }
+
+  /* .fas removed — no longer used */
+
+  #task-list .text-red-600 p {
+    color: #dc2626;
+    font-size: 14px;
+    margin: 8px 0;
+  }
+
+  #task-list .text-red-600 button {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 12px;
+    transition: all 0.2s;
+  }
+
+  #task-list .text-red-600 button:hover {
+    background: #fecaca;
+    transform: translateY(-1px);
+  }
+
+  .task-priority-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px white;
+  }
+
+  .task-priority-badge.priority-high {
+    background: #ef4444;
+    box-shadow: 0 0 0 2px white, 0 0 6px #ef4444;
+  }
+
+  .task-priority-badge.priority-medium {
+    background: #f59e0b;
+    box-shadow: 0 0 0 2px white, 0 0 6px #f59e0b;
+  }
+
+  .task-priority-badge.priority-low {
+    background: #10b981;
+    box-shadow: 0 0 0 2px white, 0 0 6px #10b981;
+  }
+
+  .task-time-estimate {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f0f9ff;
+    color: #0369a1;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-right: 8px;
+  }
+
+  .task-time-estimate i {
+    font-size: 10px;
+  }
+
+  .task-item:hover .font-medium {
+    color: var(--np-accent, #8b0000);
+  }
+
+  #task-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #task-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+
+  #task-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+    transition: background 0.2s;
+  }
+
+  #task-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  @media (max-width: 1024px) {
+    #calendar-sidebar {
+      width: 300px;
+    }
+
+    .task-item {
+      padding: 14px;
+    }
+
+    .task-item .font-medium {
+      font-size: 13px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #calendar-sidebar {
+      width: 280px;
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      z-index: 100;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    #calendar-sidebar.sidebar-open {
+      transform: translateX(0);
+    }
+
+    .task-item {
+      padding: 12px;
+    }
+
+    #task-list {
+      padding: 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    #calendar-sidebar {
+      width: 260px;
+    }
+
+    .task-item .font-medium {
+      font-size: 12px;
+    }
+
+    .task-item .text-sm {
+      font-size: 11px;
+    }
+  }
+
+  @keyframes taskSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .task-item {
+    animation: taskSlideIn 0.3s ease-out;
+  }
+
+  @keyframes taskSlideOut {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+      max-height: 200px;
+    }
+    to {
+      opacity: 0;
+      transform: translateX(20px);
+      max-height: 0;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  .task-item.task-removing {
+    animation: taskSlideOut 0.3s ease-in forwards;
+  }
+
+  .task-item.category-work {
+    border-left-color: #3b82f6;
+  }
+
+  .task-item.category-personal {
+    border-left-color: #10b981;
+  }
+
+  .task-item.category-meeting {
+    border-left-color: #8b5cf6;
+  }
+
+  .task-item.category-study {
+    border-left-color: #f59e0b;
+  }
+
+  .task-item.category-other {
+    border-left-color: #94a3b8;
+  }
+
+  .task-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+  }
+
+  .task-status-dot.pending {
+    background: #f59e0b;
+    box-shadow: 0 0 4px #f59e0b;
+  }
+
+  .task-status-dot.in-progress {
+    background: #3b82f6;
+    box-shadow: 0 0 4px #3b82f6;
+  }
+
+  .task-status-dot.completed {
+    background: #10b981;
+    box-shadow: 0 0 4px #10b981;
+  }
+
+  .task-item-drag-preview {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    background: white;
+    border-radius: 8px;
+    padding: 7px 10px;
+    border: 2px dashed #3b82f6;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+    opacity: 0.9;
+    transform: rotate(1deg);
+  }
+
+  .task-item.dragging {
+    position: relative;
+  }
+
+  .task-item.dragging::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.1) 0%,
+      transparent 100%
+    );
+    border-radius: 12px;
+    pointer-events: none;
+  }
+
+  .task-item {
+    transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  }
+  #calendar-sidebar {
+    transition: background 0.3s ease;
+  }
+
+  @keyframes subtlePulse {
+    0%,
+    100% {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03), 0 0 0 0 rgba(59, 130, 246, 0.3);
+    }
+    50% {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03), 0 0 0 6px rgba(59, 130, 246, 0);
+    }
+  }
+
+  .task-item.new-task {
+    animation: subtlePulse 1.5s ease-in-out 2;
+  }
+
+  #task-list:empty {
+    background-image: radial-gradient(
+        circle at 25% 25%,
+        rgba(203, 213, 225, 0.3) 2px,
+        transparent 2px
+      ),
+      radial-gradient(
+        circle at 75% 75%,
+        rgba(203, 213, 225, 0.3) 2px,
+        transparent 2px
+      );
+    background-size: 40px 40px;
+    background-position: 0 0, 20px 20px;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar-toggle-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 99;
+      width: 56px;
+      height: 56px;
+      background: #3b82f6;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-toggle-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+
+    .sidebar-toggle-btn i {
+      font-size: 20px;
+    }
+  }
+</style>

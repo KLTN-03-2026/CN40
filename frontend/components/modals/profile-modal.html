@@ -1,0 +1,700 @@
+<div id="profileModal" class="modal hidden">
+  <div class="np-card" id="profileModalCard" style="
+    width: 100%;
+    max-width: 640px;
+    margin: 2rem auto;
+    position: relative;
+    border-radius: var(--np-radius);
+    overflow: hidden;
+  ">
+    <!-- Header -->
+    <div style="
+      border-bottom: 3px double var(--np-border);
+      padding: 1.25rem 1.5rem 1rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    ">
+      <div>
+        <p class="np-label" style="margin-bottom: 0.25rem;">Tòa soạn &mdash; Nhân sự</p>
+        <h2 class="np-h2" style="margin: 0; line-height: 1.1;">H&#7891; S&#417;</h2>
+      </div>
+      <button
+        id="closeProfileModal"
+        data-close-modal="profileModal"
+        aria-label="Đóng"
+        style="
+          background: none;
+          border: 1.5px solid var(--np-border);
+          border-radius: var(--np-radius);
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: var(--np-text);
+          flex-shrink: 0;
+          box-shadow: var(--np-shadow-sm);
+          font-size: 1rem;
+          line-height: 1;
+        "
+      >&times;</button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 1.5rem; max-height: calc(100vh - 260px); overflow-y: auto;">
+      <form id="profileForm" novalidate>
+
+        <!-- Avatar section -->
+        <div style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.75rem;
+          padding-bottom: 1.25rem;
+          margin-bottom: 1.25rem;
+          border-bottom: 1px solid var(--np-border-muted);
+        ">
+          <!-- Avatar container: square, newspaper portrait style -->
+          <div style="position: relative; display: inline-block;">
+            <div
+              id="profileAvatar"
+              style="
+                width: 120px;
+                height: 120px;
+                border-radius: var(--np-radius);
+                background: linear-gradient(135deg, var(--np-accent), #a31212);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                font-family: var(--np-font-heading);
+                font-size: 2.5rem;
+                font-weight: 700;
+                border: 2px solid var(--np-border);
+                box-shadow: var(--np-shadow);
+                overflow: hidden;
+                cursor: pointer;
+                position: relative;
+              "
+            >
+              <!-- Letter fallback -->
+              <span id="avatarLetter" style="position: relative; z-index: 1;">?</span>
+              <!-- Actual avatar image (hidden until loaded) -->
+              <img
+                id="avatarImg"
+                src=""
+                alt=""
+                style="
+                  position: absolute;
+                  inset: 0;
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  display: none;
+                  z-index: 2;
+                "
+              />
+              <!-- Upload overlay on hover -->
+              <div id="avatarOverlay" style="
+                position: absolute;
+                inset: 0;
+                background: rgba(0,0,0,0.5);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 3;
+                cursor: pointer;
+              ">
+                <span style="color: #fff; font-family: var(--np-font-ui); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; text-align: center; padding: 0 0.5rem;">&#272;&#7893;i &#7843;nh</span>
+              </div>
+              <!-- Upload spinner -->
+              <div id="avatarSpinner" style="
+                position: absolute;
+                inset: 0;
+                background: rgba(0,0,0,0.6);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 4;
+              ">
+                <div style="
+                  width: 28px; height: 28px;
+                  border: 3px solid rgba(255,255,255,0.3);
+                  border-top-color: #fff;
+                  border-radius: 50%;
+                  animation: np-spin 0.7s linear infinite;
+                "></div>
+              </div>
+            </div>
+            <!-- Hidden file input -->
+            <input
+              type="file"
+              id="avatarInput"
+              accept="image/jpeg,image/png,image/webp"
+              style="display: none;"
+            />
+          </div>
+          <p class="np-label" style="font-size: 0.65rem;">Nh&#7845;p v&#224;o &#7843;nh &#273;&#7875; thay &#273;&#7893;i &mdash; t&#7889;i &#273;a 2MB</p>
+        </div>
+
+        <!-- Form fields: 2-col on desktop -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem 1.5rem;">
+
+          <!-- Họ Tên -->
+          <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+            <label class="np-label" for="fullName">H&#7885; T&#234;n <span style="color: var(--np-accent);">*</span></label>
+            <input
+              type="text"
+              id="fullName"
+              name="hoten"
+              class="np-input"
+              placeholder="Nguy&#7877;n V&#259;n A"
+              required
+              autocomplete="name"
+            />
+          </div>
+
+          <!-- Tên đăng nhập -->
+          <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+            <label class="np-label" for="username">T&#234;n &#273;&#259;ng nh&#7853;p</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              class="np-input"
+              placeholder="username"
+              disabled
+              style="opacity: 0.5; cursor: not-allowed;"
+              autocomplete="username"
+            />
+          </div>
+
+          <!-- Email -->
+          <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+            <label class="np-label" for="email">Email <span style="color: var(--np-accent);">*</span></label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="np-input"
+              placeholder="email@example.com"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <!-- Số điện thoại -->
+          <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+            <label class="np-label" for="phone">S&#7889; &#273;i&#7879;n tho&#7841;i</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              class="np-input"
+              placeholder="0912 345 678"
+              autocomplete="tel"
+            />
+          </div>
+
+          <!-- Mật khẩu (full width) -->
+          <div style="display: flex; flex-direction: column; gap: 0.3rem; grid-column: 1 / -1;">
+            <label class="np-label" for="password">M&#7853;t kh&#7849;u m&#7899;i</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="np-input"
+              placeholder="&#272;&#7875; tr&#7889;ng n&#7871;u kh&#244;ng thay &#273;&#7893;i"
+              autocomplete="new-password"
+            />
+          </div>
+
+        </div>
+
+        <!-- Status message -->
+        <div
+          id="profileStatusMessage"
+          style="display: none; margin-top: 1rem; padding: 0.6rem 0.9rem; border-left: 3px solid var(--np-accent); font-family: var(--np-font-ui); font-size: 0.8125rem;"
+        ></div>
+
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div style="
+      border-top: 1px solid var(--np-border-muted);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      background: var(--np-bg);
+    ">
+      <button
+        type="button"
+        id="cancelProfileBtn"
+        data-close-modal="profileModal"
+        class="np-button"
+      >H&#7911;y</button>
+      <button
+        type="button"
+        id="saveProfileBtn"
+        class="np-button np-button--primary"
+      >L&#432;u thay &#273;&#7893;i</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ===== Profile Modal overlay ===== */
+  #profileModal {
+    z-index: 10100 !important;
+    position: fixed !important;
+    inset: 0 !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    backdrop-filter: blur(3px) !important;
+    padding: 1rem;
+  }
+
+  #profileModal.show,
+  #profileModal.active {
+    display: flex !important;
+  }
+
+  #profileModal.hidden {
+    display: none !important;
+  }
+
+  /* Avatar hover: show overlay */
+  #profileAvatar:hover #avatarOverlay {
+    display: flex !important;
+  }
+
+  /* Spin animation for upload spinner */
+  @keyframes np-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Responsive: 1-col on small screens */
+  @media (max-width: 520px) {
+    #profileForm > div[style*="grid-template-columns"] {
+      grid-template-columns: 1fr !important;
+    }
+    #profileForm > div[style*="grid-template-columns"] > div[style*="grid-column"] {
+      grid-column: 1 !important;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    "use strict";
+
+    // ============ Avatar upload helpers ============
+
+    function getAvatarElements() {
+      return {
+        avatarEl: document.getElementById("profileAvatar"),
+        letterEl: document.getElementById("avatarLetter"),
+        imgEl:    document.getElementById("avatarImg"),
+        spinner:  document.getElementById("avatarSpinner"),
+        input:    document.getElementById("avatarInput"),
+      };
+    }
+
+    /**
+     * Display avatar: if url is a data URL or http(s) URL → show image.
+     * Otherwise show first letter of name.
+     */
+    function renderAvatar(avatarUrl, name) {
+      const { letterEl, imgEl } = getAvatarElements();
+      if (!letterEl || !imgEl) return;
+
+      if (avatarUrl && (avatarUrl.startsWith("data:") || avatarUrl.startsWith("http"))) {
+        imgEl.src = avatarUrl;
+        imgEl.style.display = "block";
+        letterEl.style.display = "none";
+      } else {
+        imgEl.src = "";
+        imgEl.style.display = "none";
+        letterEl.style.display = "";
+        letterEl.textContent = (name || "?").charAt(0).toUpperCase();
+      }
+    }
+
+    /**
+     * Also update sidebar avatar elements (img + letter spans).
+     */
+    function updateSidebarAvatar(avatarUrl, name) {
+      // Update letter spans
+      document.querySelectorAll(".avatar-letter").forEach((el) => {
+        el.textContent = (name || "?").charAt(0).toUpperCase();
+      });
+
+      // If sidebar has an img.avatar-img element, update it
+      document.querySelectorAll(".avatar-img").forEach((img) => {
+        if (avatarUrl && (avatarUrl.startsWith("data:") || avatarUrl.startsWith("http"))) {
+          img.src = avatarUrl;
+          img.style.display = "block";
+          // Hide sibling letter span
+          const letter = img.parentElement.querySelector(".avatar-letter");
+          if (letter) letter.style.display = "none";
+        } else {
+          img.style.display = "none";
+          const letter = img.parentElement.querySelector(".avatar-letter");
+          if (letter) letter.style.display = "";
+        }
+      });
+    }
+
+    // ============ Avatar click → file picker ============
+    function bindAvatarClick() {
+      const { avatarEl, input } = getAvatarElements();
+      if (!avatarEl || !input) return;
+
+      avatarEl.addEventListener("click", () => input.click());
+
+      input.addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate type
+        const allowed = ["image/jpeg", "image/png", "image/webp"];
+        if (!allowed.includes(file.type)) {
+          showProfileStatus("Chỉ chấp nhận JPG, PNG, WebP", "error");
+          input.value = "";
+          return;
+        }
+
+        // Validate size (2 MB)
+        if (file.size > 2 * 1024 * 1024) {
+          showProfileStatus("Ảnh quá lớn! Tối đa 2MB", "error");
+          input.value = "";
+          return;
+        }
+
+        // Preview immediately via FileReader
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          const dataUrl = ev.target.result;
+          // Show preview right away
+          renderAvatar(dataUrl, getCurrentUserName());
+
+          // Upload to backend
+          await uploadAvatarToBackend(dataUrl);
+        };
+        reader.readAsDataURL(file);
+
+        // Reset input so same file can be selected again
+        input.value = "";
+      });
+    }
+
+    function getCurrentUserName() {
+      try {
+        const u = JSON.parse(localStorage.getItem("user_data") || "{}");
+        return u.hoten || u.username || "?";
+      } catch {
+        return "?";
+      }
+    }
+
+    async function uploadAvatarToBackend(dataUrl) {
+      const { spinner } = getAvatarElements();
+
+      // Get userId
+      let userId = null;
+      try {
+        const u = JSON.parse(localStorage.getItem("user_data") || "{}");
+        userId = u.id || u.UserID || u.userid || u.userId;
+      } catch {
+        // ignore
+      }
+
+      if (!userId) {
+        showProfileStatus("Không tìm thấy ID người dùng", "error");
+        return;
+      }
+
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        showProfileStatus("Chưa đăng nhập", "error");
+        return;
+      }
+
+      // Show spinner
+      if (spinner) spinner.style.display = "flex";
+
+      try {
+        const res = await fetch(`/api/users/${userId}/avatar`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ imageBase64: dataUrl }),
+        });
+
+        const json = await res.json();
+
+        if (!res.ok) {
+          throw new Error(json.message || `HTTP ${res.status}`);
+        }
+
+        // Persist in localStorage
+        try {
+          const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
+          userData.avatarUrl = json.avatarUrl || dataUrl;
+          localStorage.setItem("user_data", JSON.stringify(userData));
+
+          // Update sidebar
+          const name = userData.hoten || userData.username || "?";
+          updateSidebarAvatar(userData.avatarUrl, name);
+
+          // Also call global updateSidebarUser if available
+          if (window.updateSidebarUser) {
+            window.updateSidebarUser(userData);
+          }
+        } catch {
+          // ignore parse error
+        }
+
+        showProfileStatus("Ảnh đại diện được cập nhật!", "success");
+      } catch (err) {
+        showProfileStatus(`Lỗi upload ảnh: ${err.message}`, "error");
+        // Revert preview to previously saved avatar
+        try {
+          const u = JSON.parse(localStorage.getItem("user_data") || "{}");
+          renderAvatar(u.avatarUrl || null, u.hoten || u.username || "?");
+        } catch {
+          // ignore
+        }
+      } finally {
+        if (spinner) spinner.style.display = "none";
+      }
+    }
+
+    // ============ Status message ============
+    function showProfileStatus(msg, type) {
+      const el = document.getElementById("profileStatusMessage");
+      if (!el) return;
+
+      el.textContent = msg;
+      el.style.display = "block";
+
+      // Color coding via border-left
+      if (type === "error") {
+        el.style.borderLeftColor = "#c0392b";
+        el.style.color = "#c0392b";
+      } else if (type === "success") {
+        el.style.borderLeftColor = "#27ae60";
+        el.style.color = "#27ae60";
+      } else {
+        el.style.borderLeftColor = "var(--np-accent)";
+        el.style.color = "var(--np-text)";
+      }
+
+      clearTimeout(el._hideTimer);
+      el._hideTimer = setTimeout(() => {
+        el.style.display = "none";
+      }, 5000);
+    }
+
+    // ============ Close helpers ============
+    function closeProfileModal() {
+      if (window.ModalManager && window.ModalManager.close) {
+        window.ModalManager.close("profileModal");
+      } else {
+        const m = document.getElementById("profileModal");
+        if (m) {
+          m.classList.add("hidden");
+          m.classList.remove("active", "show");
+          m.style.display = "none";
+          document.body.style.overflow = "";
+        }
+      }
+    }
+
+    // ============ Bind close controls ============
+    function bindCloseControls() {
+      // X button
+      const closeBtn = document.getElementById("closeProfileModal");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeProfileModal();
+        });
+      }
+
+      // Cancel button
+      const cancelBtn = document.getElementById("cancelProfileBtn");
+      if (cancelBtn) {
+        cancelBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeProfileModal();
+        });
+      }
+
+      // Backdrop click
+      const modal = document.getElementById("profileModal");
+      if (modal) {
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeProfileModal();
+        });
+      }
+
+      // ESC key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          const modal = document.getElementById("profileModal");
+          if (modal && (modal.classList.contains("show") || modal.classList.contains("active"))) {
+            closeProfileModal();
+          }
+        }
+      });
+    }
+
+    // ============ Save profile ============
+    async function bindSaveProfile() {
+      const saveBtn = document.getElementById("saveProfileBtn");
+      if (!saveBtn) return;
+
+      saveBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (window.ProfileManager && window.ProfileManager.saveProfile) {
+          await window.ProfileManager.saveProfile();
+          return;
+        }
+
+        // Fallback inline save if ProfileManager not ready
+        await inlineSaveProfile();
+      });
+    }
+
+    async function inlineSaveProfile() {
+      const form = document.getElementById("profileForm");
+      if (!form) return;
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      let userId = null;
+      let userData = {};
+      try {
+        userData = JSON.parse(localStorage.getItem("user_data") || "{}");
+        userId = userData.id || userData.UserID || userData.userid || userData.userId;
+      } catch {
+        // ignore
+      }
+
+      if (!userId) {
+        showProfileStatus("Không tìm thấy ID người dùng. Vui lòng đăng nhập lại.", "error");
+        return;
+      }
+
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        showProfileStatus("Chưa đăng nhập", "error");
+        return;
+      }
+
+      const formData = new FormData(form);
+      const payload = {
+        hoten: (formData.get("hoten") || "").trim(),
+        email: (formData.get("email") || "").trim(),
+        phone: (formData.get("phone") || "").trim() || null,
+      };
+
+      const password = (formData.get("password") || "").trim();
+      if (password) payload.password = password;
+
+      const saveBtn = document.getElementById("saveProfileBtn");
+      const origText = saveBtn ? saveBtn.textContent : "";
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Đang lưu..."; }
+
+      try {
+        const res = await fetch(`/api/users/${userId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.message || `HTTP ${res.status}`);
+
+        const newData = json.data || { ...userData, ...payload };
+        localStorage.setItem("user_data", JSON.stringify(newData));
+
+        if (window.updateSidebarUser) window.updateSidebarUser(newData);
+        if (window.App && window.App.updateUserInfo) window.App.updateUserInfo();
+
+        showProfileStatus("Cập nhật thành công!", "success");
+        setTimeout(() => closeProfileModal(), 1500);
+      } catch (err) {
+        showProfileStatus(`Lỗi: ${err.message}`, "error");
+      } finally {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = origText; }
+      }
+    }
+
+    // ============ Init on DOM ready ============
+    function init() {
+      const cancelBtn = document.getElementById("cancelProfileBtn");
+      if (!cancelBtn) {
+        // Modal not rendered yet — retry
+        setTimeout(init, 60);
+        return;
+      }
+
+      bindAvatarClick();
+      bindCloseControls();
+      bindSaveProfile();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+
+    // ============ Expose fillForm for ProfileManager ============
+    // ProfileManager calls fillFormWithUserData() which sets avatarUrl → call renderAvatar
+    // We intercept by patching after ProfileManager is ready
+    function patchProfileManagerAvatar() {
+      if (window.ProfileManager) {
+        const orig = window.ProfileManager.fillFormWithUserData.bind(window.ProfileManager);
+        window.ProfileManager.fillFormWithUserData = function () {
+          orig();
+          // After form fill, also render avatar image
+          const user = this.currentUser || {};
+          const avatarUrl = user.avatarUrl || user.AvatarUrl || null;
+          const name = user.hoten || user.username || "?";
+          renderAvatar(avatarUrl, name);
+        };
+      } else {
+        setTimeout(patchProfileManagerAvatar, 100);
+      }
+    }
+    patchProfileManagerAvatar();
+
+    // ============ Also expose renderAvatar globally for ProfileManager ============
+    window.ProfileModalRenderAvatar = renderAvatar;
+    window.ProfileModalUpdateSidebarAvatar = updateSidebarAvatar;
+    window.ProfileModalShowStatus = showProfileStatus;
+
+  })();
+</script>

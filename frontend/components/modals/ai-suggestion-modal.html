@@ -1,0 +1,332 @@
+<div id="aiSuggestionModal" class="modal hidden">
+  <div
+    class="modal-overlay"
+    onclick="ModalManager.hideModalById('aiSuggestionModal')"
+  ></div>
+
+  <div class="np-card ai-modal-np">
+    <!-- Header -->
+    <div class="ai-modal-np-header">
+      <div>
+        <h3 class="np-h2" style="margin:0">Tạo Lịch Trình Thông Minh</h3>
+        <span class="np-label" style="display:block;margin-top:0.2rem">AI sắp xếp công việc tối ưu cho bạn</span>
+      </div>
+      <button
+        class="ai-modal-np-close"
+        onclick="ModalManager.hideModalById('aiSuggestionModal')"
+        aria-label="Đóng"
+      >&#x2715;</button>
+    </div>
+
+    <hr class="np-divider" style="margin:0.75rem 0" />
+
+    <div class="ai-modal-np-body">
+      <form id="aiSuggestionForm">
+
+        <!-- Date range -->
+        <div class="ai-modal-np-section">
+          <span class="np-label ai-modal-np-section-label">Khoảng thời gian</span>
+          <div class="ai-modal-np-date-row">
+            <div class="ai-modal-np-field">
+              <label class="np-label" for="aiStartDate">Từ ngày</label>
+              <input type="date" id="aiStartDate" class="np-input" required />
+            </div>
+            <div class="ai-modal-np-field">
+              <label class="np-label" for="aiEndDate">Đến ngày</label>
+              <input type="date" id="aiEndDate" class="np-input" required />
+            </div>
+          </div>
+        </div>
+
+        <hr class="np-divider" />
+
+        <!-- Task list -->
+        <div class="ai-modal-np-section">
+          <div class="ai-modal-np-section-header">
+            <span class="np-label ai-modal-np-section-label">Chọn công việc</span>
+            <button type="button" class="np-button" id="selectAllTasksBtn" style="padding:0.2rem 0.6rem;font-size:0.7rem">
+              Chọn tất cả
+            </button>
+          </div>
+
+          <div class="task-list-container">
+            <div class="task-list" id="aiTaskList">
+              <div class="ai-modal-np-loading">
+                <div class="ai-modal-np-spinner"></div>
+                <p style="color:var(--np-text-muted);font-style:italic;font-size:0.85rem">Đang tải công việc...</p>
+              </div>
+            </div>
+            <div class="task-stats np-label" id="aiTaskStats" style="margin-top:0.5rem">
+              Đã chọn: <strong>0</strong> công việc
+            </div>
+          </div>
+        </div>
+
+        <hr class="np-divider" />
+
+        <!-- AI options -->
+        <div class="ai-modal-np-section">
+          <span class="np-label ai-modal-np-section-label">Tùy chọn AI</span>
+          <div class="ai-modal-np-options">
+
+            <label class="ai-modal-np-option">
+              <input type="checkbox" id="aiOptionAvoidConflict" checked />
+              <div class="ai-modal-np-option-text">
+                <strong>Tránh trùng lịch</strong>
+                <small>Không xếp vào khung giờ đã có</small>
+              </div>
+            </label>
+
+            <label class="ai-modal-np-option">
+              <input type="checkbox" id="aiOptionConsiderPriority" checked />
+              <div class="ai-modal-np-option-text">
+                <strong>Ưu tiên quan trọng</strong>
+                <small>Xếp việc quan trọng trước</small>
+              </div>
+            </label>
+
+            <label class="ai-modal-np-option">
+              <input type="checkbox" id="aiOptionBalanceWorkload" checked />
+              <div class="ai-modal-np-option-text">
+                <strong>Cân bằng khối lượng</strong>
+                <small>Phân đều công việc các ngày</small>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <hr class="np-divider" style="margin:0.75rem 0 0.5rem" />
+    <div class="ai-modal-np-footer">
+      <button
+        type="button"
+        class="np-button"
+        onclick="ModalManager.hideModalById('aiSuggestionModal')"
+      >
+        &#x2715; Đóng
+      </button>
+      <button
+        type="button"
+        class="np-button np-button--primary"
+        id="aiSubmitBtn"
+        onclick="if (window.AIHandler && AIHandler.handleFormSubmitAction) { AIHandler.handleFormSubmitAction(); }"
+      >
+        Tạo lịch trình
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ===== AI SUGGESTION MODAL — Newspaper style ===== */
+.ai-modal-np {
+  width: 560px;
+  max-width: 95vw;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* np-card already sets bg, border, shadow */
+}
+
+/* Remove np-card hover transform on modal */
+.ai-modal-np:hover {
+  transform: none !important;
+  box-shadow: var(--np-shadow) !important;
+}
+
+.ai-modal-np-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ai-modal-np-close {
+  background: transparent;
+  border: 1px solid var(--np-border-muted, #c8b99a);
+  border-radius: var(--np-radius, 2px);
+  color: var(--np-text-muted, #6b5f4a);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.ai-modal-np-close:hover {
+  background: var(--np-border-muted, #c8b99a);
+  border-color: var(--np-border, #1a1a1a);
+  color: var(--np-text, #1a1a1a);
+}
+
+.ai-modal-np-body {
+  flex: 1;
+}
+
+.ai-modal-np-section {
+  margin-bottom: 1rem;
+}
+
+.ai-modal-np-section-label {
+  display: block;
+  margin-bottom: 0.6rem;
+}
+
+.ai-modal-np-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.ai-modal-np-date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.ai-modal-np-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Loading */
+.ai-modal-np-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.ai-modal-np-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--np-border-muted, #c8b99a);
+  border-top-color: var(--np-accent, #8b0000);
+  border-radius: 50%;
+  animation: ai-np-modal-spin 0.8s linear infinite;
+}
+
+@keyframes ai-np-modal-spin { to { transform: rotate(360deg); } }
+
+/* Options grid */
+.ai-modal-np-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ai-modal-np-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--np-border-muted, #c8b99a);
+  border-radius: var(--np-radius, 2px);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.ai-modal-np-option:hover {
+  background: var(--np-bg, #f4efe6);
+}
+
+.ai-modal-np-option input[type="checkbox"] {
+  accent-color: var(--np-accent, #8b0000);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  width: 14px;
+  height: 14px;
+}
+
+.ai-modal-np-option-text strong {
+  display: block;
+  font-family: var(--np-font-ui, 'Inter', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--np-text, #1a1a1a);
+  margin-bottom: 0.1rem;
+}
+
+.ai-modal-np-option-text small {
+  font-family: var(--np-font-ui, 'Inter', sans-serif);
+  font-size: 0.72rem;
+  color: var(--np-text-muted, #6b5f4a);
+}
+
+/* Footer */
+.ai-modal-np-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+/* Dark mode */
+body.dark .ai-modal-np-option {
+  border-color: var(--np-border-muted, #3a3028);
+}
+body.dark .ai-modal-np-option:hover {
+  background: var(--np-bg, #1a1612);
+}
+body.dark .ai-modal-np-close {
+  border-color: var(--np-border-muted, #3a3028);
+  color: var(--np-text-muted, #8a7f6a);
+}
+body.dark .ai-modal-np-close:hover {
+  background: var(--np-border-muted, #3a3028);
+  color: var(--np-text, #e8e0d0);
+}
+
+/* Responsive */
+@media (max-width: 580px) {
+  .ai-modal-np { padding: 1rem; }
+  .ai-modal-np-date-row { grid-template-columns: 1fr; gap: 0.75rem; }
+}
+</style>
+
+<script>
+  console.log("AI Modal Script - Newspaper v3");
+
+  (function () {
+    async function initializeAIModal() {
+      try {
+        if (!window.AIHandler) {
+          await new Promise((resolve) => {
+            const t = setInterval(() => {
+              if (window.AIHandler) { clearInterval(t); resolve(); }
+            }, 100);
+            setTimeout(() => clearInterval(t), 5000);
+          });
+        }
+
+        if (window.AIHandler && window.AIHandler.initAIModal) {
+          await AIHandler.initAIModal();
+        }
+      } catch (error) {
+        console.error("Error initializing AI modal:", error);
+      }
+    }
+
+    window.addEventListener("modalOpened", (e) => {
+      if (e.detail && e.detail.modalId === "aiSuggestionModal") {
+        setTimeout(initializeAIModal, 300);
+      }
+    });
+
+    window.initializeAIModal = initializeAIModal;
+  })();
+</script>

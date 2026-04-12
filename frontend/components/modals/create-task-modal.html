@@ -1,0 +1,946 @@
+<div class="modal-overlay" data-modal-close></div>
+
+<div class="modal-content-wrapper">
+  <div
+    class="modal-content rounded-2xl shadow-2xl overflow-hidden"
+    id="createTaskModalContent"
+  >
+    <!-- Header -->
+    <div
+      class="modal-header sticky top-0 z-10 px-6 py-4 flex justify-between items-center"
+      style="background:linear-gradient(135deg,#1e3a5f 0%,#1e293b 100%)"
+    >
+      <div class="flex items-center gap-3">
+        <div>
+          <h2 class="text-base font-bold np-font-heading" style="color:#f1f5f9;font-family:'Playfair Display',Georgia,serif" id="createTaskModalTitle">Công việc mới</h2>
+          <!-- Prefill time badge — shown only when opened from calendar drag -->
+          <p class="text-xs hidden" style="color:#94a3b8" id="prefillTimeBadge">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded" style="background:rgba(59,130,246,0.25);color:#93c5fd;font-size:11px">
+              <span id="prefillTimeText">Từ lịch trình</span>
+            </span>
+          </p>
+        </div>
+      </div>
+      <button
+        id="closeCreateTaskBtn"
+        class="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+        style="background:rgba(255,255,255,0.1);color:#94a3b8"
+        onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.color='#f1f5f9'"
+        onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='#94a3b8'"
+        aria-label="Close"
+      >
+        &#x2715;
+      </button>
+    </div>
+
+    <div class="modal-body p-5 overflow-y-auto" style="max-height:75vh">
+      <form id="createTaskForm" class="space-y-4">
+
+        <!-- Title -->
+        <div>
+          <label for="taskTitle" class="np-label block mb-1.5">
+            TIÊU ĐỀ CÔNG VIỆC <span style="color:#ef4444">*</span>
+          </label>
+          <input
+            type="text"
+            id="taskTitle"
+            name="taskTitle"
+            required
+            class="w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            style="border-color:#e2e8f0;background:#f8fafc"
+            placeholder="Nhập tiêu đề công việc..."
+          />
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label for="taskDescription" class="np-label block mb-1.5">
+            MÔ TẢ <span style="color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0">(tùy chọn)</span>
+          </label>
+          <textarea
+            id="taskDescription"
+            name="taskDescription"
+            rows="2"
+            class="w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            style="border-color:#e2e8f0;background:#f8fafc"
+            placeholder="Nhập mô tả chi tiết..."
+          ></textarea>
+        </div>
+
+        <!-- Priority chips -->
+        <div>
+          <label class="np-label block mb-1.5">MỨC ĐỘ ƯU TIÊN</label>
+          <div class="grid grid-cols-4 gap-2" id="priorityChipsContainer">
+            <label class="cursor-pointer">
+              <input type="radio" name="taskPriority" value="1" class="sr-only" />
+              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none"
+                style="border-color:#d1fae5;background:#f0fdf4;color:#059669">
+                <div class="w-3 h-3 rounded-full mx-auto mb-1" style="background:#10b981"></div>
+                Thấp
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="taskPriority" value="2" checked class="sr-only" />
+              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none"
+                style="border-color:#2563eb;background:#dbeafe;color:#1d4ed8">
+                <div class="w-3 h-3 rounded-full mx-auto mb-1" style="background:#3b82f6"></div>
+                Trung bình
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="taskPriority" value="3" class="sr-only" />
+              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none"
+                style="border-color:#fde68a;background:#fffbeb;color:#d97706">
+                <div class="w-3 h-3 rounded-full mx-auto mb-1" style="background:#f59e0b"></div>
+                Cao
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="taskPriority" value="4" class="sr-only" />
+              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none"
+                style="border-color:#fecaca;background:#fef2f2;color:#dc2626">
+                <div class="w-3 h-3 rounded-full mx-auto mb-1" style="background:#ef4444"></div>
+                Rất cao
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Category + Tag row -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="np-label block">DANH MỤC</label>
+              <button
+                type="button"
+                id="createNewCategoryBtn"
+                class="text-xs font-medium"
+                style="color:#2563eb"
+                onmouseover="this.style.color='#1d4ed8'"
+                onmouseout="this.style.color='#2563eb'"
+              >
+                + Thêm
+              </button>
+            </div>
+            <div
+              id="category-container"
+              class="rounded-xl border p-2 min-h-[56px] max-h-[120px] overflow-y-auto"
+              style="border-color:#e2e8f0;background:#f8fafc"
+            >
+              <div class="text-gray-400 text-center py-2 text-xs" id="category-loading">
+                Đang tải...
+              </div>
+            </div>
+          </div>
+          <div>
+            <label for="taskTag" class="np-label block mb-1.5">TAG</label>
+            <input
+              type="text"
+              id="taskTag"
+              name="taskTag"
+              class="w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style="border-color:#e2e8f0;background:#f8fafc"
+              placeholder="urgent, project..."
+            />
+          </div>
+        </div>
+
+        <!-- Hourly Wage -->
+        <div>
+          <label for="taskHourlyWage" class="np-label block mb-1.5">
+            LƯƠNG GIỜ <span style="color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0">(VND)</span>
+          </label>
+          <input
+            type="number"
+            id="taskHourlyWage"
+            name="taskHourlyWage"
+            value="0"
+            min="0"
+            step="1000"
+            class="w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            style="border-color:#e2e8f0;background:#f8fafc"
+          />
+        </div>
+
+        <!-- AI fields -->
+        <div class="rounded-xl p-3.5" style="background:#f0f7ff;border:1px solid #bfdbfe">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-xs font-semibold" style="color:#1d4ed8">GỢI Ý CHO AI LÊN LỊCH</span>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label for="taskComplexity" class="block text-xs font-medium mb-1" style="color:#374151">Độ phức tạp</label>
+              <select
+                id="taskComplexity"
+                name="taskComplexity"
+                class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style="border-color:#bfdbfe;background:#fff;color:#374151"
+              >
+                <option value="">Chọn...</option>
+                <option value="1">Đơn giản</option>
+                <option value="2">Trung bình</option>
+                <option value="3">Phức tạp</option>
+                <option value="4">Rất phức tạp</option>
+              </select>
+            </div>
+            <div>
+              <label for="taskFocusLevel" class="block text-xs font-medium mb-1" style="color:#374151">Tập trung</label>
+              <select
+                id="taskFocusLevel"
+                name="taskFocusLevel"
+                class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style="border-color:#bfdbfe;background:#fff;color:#374151"
+              >
+                <option value="">Chọn...</option>
+                <option value="1">Thấp</option>
+                <option value="2">Trung bình</option>
+                <option value="3">Cao</option>
+                <option value="4">Rất cao</option>
+              </select>
+            </div>
+            <div>
+              <label for="taskSuitableTime" class="block text-xs font-medium mb-1" style="color:#374151">Thời điểm</label>
+              <select
+                id="taskSuitableTime"
+                name="taskSuitableTime"
+                class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style="border-color:#bfdbfe;background:#fff;color:#374151"
+              >
+                <option value="">Chọn...</option>
+                <option value="1">Sáng</option>
+                <option value="2">Trưa</option>
+                <option value="3">Chiều</option>
+                <option value="4">Tối</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fixed Time Toggle -->
+        <div class="rounded-xl border p-4" style="border-color:#e2e8f0;background:#f8fafc">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <div class="relative flex-shrink-0">
+              <input type="checkbox" id="taskFixedTime" class="sr-only peer" />
+              <div class="w-10 h-5 rounded-full transition-all peer-checked:bg-blue-600" style="background:#cbd5e1"></div>
+              <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-all peer-checked:translate-x-5"></div>
+            </div>
+            <div>
+              <span class="text-sm font-semibold" style="color:#1e293b">Thời gian cố định</span>
+              <p class="text-xs" style="color:#94a3b8">AI sẽ không thay đổi thời gian này</p>
+            </div>
+          </label>
+
+          <div id="fixedTimeFields" class="hidden mt-4 space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="taskFixedStartTime" class="np-label block mb-1.5">
+                  BẮT ĐẦU <span style="color:#ef4444">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  id="taskFixedStartTime"
+                  name="taskFixedStartTime"
+                  class="w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style="border-color:#e2e8f0;background:#fff"
+                />
+              </div>
+              <div>
+                <label for="taskFixedEndTime" class="np-label block mb-1.5">KẾT THÚC <span style="color:#ef4444">*</span></label>
+                <input
+                  type="datetime-local"
+                  id="taskFixedEndTime"
+                  name="taskFixedEndTime"
+                  class="w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style="border-color:#e2e8f0;background:#fff"
+                />
+              </div>
+            </div>
+            <div>
+              <label for="taskDefaultDuration" class="np-label block mb-1.5">THỜI LƯỢNG MẶC ĐỊNH (phút)</label>
+              <input
+                type="number"
+                id="taskDefaultDuration"
+                name="taskDefaultDuration"
+                value="60"
+                min="5"
+                step="5"
+                class="w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style="border-color:#e2e8f0;background:#fff"
+              />
+              <p class="text-xs mt-1" style="color:#94a3b8">Dùng khi không có giờ kết thúc cụ thể</p>
+            </div>
+            <div>
+              <label for="taskRepeatOption" class="np-label block mb-1.5">LẶP LẠI</label>
+              <select
+                id="taskRepeatOption"
+                name="taskRepeatOption"
+                class="w-full px-3 py-2 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style="border-color:#e2e8f0;background:#fff;color:#374151"
+              >
+                <option value="">Không lặp</option>
+                <option value="daily">Hàng ngày</option>
+                <option value="weekly">Hàng tuần</option>
+                <option value="monthly">Hàng tháng</option>
+                <option value="custom">Tùy chỉnh</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Default duration — shown always, used when instance has no fixed end -->
+        <div id="defaultDurationRow">
+          <label for="taskDuration" class="np-label block mb-1.5">
+            THỜI GIAN ƯỚC TÍNH <span style="color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0">(phút)</span>
+          </label>
+          <input
+            type="number"
+            id="taskDuration"
+            name="taskDuration"
+            value="60"
+            min="5"
+            step="5"
+            class="w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            style="border-color:#e2e8f0;background:#f8fafc"
+          />
+        </div>
+
+        <!-- Footer Buttons -->
+        <div class="flex justify-end gap-3 pt-2">
+          <button
+            type="button"
+            id="cancelCreateTaskBtn"
+            class="np-button"
+          >
+            Hủy
+          </button>
+          <button
+            type="submit"
+            class="np-button np-button--primary"
+          >
+            <span class="submit-text">Tạo công việc</span>
+            <span class="submit-loading hidden">
+              Đang xử lý...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== Priority chip helpers =====
+  function getPriority() {
+    const checked = document.querySelector('input[name="taskPriority"]:checked');
+    return checked ? parseInt(checked.value) : 2;
+  }
+
+  function setPriority(val) {
+    const radio = document.querySelector(`input[name="taskPriority"][value="${val}"]`);
+    if (radio) {
+      radio.checked = true;
+      updatePriorityChips();
+    }
+  }
+
+  function updatePriorityChips() {
+    const chipStyles = {
+      '1': { border: '#10b981', bg: '#d1fae5', color: '#059669', defBorder: '#d1fae5', defBg: '#f0fdf4' },
+      '2': { border: '#2563eb', bg: '#dbeafe', color: '#1d4ed8', defBorder: '#bfdbfe', defBg: '#eff6ff' },
+      '3': { border: '#f59e0b', bg: '#fef3c7', color: '#d97706', defBorder: '#fde68a', defBg: '#fffbeb' },
+      '4': { border: '#ef4444', bg: '#fee2e2', color: '#dc2626', defBorder: '#fecaca', defBg: '#fef2f2' },
+    };
+    document.querySelectorAll('input[name="taskPriority"]').forEach(r => {
+      const chip = r.nextElementSibling;
+      if (!chip) return;
+      const s = chipStyles[r.value];
+      if (r.checked) {
+        chip.style.borderColor = s.border;
+        chip.style.background = s.bg;
+        chip.style.color = s.color;
+        chip.style.transform = 'scale(1.05)';
+        chip.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+      } else {
+        chip.style.borderColor = s.defBorder;
+        chip.style.background = s.defBg;
+        chip.style.transform = 'scale(1)';
+        chip.style.boxShadow = 'none';
+      }
+    });
+  }
+
+  // Init chip events
+  document.querySelectorAll('input[name="taskPriority"]').forEach(radio => {
+    radio.addEventListener('change', updatePriorityChips);
+  });
+  updatePriorityChips();
+
+  // Guard: prevent category modal from auto-opening
+  (function () {
+    const categoryModal = document.getElementById("createCategoryModal");
+    if (!categoryModal) return;
+    categoryModal.style.display = "none";
+    categoryModal.classList.add("hidden");
+  })();
+
+  // ===== Helper functions =====
+  function formatDateTime(date) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  // Format a Date for the prefill badge: "10:15 – 11:40, Thứ Ba 9/4"
+  function formatPrefillLabel(startAt, endAt) {
+    const days = ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+    const pad = n => String(n).padStart(2, "0");
+    const s = new Date(startAt);
+    const e = new Date(endAt);
+    const timeStr = `${pad(s.getHours())}:${pad(s.getMinutes())} – ${pad(e.getHours())}:${pad(e.getMinutes())}`;
+    const dateStr = `${days[s.getDay()]} ${s.getDate()}/${s.getMonth() + 1}`;
+    return `${timeStr}, ${dateStr}`;
+  }
+
+  // Apply calendar prefill to the fixed-time inputs + show badge
+  function applyPrefill(prefill) {
+    if (!prefill || !prefill.startAt) return;
+    const startAt = new Date(prefill.startAt);
+    const endAt = prefill.endAt ? new Date(prefill.endAt) : new Date(startAt.getTime() + 60 * 60000);
+
+    // Auto-enable fixed time toggle
+    const checkbox = document.getElementById("taskFixedTime");
+    if (checkbox) {
+      checkbox.checked = true;
+      document.getElementById("fixedTimeFields")?.classList.remove("hidden");
+    }
+
+    const startInput = document.getElementById("taskFixedStartTime");
+    const endInput = document.getElementById("taskFixedEndTime");
+    if (startInput) startInput.value = formatDateTime(startAt);
+    if (endInput) endInput.value = formatDateTime(endAt);
+
+    // Update default duration from drag range
+    const durMinutes = Math.round((endAt - startAt) / 60000);
+    const durInput = document.getElementById("taskDuration");
+    if (durInput && durMinutes > 0) durInput.value = durMinutes;
+    const defDurInput = document.getElementById("taskDefaultDuration");
+    if (defDurInput && durMinutes > 0) defDurInput.value = durMinutes;
+
+    // Show prefill badge in header
+    const badge = document.getElementById("prefillTimeBadge");
+    const textEl = document.getElementById("prefillTimeText");
+    if (badge) badge.classList.remove("hidden");
+    if (textEl) textEl.textContent = formatPrefillLabel(startAt, endAt);
+
+    // Clear the global so next open doesn't re-apply stale data
+    window.__pendingTaskPrefill = null;
+  }
+
+  let loadCategoriesRetries = 0;
+  const MAX_RETRIES = 5;
+
+  async function loadCategoriesForModal() {
+    const container = document.getElementById("category-container");
+    if (!container) {
+      if (loadCategoriesRetries < MAX_RETRIES) {
+        loadCategoriesRetries++;
+        await new Promise(r => setTimeout(r, 100));
+        return loadCategoriesForModal();
+      }
+      return;
+    }
+    loadCategoriesRetries = 0;
+    container.innerHTML = `<div id="category-loading" class="text-gray-400 text-center py-2 text-xs">Đang tải...</div>`;
+    try {
+      const token = localStorage.getItem("auth_token");
+      if (!token) throw new Error("No auth token");
+      const response = await fetch("/api/categories", {
+        headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      if (result.success && result.data) renderCategories(result.data);
+      else throw new Error(result.message || "Failed to load categories");
+    } catch (error) {
+      container.innerHTML = `<div class="text-red-500 text-center p-2 text-xs">${error.message} <button onclick="loadCategoriesForModal()" class="text-blue-500 underline ml-1">Thử lại</button></div>`;
+    }
+  }
+
+  function renderCategories(categories) {
+    const container = document.getElementById("category-container");
+    if (!container) return;
+    if (!categories || categories.length === 0) {
+      container.innerHTML = `<div class="text-gray-400 text-center py-3 text-xs italic">Chưa có danh mục. Nhấn "+ Thêm" để tạo.</div>`;
+      return;
+    }
+    container.innerHTML = categories.map((cat, i) => `
+      <div class="flex items-center rounded-lg px-2 py-1.5 mb-1 hover:bg-blue-50 transition-colors">
+        <label class="flex items-center gap-2 cursor-pointer flex-1">
+          <input type="radio" name="taskCategory" value="${cat.MaLoai}" class="category-radio h-3.5 w-3.5 text-blue-600" ${i === 0 ? "checked" : ""} />
+          <span class="text-xs font-medium text-gray-700">${cat.TenLoai}</span>
+        </label>
+      </div>
+    `).join("");
+  }
+
+  function getTagsFromInput() {
+    const tagInput = document.getElementById("taskTag");
+    if (!tagInput || !tagInput.value.trim()) return [];
+    return tagInput.value.trim().split(",").map(t => t.trim()).filter(t => t.length > 0);
+  }
+
+  function getSelectedCategoryId() {
+    const sel = document.querySelector('input[name="taskCategory"]:checked');
+    return sel ? sel.value : null;
+  }
+
+  function showConfirmDialog(title, message) {
+    return new Promise(resolve => {
+      if (typeof Swal !== "undefined") {
+        Swal.fire({ title, html: message, icon: "warning", showCancelButton: true,
+          confirmButtonColor: "#3085d6", cancelButtonColor: "#d33",
+          confirmButtonText: "Đồng ý", cancelButtonText: "Hủy" }).then(r => resolve(r.isConfirmed));
+      } else {
+        resolve(confirm(`${title}\n\n${message.replace(/<[^>]*>/g, "")}`));
+      }
+    });
+  }
+
+  function showNotification(message, type = "info") {
+    if (window.Utils && typeof Utils.showToast === "function") {
+      Utils.showToast(message, type); return;
+    }
+    const toast = document.createElement("div");
+    toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-md shadow-lg transition-all duration-300 ${
+      type === "success" ? "bg-green-500 text-white" : type === "error" ? "bg-red-500 text-white" : "bg-blue-500 text-white"}`;
+    toast.innerHTML = `<div class="flex items-center gap-2"><span>${message}</span></div>`;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.transform = "translateX(120%)"; setTimeout(() => toast.remove(), 300); }, 3000);
+  }
+
+  function triggerModalSidebarRefresh() {
+    document.dispatchEvent(new CustomEvent("task-changed", {
+      detail: { action: "refresh", source: "createTaskModal", timestamp: Date.now() }
+    }));
+    if (typeof window.triggerSidebarRefresh === "function") {
+      setTimeout(() => window.triggerSidebarRefresh(), 300);
+    }
+  }
+
+  // ===== Hide prefill badge =====
+  function hidePrefillBadge() {
+    document.getElementById("prefillTimeBadge")?.classList.add("hidden");
+  }
+
+  // ===== Close modal =====
+  function closeMainModal() {
+    hidePrefillBadge();
+    const form = document.getElementById("createTaskForm");
+    if (form) {
+      form.reset();
+      setPriority("2");
+      const fixedTimeEl = document.getElementById("taskFixedTime");
+      if (fixedTimeEl) fixedTimeEl.checked = false;
+      document.getElementById("fixedTimeFields")?.classList.add("hidden");
+    }
+    window._createTaskModalInitialized = false;
+    if (window.ModalManager && window.ModalManager.close) {
+      setTimeout(() => window.ModalManager.close("createTaskModal"), 100);
+    }
+  }
+
+  // ===== Reset to create mode =====
+  function resetFormToCreateMode() {
+    hidePrefillBadge();
+    const form = document.getElementById("createTaskForm");
+    if (form) {
+      form.reset();
+      setPriority("2");
+      const fixedTimeEl = document.getElementById("taskFixedTime");
+      if (fixedTimeEl) fixedTimeEl.checked = false;
+      document.getElementById("fixedTimeFields")?.classList.add("hidden");
+      const modalTitle = document.getElementById("createTaskModalTitle");
+      if (modalTitle) modalTitle.textContent = "Công việc mới";
+      const submitBtn = document.querySelector("#createTaskForm button[type='submit'] .submit-text");
+      if (submitBtn) submitBtn.textContent = "Tạo công việc";
+      window.currentEditingTaskId = null;
+    }
+  }
+
+  // ===== Update task handler =====
+  async function handleUpdateTaskForm(taskId, formData) {
+    try {
+      const token = localStorage.getItem("auth_token");
+      if (!token) { showNotification("Vui lòng đăng nhập lại", "error"); return; }
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(formData),
+      });
+      const result = await response.json();
+      if (result.success) {
+        showNotification("Cập nhật công việc thành công!", "success");
+        triggerModalSidebarRefresh();
+        closeMainModal();
+        window.WorkManager?.reload?.();
+        window.dispatchEvent(new CustomEvent("taskUpdated", { detail: { taskId } }));
+        window.currentEditingTaskId = null;
+      } else {
+        showNotification(result.message || "Lỗi khi cập nhật công việc", "error");
+      }
+    } catch (error) {
+      showNotification("Lỗi kết nối máy chủ", "error");
+    }
+  }
+
+  // ===== Submit handler (create + update) =====
+  function handleCreateTaskForm() {
+    const form = document.getElementById("createTaskForm");
+    if (!form || form._submitHandlerAttached) return;
+    form._submitHandlerAttached = true;
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const isEditing = !!window.currentEditingTaskId;
+      const submitBtn = form.querySelector("button[type='submit']");
+      const submitText = submitBtn?.querySelector(".submit-text");
+      const submitLoading = submitBtn?.querySelector(".submit-loading");
+      if (submitText && submitLoading) {
+        submitText.classList.add("hidden");
+        submitLoading.classList.remove("hidden");
+        submitBtn.disabled = true;
+      }
+      try {
+        const isFixed = document.getElementById("taskFixedTime").checked;
+        const durationVal = parseInt(document.getElementById("taskDuration").value) || 60;
+        const formData = {
+          TieuDe: document.getElementById("taskTitle").value.trim(),
+          MoTa: document.getElementById("taskDescription").value.trim(),
+          ThoiGianUocTinh: durationVal,
+          MucDoUuTien: getPriority(),
+          MucDoPhucTap: document.getElementById("taskComplexity").value ? parseInt(document.getElementById("taskComplexity").value) : null,
+          MucDoTapTrung: document.getElementById("taskFocusLevel").value ? parseInt(document.getElementById("taskFocusLevel").value) : null,
+          ThoiDiemThichHop: (() => { const v = document.getElementById("taskSuitableTime").value; return v && v.trim() !== "" ? v : null; })(),
+          LuongTheoGio: parseInt(document.getElementById("taskHourlyWage").value) || 0,
+          // New normalized fields (backend accepts both Vietnamese & English)
+          is_fixed: isFixed,
+          CoThoiGianCoDinh: isFixed,
+          default_duration_minutes: durationVal,
+          Tag: getTagsFromInput().join(","),
+          MaLoai: getSelectedCategoryId(),
+        };
+
+        if (!formData.TieuDe) { showNotification("Vui lòng nhập tiêu đề công việc", "error"); throw new Error("Title is required"); }
+
+        const complexityValue = document.getElementById("taskComplexity").value;
+        const focusValue = document.getElementById("taskFocusLevel").value;
+        const timeValue = document.getElementById("taskSuitableTime").value;
+        if (!complexityValue || !focusValue || !timeValue) {
+          const incompleteFields = [];
+          if (!complexityValue) incompleteFields.push("Mức độ phức tạp");
+          if (!focusValue) incompleteFields.push("Mức độ tập trung");
+          if (!timeValue) incompleteFields.push("Thời điểm thích hợp");
+          const ok = await showConfirmDialog("Cảnh báo dữ liệu không đầy đủ",
+            `<div style="text-align:left"><p>Bạn chưa điền: <strong>${incompleteFields.join(", ")}</strong></p><p style="color:#b45309;font-size:13px;margin-top:8px">AI có thể không đề xuất chính xác nếu thiếu thông tin này.</p><p style="margin-top:12px;font-weight:500">Vẫn muốn tiếp tục?</p></div>`);
+          if (!ok) { showNotification("Hãy điền đầy đủ các trường để tối ưu hóa AI tư vấn", "info"); throw new Error("User cancelled"); }
+        }
+
+        if (isFixed) {
+          const startTime = document.getElementById("taskFixedStartTime").value;
+          const endTime = document.getElementById("taskFixedEndTime").value;
+          if (!startTime) { showNotification("Vui lòng chọn thời gian bắt đầu cho công việc cố định", "error"); throw new Error("Missing start time"); }
+          // New normalized fields
+          formData.fixed_start = new Date(startTime).toISOString();
+          formData.GioBatDauCoDinh = startTime;
+          if (endTime) {
+            formData.fixed_end = new Date(endTime).toISOString();
+            formData.GioKetThucCoDinh = endTime;
+          } else {
+            // Derive from start + default_duration
+            const derivedEnd = new Date(new Date(startTime).getTime() + durationVal * 60000);
+            formData.fixed_end = derivedEnd.toISOString();
+            formData.GioKetThucCoDinh = formatDateTime(derivedEnd);
+          }
+          // Override default_duration from fixed section if user set it
+          const defDur = parseInt(document.getElementById("taskDefaultDuration")?.value);
+          if (defDur > 0) formData.default_duration_minutes = defDur;
+
+          const rep = document.getElementById("taskRepeatOption").value;
+          if (rep) formData.LapLai = rep;
+        }
+
+        if (isEditing) {
+          await handleUpdateTaskForm(window.currentEditingTaskId, formData);
+        } else {
+          const token = localStorage.getItem("auth_token");
+          if (!token) { showNotification("Vui lòng đăng nhập lại", "error"); throw new Error("No auth token"); }
+          const response = await fetch("/api/tasks", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify(formData),
+          });
+          const result = await response.json();
+          if (result.success) {
+            showNotification("Tạo công việc thành công!", "success");
+            window.WorkManager?.showSuccessOverlay?.("Tạo mới thành công!");
+            triggerModalSidebarRefresh();
+            closeMainModal();
+            form.reset(); setPriority("2");
+            document.getElementById("taskFixedTime").checked = false;
+            document.getElementById("fixedTimeFields")?.classList.add("hidden");
+            window.WorkManager?.reload?.();
+            // Refresh calendar so new instance appears immediately
+            document.dispatchEvent(new CustomEvent("taskCreated", { detail: { task: result.data } }));
+            document.dispatchEvent(new CustomEvent("calendar:reload"));
+          } else {
+            showNotification(result.message || "Lỗi khi tạo công việc", "error");
+          }
+        }
+      } catch (error) {
+        if (!error.message.includes("Title is required") && !error.message.includes("Missing start time") && !error.message.includes("User cancelled")) {
+          showNotification("Lỗi kết nối máy chủ", "error");
+        }
+      } finally {
+        if (submitText && submitLoading) {
+          submitText.classList.remove("hidden");
+          submitLoading.classList.add("hidden");
+          if (submitBtn) submitBtn.disabled = false;
+        }
+      }
+    });
+  }
+
+  // ===== Fixed time toggle =====
+  function handleFixedTimeToggle() {
+    const fixedTimeCheckbox = document.getElementById("taskFixedTime");
+    const fixedTimeFields = document.getElementById("fixedTimeFields");
+
+    if (fixedTimeCheckbox) {
+      fixedTimeCheckbox.addEventListener("change", function () {
+        fixedTimeFields?.classList.toggle("hidden", !this.checked);
+      });
+    }
+
+    // "+ Tạo danh mục mới" button — open create-category modal stacked
+    const createCategoryBtn = document.getElementById("createNewCategoryBtn");
+    if (!createCategoryBtn) return;
+    createCategoryBtn.addEventListener("click", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (window.ModalManager?.showModalById) {
+        ModalManager.showModalById("createCategoryModal");
+      } else if (window.openCategoryModal) {
+        window.openCategoryModal();
+      }
+    });
+  }
+
+  // ===== Load task into form (edit mode) =====
+  function loadTaskDataIntoForm(taskData) {
+    const modalTitle = document.getElementById("createTaskModalTitle");
+    if (modalTitle) modalTitle.textContent = "Chỉnh sửa công việc";
+    const submitBtn = document.querySelector("#createTaskForm button[type='submit'] .submit-text");
+    if (submitBtn) submitBtn.textContent = "Cập nhật";
+
+    if (taskData.TieuDe) document.getElementById("taskTitle").value = taskData.TieuDe;
+    if (taskData.MoTa) document.getElementById("taskDescription").value = taskData.MoTa;
+    // Support both legacy ThoiGianUocTinh and new default_duration_minutes
+    const dur = taskData.default_duration_minutes || taskData.ThoiGianUocTinh;
+    if (dur) {
+      const durEl = document.getElementById("taskDuration");
+      const defDurEl = document.getElementById("taskDefaultDuration");
+      if (durEl) durEl.value = dur;
+      if (defDurEl) defDurEl.value = dur;
+    }
+    if (taskData.MucDoUuTien) setPriority(taskData.MucDoUuTien);
+    if (taskData.MucDoPhucTap) document.getElementById("taskComplexity").value = taskData.MucDoPhucTap;
+    if (taskData.MucDoTapTrung) document.getElementById("taskFocusLevel").value = taskData.MucDoTapTrung;
+    if (taskData.ThoiDiemThichHop) document.getElementById("taskSuitableTime").value = taskData.ThoiDiemThichHop;
+    if (taskData.LuongTheoGio) document.getElementById("taskHourlyWage").value = taskData.LuongTheoGio;
+    if (taskData.Tag) document.getElementById("taskTag").value = taskData.Tag;
+
+    if (taskData.MaLoai) {
+      setTimeout(() => {
+        const r = document.querySelector(`input[name="taskCategory"][value="${taskData.MaLoai}"]`);
+        if (r) r.checked = true;
+      }, 500);
+    }
+
+    // Support both new (is_fixed / fixed_start / fixed_end) and legacy fields
+    const isFixed = taskData.is_fixed || taskData.CoThoiGianCoDinh;
+    if (isFixed) {
+      document.getElementById("taskFixedTime").checked = true;
+      document.getElementById("fixedTimeFields")?.classList.remove("hidden");
+      const rawStart = taskData.fixed_start || taskData.GioBatDauCoDinh;
+      const rawEnd   = taskData.fixed_end   || taskData.GioKetThucCoDinh;
+      if (rawStart) document.getElementById("taskFixedStartTime").value = formatDateTime(new Date(rawStart));
+      if (rawEnd)   document.getElementById("taskFixedEndTime").value   = formatDateTime(new Date(rawEnd));
+      if (taskData.LapLai) document.getElementById("taskRepeatOption").value = taskData.LapLai;
+    }
+
+    window.currentEditingTaskId = taskData.MaCongViec || taskData.ID;
+  }
+
+  // ===== Main init =====
+  function initCreateTaskModal() {
+    if (window._createTaskModalInitialized) return;
+    window._createTaskModalInitialized = true;
+
+    loadCategoriesForModal();
+    handleCreateTaskForm();
+    handleFixedTimeToggle();
+
+    const closeBtn = document.getElementById("closeCreateTaskBtn");
+    const cancelBtn = document.getElementById("cancelCreateTaskBtn");
+    const modalOverlay = document.querySelector(".modal-overlay[data-modal-close]");
+
+    if (closeBtn) closeBtn.addEventListener("click", () => { resetFormToCreateMode(); closeMainModal(); });
+    if (cancelBtn) cancelBtn.addEventListener("click", () => { resetFormToCreateMode(); closeMainModal(); });
+    if (modalOverlay) modalOverlay.addEventListener("click", () => { resetFormToCreateMode(); closeMainModal(); });
+
+    document.addEventListener("modalClosed", function (e) {
+      if (e.detail?.modalId === "createTaskModal") resetFormToCreateMode();
+    });
+
+    // Listen for calendar drag prefill dispatched by Phase 04
+    document.addEventListener("calendar:prefill-task", function (e) {
+      if (e.detail) applyPrefill(e.detail);
+    });
+
+    // Apply any pending prefill that arrived before modal was open
+    if (window.__pendingTaskPrefill) {
+      applyPrefill(window.__pendingTaskPrefill);
+    }
+  }
+
+  // ===== Global exports =====
+  window.initCreateTaskModal = initCreateTaskModal;
+  window.loadCategoriesForModal = loadCategoriesForModal;
+  window.showNotification = showNotification;
+  window.loadTaskDataIntoForm = loadTaskDataIntoForm;
+
+  window.closeCategoryModal = function () {
+    const modal = document.getElementById("createCategoryModal");
+    if (!modal) return;
+    modal.classList.add("hidden");
+    modal.style.display = "none";
+    document.getElementById("createCategoryForm")?.reset();
+    document.body.style.overflow = "";
+  };
+
+  window.openCategoryModal = function () {
+    const modal = document.getElementById("createCategoryModal");
+    if (!modal) return;
+    modal.classList.remove("hidden");
+    modal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  };
+
+  // ===== Auto-init triggers =====
+  function _onModalOpenForPrefill() {
+    // Re-apply prefill each time modal opens (prefill may arrive via event before init)
+    setTimeout(() => {
+      initCreateTaskModal();
+      if (window.__pendingTaskPrefill) applyPrefill(window.__pendingTaskPrefill);
+    }, 100);
+  }
+
+  document.addEventListener("modalOpened", e => {
+    if (e.detail?.modalId === "createTaskModal") _onModalOpenForPrefill();
+  });
+  document.addEventListener("modalShown", e => {
+    if (e.detail?.modalId === "createTaskModal") _onModalOpenForPrefill();
+  });
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => setTimeout(initCreateTaskModal, 200));
+  } else {
+    setTimeout(initCreateTaskModal, 200);
+  }
+</script>
+
+<style>
+  .modal-content-wrapper {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 560px;
+    width: 95%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 10050;
+  }
+
+  #createTaskModalContent {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+    animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  @keyframes modalSlideIn {
+    from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-header { flex-shrink: 0; }
+  .modal-body { flex: 1; }
+
+  /* Priority chip hover */
+  #priorityChipsContainer label:hover .priority-chip { opacity: 0.85; }
+
+  /* Peer checkbox toggle */
+  #taskFixedTime:checked + div { background: #2563eb !important; }
+  #taskFixedTime:checked + div + div { transform: translateX(1.25rem); }
+
+  /* Newspaper buttons scoped to modal */
+  #createTaskModalContent .np-button {
+    padding: 0.55rem 1.25rem;
+    border-radius: 6px;
+  }
+
+  /* Dark mode overrides for modal */
+  body.dark #createTaskModalContent {
+    background: #1e1b16;
+    color: #e8e0d0;
+  }
+
+  body.dark #createTaskModalContent input,
+  body.dark #createTaskModalContent textarea,
+  body.dark #createTaskModalContent select {
+    background: #2a2520 !important;
+    border-color: #4a4238 !important;
+    color: #e8e0d0 !important;
+  }
+
+  body.dark #createTaskModalContent input::placeholder,
+  body.dark #createTaskModalContent textarea::placeholder {
+    color: #6b5f4a;
+  }
+
+  body.dark #createTaskModalContent .np-label {
+    color: #8a7f6a;
+  }
+
+  body.dark #createTaskModalContent .rounded-xl[style*="background:#f8fafc"],
+  body.dark #createTaskModalContent .rounded-xl[style*="background:#f0f7ff"] {
+    background: #221e19 !important;
+    border-color: #4a4238 !important;
+  }
+
+  body.dark #createTaskModalContent .rounded-xl[style*="background:#f0f7ff"] span {
+    color: #93c5fd;
+  }
+
+  body.dark #prefillTimeBadge span {
+    background: rgba(59, 130, 246, 0.15) !important;
+  }
+</style>
