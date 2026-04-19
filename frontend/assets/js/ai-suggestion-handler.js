@@ -2,7 +2,7 @@
   "use strict";
 
   if (window.AIHandler) {
-
+    console.log("AIHandler đã tồn tại → bỏ qua load lại");
     return;
   }
 
@@ -18,7 +18,7 @@
 
     async initAIModal() {
       if (this._isModalInitialized) {
-
+        console.log(" Modal already initialized, reloading tasks only...");
         try {
           await this.populateAIModal();
         } catch (error) {
@@ -29,21 +29,21 @@
       }
 
       try {
-
+        console.log(" Initializing AI modal for the first time...");
 
         await this.waitForModalReady();
-
+        console.log(" Modal ready in DOM");
 
         await this.populateAIModal();
-
+        console.log(" Tasks populated");
 
         this.setupAllEventListeners();
-
+        console.log(" Event listeners setup");
 
         this.setDefaultDates();
+        console.log(" Dates set");
 
-
-
+        console.log(" AI modal initialized successfully");
         this._isModalInitialized = true;
       } catch (error) {
         console.error(" Error initializing AI modal:", error);
@@ -63,7 +63,7 @@
           const modalBody = modal?.querySelector(".ai-modal-body");
 
           if (modal && modalBody) {
-
+            console.log(" Modal is ready");
             resolve(true);
           } else if (attempts >= maxAttempts) {
             console.error(" Modal check failed:", {
@@ -73,7 +73,7 @@
             reject(new Error("Modal not ready after maximum attempts"));
           } else {
             if (attempts % 10 === 0) {
-
+              console.log(` Waiting for modal... (${attempts}/${maxAttempts})`);
             }
             setTimeout(check, 100);
           }
@@ -84,7 +84,7 @@
 
     async loadPendingTasks() {
       try {
-
+        console.log(" Loading pending tasks for AI modal...");
 
         if (!Utils?.makeRequest) {
           console.warn("Utils.makeRequest không tồn tại");
@@ -97,16 +97,20 @@
           return [];
         }
 
-
+        console.log(` Total tasks from API: ${res.data.length}`, res.data);
 
         const pendingTasks = res.data.filter((task) => {
           const status = task.TrangThaiThucHien;
           const isPending = status !== 1 && status !== true;
-
+          console.log(
+            `Task ${task.ID}: "${task.TieuDe}" - Status: ${status} - Pending: ${isPending}`
+          );
           return isPending;
         });
 
-
+        console.log(
+          ` Found ${pendingTasks.length} pending tasks (out of ${res.data.length})`
+        );
 
         const tasks = pendingTasks.map((task) => {
           const priority = task.MucDoUuTien || task.priority || 2;
@@ -156,7 +160,7 @@
 
     async populateAIModal() {
       try {
-
+        console.log(" Populating AI modal with tasks...");
 
         const modal = document.getElementById("aiSuggestionModal");
         if (!modal) {
@@ -173,23 +177,23 @@
         }
 
         if (modalBody.querySelector("#aiApplyBtn")) {
-
+          console.log(" Đang ở preview mode, không populate tasks");
           return;
         }
 
         if (!modalBody.querySelector("#aiSuggestionForm")) {
-
+          console.log(" Không có form, resetting...");
           await this.resetToFormView();
           return;
         }
 
         const tasks = await this.loadPendingTasks();
-
+        console.log(` Loaded ${tasks.length} tasks`);
 
         const taskList = modal.querySelector("#aiTaskList");
         if (taskList) {
           this.renderTasksToModal(tasks, taskList);
-
+          console.log(" Tasks rendered to modal");
         } else {
           console.error("❌ Task list element not found");
           const taskListContainer = modal.querySelector(".task-list-container");
@@ -205,7 +209,7 @@
           }
         }
 
-
+        console.log(" Modal populated with tasks");
       } catch (error) {
         console.error(" Error populating modal:", error);
         this.showErrorInModal(error.message);
@@ -213,7 +217,10 @@
     },
 
     renderTasksToModal(tasks, taskList) {
-
+      console.log("🔄 Rendering tasks to modal...", {
+        tasksCount: tasks?.length,
+        taskListExists: !!taskList,
+      });
 
       if (!taskList) {
         console.error(" Task list element không hợp lệ");
@@ -250,7 +257,7 @@
               Ưu tiên ${task.priority}
             </span>
             <span class="task-duration">
-              &#128336;
+              <i class="far fa-clock"></i>
               ${duration} phút
             </span>
           </div>
@@ -265,7 +272,7 @@
 
       this.setupTaskItemClickEvents();
 
-
+      console.log(` Đã render ${tasks.length} tasks vào modal`);
     },
     escapeHtml(text) {
       const div = document.createElement("div");
@@ -286,7 +293,7 @@
 
     getFormData() {
       try {
-
+        console.log(" Getting form data...");
 
         const selectedItems = document.querySelectorAll(
           "#aiSuggestionModal .task-item[data-selected='true']"
@@ -299,13 +306,13 @@
             const parsedId = parseInt(taskId);
             if (!isNaN(parsedId) && parsedId > 0) {
               selectedTasks.push(parsedId);
-
+              console.log(` Task ${index + 1}: ID = ${parsedId}`);
             }
           }
         });
 
-
-
+        console.log(` Total selected tasks: ${selectedTasks.length}`);
+        console.log(` Task IDs:`, selectedTasks);
 
         if (selectedTasks.length === 0) {
           this.showError("Vui lòng chọn ít nhất một công việc!");
@@ -338,7 +345,7 @@
           options,
         };
 
-
+        console.log(" Form data ready:", formData);
         return formData;
       } catch (error) {
         console.error(" Error getting form data:", error);
@@ -352,7 +359,9 @@
         "#aiSuggestionModal .task-item.selectable"
       );
 
-
+      console.log(
+        `🔗 Setting up click events cho ${taskItems.length} task items`
+      );
 
       taskItems.forEach((item) => {
         const newItem = item.cloneNode(true);
@@ -365,11 +374,11 @@
         });
       });
 
-
+      console.log(` Task item click events setup complete`);
     },
 
     toggleTaskSelection(taskItem) {
-
+      console.log("🖱️ Toggling task selection:", taskItem.dataset.taskId);
 
       if (!taskItem) {
         console.error(" Task item is null");
@@ -377,7 +386,7 @@
       }
 
       const checkbox = taskItem.querySelector(".task-checkbox");
-
+      console.log(" Found checkbox:", checkbox);
 
       if (!checkbox) {
         console.error(" Checkbox not found in task item");
@@ -387,7 +396,9 @@
       const isCurrentlySelected = taskItem.dataset.selected === "true";
       const newSelectedState = !isCurrentlySelected;
 
-
+      console.log(
+        `🔄 Toggling from ${isCurrentlySelected} to ${newSelectedState}`
+      );
 
       checkbox.checked = newSelectedState;
 
@@ -398,17 +409,17 @@
         if (newSelectedState) {
           taskItem.classList.add("selected");
           selectionIndicator.innerHTML =
-            '&#10003;';
+            '<i class="fas fa-check-circle" style="color: #10B981;"></i>';
         } else {
           taskItem.classList.remove("selected");
           selectionIndicator.innerHTML =
-            '&#10003;';
+            '<i class="fas fa-check-circle" style="color: #ccc;"></i>';
         }
       }
 
       this.updateSelectedCount();
 
-
+      console.log(` Task ${taskItem.dataset.taskId} selection updated`);
     },
 
     updateSelectedCount() {
@@ -420,7 +431,7 @@
         "#aiSuggestionModal .task-item"
       ).length;
 
-
+      console.log(` Selected: ${selectedCount}/${totalCount} tasks`);
 
       const statsElement = document.querySelector(
         "#aiSuggestionModal #aiTaskStats"
@@ -441,12 +452,12 @@
     },
 
     setupAllEventListeners() {
-
+      console.log("🔗 Setting up all event listeners...");
 
       const modal = document.getElementById("aiSuggestionModal");
       if (!modal) return;
 
-
+      console.log("🔗 Setting up all event listeners...");
 
       const currentModal = modal;
 
@@ -457,7 +468,7 @@
           e.stopPropagation();
           this.toggleSelectAll();
         });
-
+        console.log(" Select all button listener added");
       }
 
       const submitBtn = currentModal.querySelector("#aiSubmitBtn");
@@ -475,7 +486,7 @@
             this._isSubmitting = false;
           });
         });
-
+        console.log(" Submit button listener added");
       }
 
       const closeBtn = currentModal.querySelector(".modal-close");
@@ -495,7 +506,7 @@
 
       this.setupCheckboxListeners();
 
-
+      console.log(" All event listeners setup complete");
     },
 
     async handleFormSubmitAction() {
@@ -507,7 +518,9 @@
 
         const clickCount = (this._submitClickCount =
           (this._submitClickCount || 0) + 1);
-
+        console.log(
+          `📤 SUBMIT CLICK #${clickCount} | Thời gian kể từ lần trước: ${timeSinceLastSubmit}ms | Giờ: ${new Date().toLocaleTimeString()}`
+        );
 
         const modal = document.getElementById("aiSuggestionModal");
         if (!modal) {
@@ -519,7 +532,7 @@
         if (!form) {
           const previewContainer = modal.querySelector(".ai-preview-container");
           if (previewContainer) {
-
+            console.log(" Đang ở preview mode, không xử lý submit form");
             return;
           }
           this.showError("Không tìm thấy form. Vui lòng đóng và mở lại modal.");
@@ -565,7 +578,7 @@
             modal.querySelector("#aiAdditionalInstructions")?.value || "",
         };
 
-
+        console.log("📤 Gửi payload:", payload);
 
         this.showFormLoading(true);
 
@@ -605,7 +618,7 @@
       originalFormData = null
     ) {
       try {
-
+        console.log("🎨 Rendering AI preview...");
 
         const modal = document.getElementById("aiSuggestionModal");
         if (!modal) {
@@ -642,7 +655,7 @@
         <!-- Header -->
         <div class="preview-header" style="text-align: center; margin-bottom: 25px;">
           <div style="font-size: 48px; color: #8B5CF6; margin-bottom: 10px;">
-            &#129302;
+            <i class="fas fa-robot"></i>
           </div>
           <h3 style="font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 8px;">
              Lịch Trình AI Đề Xuất
@@ -686,7 +699,7 @@
         <!-- Suggestions List -->
         <div class="suggestions-list-container" style="max-height: 350px; overflow-y: auto; margin-bottom: 25px; padding-right: 10px;">
           <h4 style="font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #374151;">
-            &#9745; Danh sách đề xuất (${
+            <i class="fas fa-list-check"></i> Danh sách đề xuất (${
               suggestions.length
             })
           </h4>
@@ -740,14 +753,14 @@
               } phút</span>
             </div>
             <div style="font-size: 14px; color: #4b5563; margin-bottom: 5px;">
-              &#128197;
+              <i class="far fa-calendar" style="margin-right: 5px;"></i>
               ${dateStr} • ${timeStr}
             </div>
             ${
               s.reason
                 ? `
               <div style="font-size: 13px; color: #6b7280; background: #f9fafb; padding: 8px; border-radius: 4px; margin-top: 5px;">
-                &#128161;
+                <i class="fas fa-lightbulb" style="margin-right: 5px; color: #F59E0B;"></i>
                 ${s.reason}
               </div>
             `
@@ -775,7 +788,7 @@
             align-items: center;
             gap: 8px;
           ">
-            &#10003; Áp dụng lịch trình
+            <i class="fas fa-check-circle"></i> Áp dụng lịch trình
           </button>
 
           <button id="aiEditBtn" class="btn btn-secondary" style="
@@ -790,7 +803,7 @@
             align-items: center;
             gap: 8px;
           ">
-            &#9998; Chỉnh sửa yêu cầu
+            <i class="fas fa-edit"></i> Chỉnh sửa yêu cầu
           </button>
 
           <button id="aiBackBtn" class="btn btn-outline" style="
@@ -805,7 +818,7 @@
             align-items: center;
             gap: 8px;
           ">
-            &#8592; Quay lại
+            <i class="fas fa-arrow-left"></i> Quay lại
           </button>
         </div>
 
@@ -819,7 +832,7 @@
           border: 1px solid #e5e7eb;
         ">
           <h5 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #374151;">
-            &#128172; Hướng dẫn chỉnh sửa cho AI
+            <i class="fas fa-comment-dots"></i> Hướng dẫn chỉnh sửa cho AI
           </h5>
           <p style="font-size: 14px; color: #6b7280; margin-bottom: 15px;">
             Mô tả chi tiết các thay đổi bạn muốn AI điều chỉnh trong lịch trình
@@ -855,7 +868,7 @@
               align-items: center;
               gap: 8px;
             ">
-              &#8594; Gửi lại cho AI
+              <i class="fas fa-paper-plane"></i> Gửi lại cho AI
             </button>
 
             <button id="aiCancelEditBtn" class="btn btn-outline" style="
@@ -882,14 +895,14 @@
           font-size: 14px;
           color: #4f46e5;
         ">
-          &#8505;
+          <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
           Lịch trình sẽ được thêm vào tab Lịch AI và hiển thị trên calendar
         </div>
       </div>
     `;
 
         modalBody.innerHTML = previewHTML;
-
+        console.log(" Preview rendered successfully");
 
         this.setupPreviewEventListeners(originalFormData, suggestions);
       } catch (error) {
@@ -942,7 +955,7 @@
     },
 
     resetModalForm() {
-
+      console.log("🔄 Resetting AI modal form...");
 
       try {
         const modal = document.getElementById("aiSuggestionModal");
@@ -956,7 +969,7 @@
           taskList.innerHTML = `
         <div class="loading-state">
           <div class="loading-spinner">
-            ...
+            <i class="fas fa-spinner fa-spin"></i>
           </div>
           <p>Đang tải công việc...</p>
         </div>
@@ -991,7 +1004,7 @@
           editSection.style.display = "none";
         }
 
-
+        console.log(" Modal form reset complete");
       } catch (error) {
         console.error(" Error resetting modal form:", error);
       }
@@ -1016,7 +1029,7 @@
           if (savedData) {
             try {
               originalFormData = JSON.parse(savedData);
-
+              console.log(" Lấy lại form data từ dataset:", originalFormData);
             } catch (e) {
               console.error(" Lỗi parse form data:", e);
               this.showError("Không thể khôi phục dữ liệu form");
@@ -1045,7 +1058,7 @@
           additionalInstructions: instructions,
         };
 
-
+        console.log("🔄 Resubmitting với instructions:", payload);
 
         const resubmitBtn = modal.querySelector("#aiResubmitBtn");
         const editSection = modal.querySelector("#aiEditSection");
@@ -1053,7 +1066,7 @@
 
         if (resubmitBtn) {
           resubmitBtn.innerHTML =
-            '... Đang xử lý...';
+            '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
           resubmitBtn.disabled = true;
         }
 
@@ -1088,7 +1101,7 @@
           if (resubmitBtn) {
             resubmitBtn.innerHTML =
               originalBtnHTML ||
-              '&#8594; Gửi lại cho AI';
+              '<i class="fas fa-paper-plane"></i> Gửi lại cho AI';
             resubmitBtn.disabled = false;
           }
         }
@@ -1100,7 +1113,7 @@
 
     resetToFormView() {
       try {
-
+        console.log("🔄 Resetting to form view...");
 
         const modal = document.getElementById("aiSuggestionModal");
         if (!modal) {
@@ -1124,7 +1137,7 @@
         <!-- Date Range Section -->
         <div class="form-section">
           <div class="section-title">
-            &#128197;
+            <i class="fas fa-calendar-alt"></i>
             <span>Chọn Khoảng Thời Gian</span>
           </div>
           <div class="date-range-grid">
@@ -1143,11 +1156,11 @@
         <div class="form-section">
           <div class="section-header">
             <div class="section-title">
-              &#10004;
+              <i class="fas fa-tasks"></i>
               <span>Chọn Công Việc</span>
             </div>
             <button type="button" class="btn-select-all" id="selectAllTasksBtn">
-              &#10004;&#10004;
+              <i class="fas fa-check-double"></i>
               <span>Chọn tất cả</span>
             </button>
           </div>
@@ -1156,7 +1169,7 @@
             <div class="task-list" id="aiTaskList">
               <div class="loading-state">
                 <div class="loading-spinner">
-                  ...
+                  <i class="fas fa-spinner fa-spin"></i>
                 </div>
                 <p>Đang tải công việc...</p>
               </div>
@@ -1171,7 +1184,7 @@
         <!-- AI Options Section -->
         <div class="form-section">
           <div class="section-title">
-            &#9881;
+            <i class="fas fa-sliders-h"></i>
             <span>Tùy Chọn AI</span>
           </div>
 
@@ -1180,7 +1193,7 @@
               <input type="checkbox" id="aiOptionAvoidConflict" checked />
               <div class="option-content">
                 <div class="option-icon">
-                  &#128737;
+                  <i class="fas fa-shield-alt"></i>
                 </div>
                 <div class="option-text">
                   <strong>Tránh trùng lịch</strong>
@@ -1193,7 +1206,7 @@
               <input type="checkbox" id="aiOptionConsiderPriority" checked />
               <div class="option-content">
                 <div class="option-icon">
-                  &#9733;
+                  <i class="fas fa-star"></i>
                 </div>
                 <div class="option-text">
                   <strong>Ưu tiên quan trọng</strong>
@@ -1206,7 +1219,7 @@
               <input type="checkbox" id="aiOptionBalanceWorkload" checked />
               <div class="option-content">
                 <div class="option-icon">
-                  &#9878;
+                  <i class="fas fa-balance-scale"></i>
                 </div>
                 <div class="option-text">
                   <strong>Cân bằng khối lượng</strong>
@@ -1224,7 +1237,7 @@
         setTimeout(async () => {
           await this.populateAIModal();
           this.setupAllEventListeners();
-
+          console.log(" Form đã được reset thành công");
         }, 100);
       } catch (error) {
         console.error(" Error resetting to form view:", error);
@@ -1233,7 +1246,7 @@
     },
     async applyAISuggestions(suggestions) {
       try {
-
+        console.log("📤 Applying AI suggestions...", suggestions.length);
 
         if (!suggestions || suggestions.length === 0) {
           this.showError("Không có đề xuất nào để áp dụng");
@@ -1243,27 +1256,29 @@
         const applyBtn = document.getElementById("aiApplyBtn");
         if (applyBtn) {
           applyBtn.innerHTML =
-            '... Đang áp dụng...';
+            '<i class="fas fa-spinner fa-spin"></i> Đang áp dụng...';
           applyBtn.disabled = true;
         }
 
-
+        console.log(
+          "💾 Saving suggestions to database (backend will delete old AI events)..."
+        );
         const saveResult = await this.saveAISuggestionsToDatabase(suggestions);
         if (!saveResult || !saveResult.success) {
           this.showError("Lỗi lưu lịch trình AI");
           return;
         }
+        console.log(` Saved ${saveResult.savedCount} suggestions to database`);
+        console.log(` Deleted ${saveResult.deletedOld} old AI events`);
 
-
-
-
+        console.log("⏳ Waiting 2000ms for DB transaction completion...");
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-
+        console.log("🔄 Refreshing calendar from database...");
         if (window.AIModule && window.AIModule.refreshFromDatabase) {
           try {
             await AIModule.refreshFromDatabase();
-
+            console.log(" Calendar AI refreshed from database");
           } catch (err) {
             console.error(" Error refreshing calendar:", err);
           }
@@ -1292,7 +1307,7 @@
         const applyBtn = document.getElementById("aiApplyBtn");
         if (applyBtn) {
           applyBtn.innerHTML =
-            '&#10003; Áp dụng lịch trình';
+            '<i class="fas fa-check-circle"></i> Áp dụng lịch trình';
           applyBtn.disabled = false;
         }
       }
@@ -1300,7 +1315,7 @@
 
     getFormData() {
       try {
-
+        console.log(" Getting form data...");
 
         const selectedItems = document.querySelectorAll(
           '#aiSuggestionModal .task-item[data-selected="true"]'
@@ -1313,13 +1328,13 @@
             const parsedId = parseInt(taskId);
             if (!isNaN(parsedId) && parsedId > 0) {
               selectedTasks.push(parsedId);
-
+              console.log(` Task ${index + 1}: ID = ${parsedId}`);
             }
           }
         });
 
-
-
+        console.log(` Total selected tasks: ${selectedTasks.length}`);
+        console.log(` Task IDs:`, selectedTasks);
 
         if (selectedTasks.length === 0) {
           this.showError("Vui lòng chọn ít nhất một công việc!");
@@ -1352,7 +1367,7 @@
           options,
         };
 
-
+        console.log(" Form data ready:", formData);
         return formData;
       } catch (error) {
         console.error(" Error getting form data:", error);
@@ -1391,8 +1406,8 @@
 
     async submitToAI(formData) {
       try {
-
-
+        console.log("📤 Submitting to AI API...");
+        console.log("Request payload:", JSON.stringify(formData, null, 2));
 
         const token = localStorage.getItem("auth_token");
         if (!token) {
@@ -1408,7 +1423,7 @@
           body: JSON.stringify(formData),
         });
 
-
+        console.log(" AI API response status:", response.status);
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -1419,7 +1434,7 @@
         }
 
         const result = await response.json();
-
+        console.log(" AI API result:", result);
 
         if (!result.success) {
           throw new Error(result.message || "Lỗi xử lý AI");
@@ -1448,14 +1463,14 @@
       try {
         if (!suggestions || suggestions.length === 0) return;
 
-
+        console.log(` Adding ${suggestions.length} events to calendar...`);
 
         await this.waitForAIModule();
 
         if (window.AIModule && window.AIModule.loadAISuggestions) {
-
+          console.log("🔄 Calling AIModule.loadAISuggestions...");
           await AIModule.loadAISuggestions(suggestions);
-
+          console.log(" Events added to AI calendar successfully");
         } else {
           console.warn(" AIModule not available for adding events");
           this.showError("Không thể thêm lịch vào AI calendar");
@@ -1476,13 +1491,13 @@
             window.AIModule.isInitialized &&
             window.AIModule.calendar
           ) {
-
+            console.log(" AIModule is ready");
             resolve(true);
           } else if (Date.now() - startTime > timeout) {
             console.error(" AIModule timeout");
             reject(new Error("AIModule không sẵn sàng sau " + timeout + "ms"));
           } else {
-
+            console.log(" Waiting for AIModule...");
             setTimeout(check, 200);
           }
         };
@@ -1493,7 +1508,7 @@
 
     async saveAISuggestionsToDatabase(suggestions) {
       try {
-
+        console.log(`Saving ${suggestions.length} AI suggestions (batch)...`);
         const token = localStorage.getItem("auth_token");
         if (!token) throw new Error("Không có token");
 
@@ -1517,7 +1532,7 @@
     },
 
     async handleSuccessResult(result, formData) {
-
+      console.log("AI thành công, hiển thị preview...");
       this.displaySuccessResults(result.data);
     },
 
@@ -1532,7 +1547,12 @@
       if (startDateInput && endDateInput) {
         startDateInput.value = today.toISOString().split("T")[0];
         endDateInput.value = nextWeek.toISOString().split("T")[0];
-
+        console.log(
+          " Set default dates:",
+          startDateInput.value,
+          "to",
+          endDateInput.value
+        );
       }
     },
 
@@ -1563,7 +1583,7 @@
       const allChecked = Array.from(checkboxes).every((cb) => cb.checked);
       const newState = !allChecked;
 
-
+      console.log(`🔄 Setting all checkboxes to: ${newState}`);
 
       checkboxes.forEach((cb) => {
         cb.checked = newState;
@@ -1597,12 +1617,12 @@
         if (show) {
           submitBtn.disabled = true;
           submitBtn.innerHTML =
-            '... Đang xử lý...';
-
+            '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+          console.log(" Showing loading state...");
         } else {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '&#10024; Tạo Lịch Trình';
-
+          submitBtn.innerHTML = '<i class="fas fa-magic"></i> Tạo Lịch Trình';
+          console.log(" Hiding loading state...");
         }
       }
     },
@@ -1625,7 +1645,7 @@
     },
 
     closeModal() {
-
+      console.log(" AIHandler.closeModal() called");
 
       this.resetModalForm();
 
@@ -1638,7 +1658,7 @@
 
       if (window.ModalManager && ModalManager.close) {
         ModalManager.close("aiSuggestionModal");
-
+        console.log(" Modal closed via ModalManager");
       } else {
         console.warn(" ModalManager not available, using fallback");
         const modal = document.getElementById("aiSuggestionModal");
@@ -1650,7 +1670,7 @@
           modal.style.opacity = "";
           modal.style.visibility = "";
           document.body.classList.remove("modal-open");
-
+          console.log(" Modal closed (fallback)");
         }
       }
     },
@@ -1659,7 +1679,7 @@
       return `
       <div class="loading-state" style="text-align: center; padding: 40px;">
         <div class="loading-spinner" style="display: inline-block;">
-          ...
+          <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #8B5CF6;"></i>
         </div>
         <p style="margin-top: 20px; color: #666;">Đang tải danh sách công việc...</p>
       </div>
@@ -1669,7 +1689,7 @@
     getEmptyStateHTML() {
       return `
       <div class="empty-state" style="text-align: center; padding: 40px;">
-        
+        <i class="fas fa-tasks" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
         <p style="font-size: 16px; color: #666;">Không có công việc nào chưa hoàn thành</p>
         <p class="text-sm text-gray-500 mt-2">Hãy tạo công việc mới trước khi sử dụng AI</p>
       </div>
@@ -1693,7 +1713,7 @@
 
         suggestionsHTML += `
         <div class="suggestion-item" style="padding: 15px; margin: 10px 0; border-left: 3px solid #8B5CF6; background: #f9fafb;">
-          &#128197;
+          <i class="far fa-calendar-check" style="color: #8B5CF6; margin-right: 10px;"></i>
           <div class="suggestion-info" style="display: inline-block;">
             <strong>Công việc #${suggestion.taskId}</strong>
             <small style="display: block; color: #666;">${dateStr} lúc ${timeStr} (${
@@ -1720,14 +1740,14 @@
       return `
       <div class="ai-summary-section" style="padding: 20px;">
         <div class="summary-header success" style="text-align: center; margin-bottom: 30px;">
-          &#10003;
+          <i class="fas fa-check-circle" style="font-size: 64px; color: #10B981; margin-bottom: 20px;"></i>
           <h4 style="font-size: 24px; font-weight: 600; margin: 0;"> AI đã tạo lịch trình thành công!</h4>
         </div>
         <p style="text-align: center; font-size: 16px; margin-bottom: 30px;"><strong>${summary}</strong></p>
 
         <div class="ai-stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
           <div class="stat-item" style="text-align: center; padding: 20px; background: #f9fafb; border-radius: 8px;">
-            
+            <i class="fas fa-tasks" style="font-size: 32px; color: #8B5CF6; margin-bottom: 10px;"></i>
             <div>
               <strong style="display: block; font-size: 24px;">${
                 stats.totalTasks || suggestionCount
@@ -1736,7 +1756,7 @@
             </div>
           </div>
           <div class="stat-item" style="text-align: center; padding: 20px; background: #f9fafb; border-radius: 8px;">
-            &#128336;
+            <i class="fas fa-clock" style="font-size: 32px; color: #3B82F6; margin-bottom: 10px;"></i>
             <div>
               <strong style="display: block; font-size: 24px;">${
                 stats.totalHours || Math.round(suggestionCount * 1.5)
@@ -1745,7 +1765,7 @@
             </div>
           </div>
           <div class="stat-item" style="text-align: center; padding: 20px; background: #f9fafb; border-radius: 8px;">
-            &#128197;
+            <i class="fas fa-calendar-days" style="font-size: 32px; color: #10B981; margin-bottom: 10px;"></i>
             <div>
               <strong style="display: block; font-size: 24px;">${
                 stats.daysUsed || 1
@@ -1763,13 +1783,13 @@
         </div>
 
         <div class="summary-note" style="padding: 15px; background: #EEF2FF; border-radius: 8px; margin-bottom: 20px;">
-          &#128161;
+          <i class="fas fa-lightbulb" style="color: #8B5CF6; margin-right: 10px;"></i>
           Những đề xuất này đã được thêm vào lịch AI của bạn
         </div>
 
         <div class="mt-6 text-center">
           <button class="btn btn-primary" onclick="location.reload()" style="padding: 12px 30px; background: #8B5CF6; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">
-            &#8635;
+            <i class="fas fa-redo"></i>
             Tải lại trang
           </button>
         </div>
@@ -1787,7 +1807,7 @@
     },
 
     showSuccess(message) {
-
+      console.log(" Success:", message);
       if (window.Utils && Utils.showToast) {
         Utils.showToast(message, "success");
       }
@@ -1800,13 +1820,13 @@
       if (modalBody) {
         modalBody.innerHTML = `
         <div class="error-state" style="text-align: center; padding: 40px;">
-          
+          <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #EF4444; margin-bottom: 20px;"></i>
           <p style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">Không thể tải dữ liệu</p>
           <p style="color: #666; margin-bottom: 20px;">${
             message || "Đã xảy ra lỗi"
           }</p>
           <button class="btn btn-primary" onclick="AIHandler.initAIModal()" style="padding: 10px 20px; background: #3B82F6; color: white; border: none; border-radius: 8px; cursor: pointer;">
-            &#8635;
+            <i class="fas fa-redo"></i>
             Thử lại
           </button>
         </div>
@@ -1815,37 +1835,44 @@
     },
 
     debugTaskIDs() {
-
+      console.log(" Debugging task IDs in modal...");
 
       const taskItems = document.querySelectorAll(
         "#aiSuggestionModal .task-item"
       );
-
+      console.log(`Found ${taskItems.length} task items`);
 
       taskItems.forEach((item, index) => {
         const taskId = item.dataset.taskId;
         const checkbox = item.querySelector(".task-checkbox");
 
-
+        console.log(`Task ${index}:`, {
+          "data-task-id": taskId,
+          "checkbox.value": checkbox?.value,
+          "checkbox.dataset": checkbox?.dataset,
+          "checkbox.checked": checkbox?.checked,
+        });
       });
 
       const checkedBoxes = document.querySelectorAll(
         "#aiSuggestionModal .task-checkbox:checked"
       );
-
+      console.log(`${checkedBoxes.length} checkboxes checked`);
 
       checkedBoxes.forEach((cb, index) => {
-
+        console.log(
+          `Checked ${index}: value="${cb.value}", data-task-id="${cb.dataset.taskId}"`
+        );
       });
     },
   };
 
   window.AIHandler = AIHandler;
-
+  console.log("AIHandler v9.3 đã sẵn sàng và được gắn vào window!");
 
   document.addEventListener("modalShown", (e) => {
     if (e.detail && e.detail.modalId === "aiSuggestionModal") {
-
+      console.log("🎯 AI Modal shown, initializing...");
       setTimeout(() => {
         AIHandler.initAIModal();
       }, 300);
@@ -1853,17 +1880,17 @@
   });
 
   window.debugAIHandler = function () {
-
-
-
+    console.log("=== AI Handler Debug ===");
+    console.log("AIHandler available:", !!window.AIHandler);
+    console.log("Methods:", Object.keys(AIHandler));
 
     const form = document.getElementById("aiSuggestionForm");
-
+    console.log("Form exists:", !!form);
 
     if (AIHandler.debugTaskIDs) {
       AIHandler.debugTaskIDs();
     }
   };
 
-
+  console.log(" AI Suggestion Handler v9.2 ready");
 })();

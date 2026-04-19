@@ -11,14 +11,12 @@
       style="background:linear-gradient(135deg,#1e3a5f 0%,#1e293b 100%)"
     >
       <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,0.15)">
+          <i class="fas fa-plus text-white text-sm"></i>
+        </div>
         <div>
-          <h2 class="text-base font-bold np-font-heading" style="color:#f1f5f9;font-family:'Playfair Display',Georgia,serif" id="createTaskModalTitle">Công việc mới</h2>
-          <!-- Prefill time badge — shown only when opened from calendar drag -->
-          <p class="text-xs hidden" style="color:#94a3b8" id="prefillTimeBadge">
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded" style="background:rgba(59,130,246,0.25);color:#93c5fd;font-size:11px">
-              <span id="prefillTimeText">Từ lịch trình</span>
-            </span>
-          </p>
+          <h2 class="text-base font-bold" style="color:#f1f5f9">Tạo công việc mới</h2>
+          <p class="text-xs" style="color:#94a3b8">Điền thông tin công việc bên dưới</p>
         </div>
       </div>
       <button
@@ -29,7 +27,7 @@
         onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='#94a3b8'"
         aria-label="Close"
       >
-        &#x2715;
+        <i class="fas fa-times text-sm"></i>
       </button>
     </div>
 
@@ -38,7 +36,7 @@
 
         <!-- Title -->
         <div>
-          <label for="taskTitle" class="np-label block mb-1.5">
+          <label for="taskTitle" class="block text-xs font-semibold mb-1.5" style="color:#374151">
             TIÊU ĐỀ CÔNG VIỆC <span style="color:#ef4444">*</span>
           </label>
           <input
@@ -46,7 +44,7 @@
             id="taskTitle"
             name="taskTitle"
             required
-            class="w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             style="border-color:#e2e8f0;background:#f8fafc"
             placeholder="Nhập tiêu đề công việc..."
           />
@@ -54,14 +52,14 @@
 
         <!-- Description -->
         <div>
-          <label for="taskDescription" class="np-label block mb-1.5">
-            MÔ TẢ <span style="color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0">(tùy chọn)</span>
+          <label for="taskDescription" class="block text-xs font-semibold mb-1.5" style="color:#374151">
+            MÔ TẢ <span style="color:#94a3b8;font-weight:400">(tùy chọn)</span>
           </label>
           <textarea
             id="taskDescription"
             name="taskDescription"
             rows="2"
-            class="w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            class="w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
             style="border-color:#e2e8f0;background:#f8fafc"
             placeholder="Nhập mô tả chi tiết..."
           ></textarea>
@@ -69,37 +67,33 @@
 
         <!-- Priority chips -->
         <div>
-          <label class="np-label block mb-1.5">MỨC ĐỘ ƯU TIÊN</label>
+          <label class="block text-xs font-semibold mb-1.5" style="color:#374151">MỨC ĐỘ ƯU TIÊN</label>
           <div class="grid grid-cols-4 gap-2" id="priorityChipsContainer">
             <label class="cursor-pointer">
               <input type="radio" name="taskPriority" value="1" class="sr-only" />
-              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none"
-                style="border-color:#d1fae5;background:#f0fdf4;color:#059669">
-                <div class="w-3 h-3 rounded-full mx-auto mb-1" style="background:#10b981"></div>
+              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none" data-priority="1">
+                <div class="priority-chip-dot w-3 h-3 rounded-full mx-auto mb-1"></div>
                 Thấp
               </div>
             </label>
             <label class="cursor-pointer">
               <input type="radio" name="taskPriority" value="2" checked class="sr-only" />
-              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none"
-                style="border-color:#2563eb;background:#dbeafe;color:#1d4ed8">
-                <div class="w-3 h-3 rounded-full mx-auto mb-1" style="background:#3b82f6"></div>
+              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none" data-priority="2">
+                <div class="priority-chip-dot w-3 h-3 rounded-full mx-auto mb-1"></div>
                 Trung bình
               </div>
             </label>
             <label class="cursor-pointer">
               <input type="radio" name="taskPriority" value="3" class="sr-only" />
-              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none"
-                style="border-color:#fde68a;background:#fffbeb;color:#d97706">
-                <div class="w-3 h-3 rounded-full mx-auto mb-1" style="background:#f59e0b"></div>
+              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none" data-priority="3">
+                <div class="priority-chip-dot w-3 h-3 rounded-full mx-auto mb-1"></div>
                 Cao
               </div>
             </label>
             <label class="cursor-pointer">
               <input type="radio" name="taskPriority" value="4" class="sr-only" />
-              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none"
-                style="border-color:#fecaca;background:#fef2f2;color:#dc2626">
-                <div class="w-3 h-3 rounded-full mx-auto mb-1" style="background:#ef4444"></div>
+              <div class="priority-chip text-center py-2 px-1 rounded-xl border-2 transition-all text-xs font-semibold select-none" data-priority="4">
+                <div class="priority-chip-dot w-3 h-3 rounded-full mx-auto mb-1"></div>
                 Rất cao
               </div>
             </label>
@@ -110,16 +104,16 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <div class="flex justify-between items-center mb-1.5">
-              <label class="np-label block">DANH MỤC</label>
+              <label class="block text-xs font-semibold" style="color:#374151">DANH MỤC</label>
               <button
                 type="button"
                 id="createNewCategoryBtn"
                 class="text-xs font-medium"
-                style="color:#2563eb"
-                onmouseover="this.style.color='#1d4ed8'"
-                onmouseout="this.style.color='#2563eb'"
+                style="color:#dc2626"
+                onmouseover="this.style.color='#b91c1c'"
+                onmouseout="this.style.color='#dc2626'"
               >
-                + Thêm
+                <i class="fas fa-plus mr-0.5"></i> Thêm
               </button>
             </div>
             <div
@@ -128,44 +122,62 @@
               style="border-color:#e2e8f0;background:#f8fafc"
             >
               <div class="text-gray-400 text-center py-2 text-xs" id="category-loading">
-                Đang tải...
+                <i class="fas fa-spinner fa-spin mr-1"></i> Đang tải...
               </div>
             </div>
           </div>
           <div>
-            <label for="taskTag" class="np-label block mb-1.5">TAG</label>
+            <label for="taskTag" class="block text-xs font-semibold mb-1.5" style="color:#374151">TAG</label>
             <input
               type="text"
               id="taskTag"
               name="taskTag"
-              class="w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               style="border-color:#e2e8f0;background:#f8fafc"
               placeholder="urgent, project..."
             />
           </div>
         </div>
 
-        <!-- Hourly Wage -->
-        <div>
-          <label for="taskHourlyWage" class="np-label block mb-1.5">
-            LƯƠNG GIỜ <span style="color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0">(VND)</span>
-          </label>
-          <input
-            type="number"
-            id="taskHourlyWage"
-            name="taskHourlyWage"
-            value="0"
-            min="0"
-            step="1000"
-            class="w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            style="border-color:#e2e8f0;background:#f8fafc"
-          />
+        <!-- Duration + Hourly Wage row -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="taskDuration" class="block text-xs font-semibold mb-1.5" style="color:#374151">
+              THỜI GIAN ƯỚC TÍNH <span style="color:#94a3b8;font-weight:400">(phút)</span>
+            </label>
+            <input
+              type="number"
+              id="taskDuration"
+              name="taskDuration"
+              value="60"
+              min="5"
+              step="5"
+              class="w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              style="border-color:#e2e8f0;background:#f8fafc"
+            />
+          </div>
+          <div>
+            <label for="taskHourlyWage" class="block text-xs font-semibold mb-1.5" style="color:#374151">
+              LƯƠNG GIỜ <span style="color:#94a3b8;font-weight:400">(VND)</span>
+            </label>
+            <input
+              type="number"
+              id="taskHourlyWage"
+              name="taskHourlyWage"
+              value="0"
+              min="0"
+              step="1000"
+              class="w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              style="border-color:#e2e8f0;background:#f8fafc"
+            />
+          </div>
         </div>
 
         <!-- AI fields -->
-        <div class="rounded-xl p-3.5" style="background:#f0f7ff;border:1px solid #bfdbfe">
+        <div class="rounded-xl p-3.5" style="background:#fff0f0;border:1px solid #fecaca">
           <div class="flex items-center gap-2 mb-3">
-            <span class="text-xs font-semibold" style="color:#1d4ed8">GỢI Ý CHO AI LÊN LỊCH</span>
+            <i class="fas fa-brain text-xs" style="color:#dc2626"></i>
+            <span class="text-xs font-semibold" style="color:#b91c1c">GỢI Ý CHO AI LÊN LỊCH</span>
           </div>
           <div class="grid grid-cols-3 gap-3">
             <div>
@@ -173,8 +185,8 @@
               <select
                 id="taskComplexity"
                 name="taskComplexity"
-                class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style="border-color:#bfdbfe;background:#fff;color:#374151"
+                class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-red-500"
+                style="border-color:#fecaca;background:#fff;color:#374151"
               >
                 <option value="">Chọn...</option>
                 <option value="1">Đơn giản</option>
@@ -188,8 +200,8 @@
               <select
                 id="taskFocusLevel"
                 name="taskFocusLevel"
-                class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style="border-color:#bfdbfe;background:#fff;color:#374151"
+                class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-red-500"
+                style="border-color:#fecaca;background:#fff;color:#374151"
               >
                 <option value="">Chọn...</option>
                 <option value="1">Thấp</option>
@@ -203,8 +215,8 @@
               <select
                 id="taskSuitableTime"
                 name="taskSuitableTime"
-                class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style="border-color:#bfdbfe;background:#fff;color:#374151"
+                class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-red-500"
+                style="border-color:#fecaca;background:#fff;color:#374151"
               >
                 <option value="">Chọn...</option>
                 <option value="1">Sáng</option>
@@ -221,60 +233,94 @@
           <label class="flex items-center gap-3 cursor-pointer">
             <div class="relative flex-shrink-0">
               <input type="checkbox" id="taskFixedTime" class="sr-only peer" />
-              <div class="w-10 h-5 rounded-full transition-all peer-checked:bg-blue-600" style="background:#cbd5e1"></div>
+              <div class="w-10 h-5 rounded-full transition-all peer-checked:bg-red-600" style="background:#cbd5e1"></div>
               <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-all peer-checked:translate-x-5"></div>
             </div>
             <div>
-              <span class="text-sm font-semibold" style="color:#1e293b">Thời gian cố định</span>
-              <p class="text-xs" style="color:#94a3b8">AI sẽ không thay đổi thời gian này</p>
+              <span class="text-sm font-semibold" style="color:#1e293b">Có thời gian cố định</span>
+              <p class="text-xs" style="color:#94a3b8">Đặt ngày giờ cụ thể cho công việc này</p>
             </div>
           </label>
 
-          <div id="fixedTimeFields" class="hidden mt-4 space-y-3">
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label for="taskFixedStartTime" class="np-label block mb-1.5">
-                  BẮT ĐẦU <span style="color:#ef4444">*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  id="taskFixedStartTime"
-                  name="taskFixedStartTime"
-                  class="w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  style="border-color:#e2e8f0;background:#fff"
-                />
+          <div id="fixedTimeFields" class="hidden mt-4 space-y-4">
+            <!-- Time block -->
+            <div class="rounded-xl border p-3" style="border-color:#e2e8f0;background:#fff">
+              <div class="flex items-center gap-2 mb-2">
+                <i class="fas fa-clock text-xs" style="color:#dc2626"></i>
+                <span class="text-xs font-semibold" style="color:#374151">THỜI GIAN</span>
               </div>
-              <div>
-                <label for="taskFixedEndTime" class="np-label block mb-1.5">KẾT THÚC <span style="color:#ef4444">*</span></label>
-                <input
-                  type="datetime-local"
-                  id="taskFixedEndTime"
-                  name="taskFixedEndTime"
-                  class="w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  style="border-color:#e2e8f0;background:#fff"
-                />
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label for="taskFixedStartHour" class="block text-[10px] font-medium mb-1" style="color:#64748b">BẮT ĐẦU <span style="color:#ef4444">*</span></label>
+                  <input
+                    type="time"
+                    id="taskFixedStartHour"
+                    name="taskFixedStartHour"
+                    value="09:00"
+                    class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-red-500"
+                    style="border-color:#e2e8f0;background:#f8fafc"
+                  />
+                </div>
+                <div>
+                  <label for="taskFixedEndHour" class="block text-[10px] font-medium mb-1" style="color:#64748b">KẾT THÚC</label>
+                  <input
+                    type="time"
+                    id="taskFixedEndHour"
+                    name="taskFixedEndHour"
+                    value="10:00"
+                    class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-red-500"
+                    style="border-color:#e2e8f0;background:#f8fafc"
+                  />
+                </div>
+                <div>
+                  <label for="taskFixedDuration" class="block text-[10px] font-medium mb-1" style="color:#64748b">THỜI LƯỢNG (phút)</label>
+                  <input
+                    type="number"
+                    id="taskFixedDuration"
+                    name="taskFixedDuration"
+                    value="60"
+                    min="5"
+                    step="5"
+                    class="w-full px-2.5 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-red-500"
+                    style="border-color:#e2e8f0;background:#f8fafc"
+                  />
+                </div>
               </div>
+              <p class="text-[10px] mt-1.5" style="color:#94a3b8">
+                Chỉnh <b>Kết thúc</b> hoặc <b>Thời lượng</b>, giá trị còn lại sẽ tự cập nhật.
+              </p>
             </div>
-            <div>
-              <label for="taskDefaultDuration" class="np-label block mb-1.5">THỜI LƯỢNG MẶC ĐỊNH (phút)</label>
-              <input
-                type="number"
-                id="taskDefaultDuration"
-                name="taskDefaultDuration"
-                value="60"
-                min="5"
-                step="5"
-                class="w-full px-3 py-2 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style="border-color:#e2e8f0;background:#fff"
-              />
-              <p class="text-xs mt-1" style="color:#94a3b8">Dùng khi không có giờ kết thúc cụ thể</p>
+
+            <!-- Date block -->
+            <div class="rounded-xl border p-3" style="border-color:#e2e8f0;background:#fff">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-calendar-day text-xs" style="color:#dc2626"></i>
+                  <span class="text-xs font-semibold" style="color:#374151">NGÀY THỰC HIỆN</span>
+                  <span id="taskFixedDateCount" class="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style="background:#fee2e2;color:#b91c1c">0</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button type="button" id="taskFixedPrevMonth" class="w-6 h-6 rounded flex items-center justify-center transition-colors" style="color:#64748b" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'" aria-label="Tháng trước">
+                    <i class="fas fa-chevron-left text-[10px]"></i>
+                  </button>
+                  <span id="taskFixedMonthLabel" class="text-xs font-semibold" style="color:#1e293b;min-width:90px;text-align:center"></span>
+                  <button type="button" id="taskFixedNextMonth" class="w-6 h-6 rounded flex items-center justify-center transition-colors" style="color:#64748b" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'" aria-label="Tháng sau">
+                    <i class="fas fa-chevron-right text-[10px]"></i>
+                  </button>
+                </div>
+              </div>
+              <div id="taskFixedMiniCal" class="grid grid-cols-7 gap-1 text-center text-[10px]"></div>
+              <div id="taskFixedSelectedChips" class="flex flex-wrap gap-1 mt-2"></div>
+              <p class="text-[10px] mt-1.5" style="color:#94a3b8">Nhấn chọn nhiều ngày. Ngày trong quá khứ không thể chọn.</p>
             </div>
+
+            <!-- Repeat -->
             <div>
-              <label for="taskRepeatOption" class="np-label block mb-1.5">LẶP LẠI</label>
+              <label for="taskRepeatOption" class="block text-xs font-semibold mb-1.5" style="color:#374151">LẶP LẠI</label>
               <select
                 id="taskRepeatOption"
                 name="taskRepeatOption"
-                class="w-full px-3 py-2 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
                 style="border-color:#e2e8f0;background:#fff;color:#374151"
               >
                 <option value="">Không lặp</option>
@@ -287,39 +333,30 @@
           </div>
         </div>
 
-        <!-- Default duration — shown always, used when instance has no fixed end -->
-        <div id="defaultDurationRow">
-          <label for="taskDuration" class="np-label block mb-1.5">
-            THỜI GIAN ƯỚC TÍNH <span style="color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0">(phút)</span>
-          </label>
-          <input
-            type="number"
-            id="taskDuration"
-            name="taskDuration"
-            value="60"
-            min="5"
-            step="5"
-            class="w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            style="border-color:#e2e8f0;background:#f8fafc"
-          />
-        </div>
-
         <!-- Footer Buttons -->
         <div class="flex justify-end gap-3 pt-2">
           <button
             type="button"
             id="cancelCreateTaskBtn"
-            class="np-button"
+            class="px-5 py-2.5 text-sm font-semibold rounded-xl border transition-all"
+            style="border-color:#e2e8f0;color:#64748b;background:#f8fafc"
+            onmouseover="this.style.background='#f1f5f9';this.style.borderColor='#cbd5e1'"
+            onmouseout="this.style.background='#f8fafc';this.style.borderColor='#e2e8f0'"
           >
             Hủy
           </button>
           <button
             type="submit"
-            class="np-button np-button--primary"
+            class="px-5 py-2.5 text-sm font-semibold text-white rounded-xl flex items-center gap-2 transition-all"
+            style="background:linear-gradient(135deg,#dc2626,#4f46e5);box-shadow:0 4px 12px rgba(220,38,38,0.3)"
+            onmouseover="this.style.boxShadow='0 6px 18px rgba(220,38,38,0.45)'"
+            onmouseout="this.style.boxShadow='0 4px 12px rgba(220,38,38,0.3)'"
           >
-            <span class="submit-text">Tạo công việc</span>
+            <span class="submit-text flex items-center gap-2">
+              <i class="fas fa-plus text-xs"></i> Tạo công việc
+            </span>
             <span class="submit-loading hidden">
-              Đang xử lý...
+              <i class="fas fa-spinner fa-spin"></i> Đang xử lý...
             </span>
           </button>
         </div>
@@ -344,30 +381,30 @@
   }
 
   function updatePriorityChips() {
-    const chipStyles = {
-      '1': { border: '#10b981', bg: '#d1fae5', color: '#059669', defBorder: '#d1fae5', defBg: '#f0fdf4' },
-      '2': { border: '#2563eb', bg: '#dbeafe', color: '#1d4ed8', defBorder: '#bfdbfe', defBg: '#eff6ff' },
-      '3': { border: '#f59e0b', bg: '#fef3c7', color: '#d97706', defBorder: '#fde68a', defBg: '#fffbeb' },
-      '4': { border: '#ef4444', bg: '#fee2e2', color: '#dc2626', defBorder: '#fecaca', defBg: '#fef2f2' },
-    };
+    const getColor = (p) => (window.PriorityTheme ? PriorityTheme.getColor(p) : "#3B82F6");
     document.querySelectorAll('input[name="taskPriority"]').forEach(r => {
       const chip = r.nextElementSibling;
       if (!chip) return;
-      const s = chipStyles[r.value];
+      const hex = getColor(r.value);
+      // Soft tints derived from the priority hex (appended hex alpha: 22 ≈ 13%, 33 ≈ 20%).
+      const dot = chip.querySelector('.priority-chip-dot');
+      if (dot) dot.style.background = hex;
       if (r.checked) {
-        chip.style.borderColor = s.border;
-        chip.style.background = s.bg;
-        chip.style.color = s.color;
-        chip.style.transform = 'scale(1.05)';
-        chip.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+        chip.style.borderColor = hex;
+        chip.style.background = hex + '22';
+        chip.style.color = hex;
+        chip.style.boxShadow = '0 1px 3px rgba(15,23,42,0.08)';
       } else {
-        chip.style.borderColor = s.defBorder;
-        chip.style.background = s.defBg;
-        chip.style.transform = 'scale(1)';
+        chip.style.borderColor = hex + '33';
+        chip.style.background = hex + '11';
+        chip.style.color = hex;
         chip.style.boxShadow = 'none';
       }
+      chip.style.transform = 'scale(1)';
     });
   }
+  // Re-paint when user customizes palette (W2).
+  document.addEventListener('priority-colors-changed', updatePriorityChips);
 
   // Init chip events
   document.querySelectorAll('input[name="taskPriority"]').forEach(radio => {
@@ -394,51 +431,183 @@
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
-  // Format a Date for the prefill badge: "10:15 – 11:40, Thứ Ba 9/4"
-  function formatPrefillLabel(startAt, endAt) {
-    const days = ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
-    const pad = n => String(n).padStart(2, "0");
-    const s = new Date(startAt);
-    const e = new Date(endAt);
-    const timeStr = `${pad(s.getHours())}:${pad(s.getMinutes())} – ${pad(e.getHours())}:${pad(e.getMinutes())}`;
-    const dateStr = `${days[s.getDay()]} ${s.getDate()}/${s.getMonth() + 1}`;
-    return `${timeStr}, ${dateStr}`;
+  // Convert "HH:MM" → minutes since midnight.
+  function hmToMinutes(hm) {
+    if (!hm || typeof hm !== "string") return NaN;
+    const [h, m] = hm.split(":").map((v) => parseInt(v, 10));
+    if (isNaN(h) || isNaN(m)) return NaN;
+    return h * 60 + m;
   }
 
-  // Apply calendar prefill to the fixed-time inputs + show badge
-  function applyPrefill(prefill) {
-    if (!prefill || !prefill.startAt) return;
-    const startAt = new Date(prefill.startAt);
-    const endAt = prefill.endAt ? new Date(prefill.endAt) : new Date(startAt.getTime() + 60 * 60000);
-
-    // Auto-enable fixed time toggle
-    const checkbox = document.getElementById("taskFixedTime");
-    if (checkbox) {
-      checkbox.checked = true;
-      document.getElementById("fixedTimeFields")?.classList.remove("hidden");
-    }
-
-    const startInput = document.getElementById("taskFixedStartTime");
-    const endInput = document.getElementById("taskFixedEndTime");
-    if (startInput) startInput.value = formatDateTime(startAt);
-    if (endInput) endInput.value = formatDateTime(endAt);
-
-    // Update default duration from drag range
-    const durMinutes = Math.round((endAt - startAt) / 60000);
-    const durInput = document.getElementById("taskDuration");
-    if (durInput && durMinutes > 0) durInput.value = durMinutes;
-    const defDurInput = document.getElementById("taskDefaultDuration");
-    if (defDurInput && durMinutes > 0) defDurInput.value = durMinutes;
-
-    // Show prefill badge in header
-    const badge = document.getElementById("prefillTimeBadge");
-    const textEl = document.getElementById("prefillTimeText");
-    if (badge) badge.classList.remove("hidden");
-    if (textEl) textEl.textContent = formatPrefillLabel(startAt, endAt);
-
-    // Clear the global so next open doesn't re-apply stale data
-    window.__pendingTaskPrefill = null;
+  function minutesToHM(mins) {
+    const norm = ((mins % 1440) + 1440) % 1440;
+    const h = Math.floor(norm / 60);
+    const m = norm % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
   }
+
+  // When start or duration changes → recalc end.
+  function recalcEndFromDuration() {
+    const startHour = document.getElementById("taskFixedStartHour");
+    const endHour = document.getElementById("taskFixedEndHour");
+    const duration = document.getElementById("taskFixedDuration");
+    if (!startHour || !endHour || !duration) return;
+    const startMins = hmToMinutes(startHour.value);
+    const dur = parseInt(duration.value) || 0;
+    if (isNaN(startMins) || dur <= 0) return;
+    endHour.value = minutesToHM(startMins + dur);
+  }
+
+  // When end changes → recalc duration.
+  function recalcDurationFromEnd() {
+    const startHour = document.getElementById("taskFixedStartHour");
+    const endHour = document.getElementById("taskFixedEndHour");
+    const duration = document.getElementById("taskFixedDuration");
+    if (!startHour || !endHour || !duration) return;
+    const s = hmToMinutes(startHour.value);
+    const e = hmToMinutes(endHour.value);
+    if (isNaN(s) || isNaN(e)) return;
+    let diff = e - s;
+    if (diff <= 0) diff += 1440;
+    duration.value = diff;
+  }
+
+  // --------- Mini-calendar state (multi-date selection) ---------
+  const FixedDates = {
+    _cursor: null,           // Date anchored to first day of viewing month
+    _selected: new Set(),    // set of "YYYY-MM-DD" strings
+
+    _todayKey() {
+      const t = new Date();
+      return this._dateKey(new Date(t.getFullYear(), t.getMonth(), t.getDate()));
+    },
+
+    _dateKey(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    },
+
+    _parseKey(key) {
+      const [y, m, d] = key.split("-").map((v) => parseInt(v, 10));
+      return new Date(y, m - 1, d);
+    },
+
+    getSelectedKeys() {
+      return [...this._selected].sort();
+    },
+
+    reset() {
+      const t = new Date();
+      this._cursor = new Date(t.getFullYear(), t.getMonth(), 1);
+      this._selected = new Set([this._todayKey()]);
+    },
+
+    setSelectedKeys(keys) {
+      this._selected = new Set(keys.filter(Boolean));
+      if (this._selected.size === 0) this._selected.add(this._todayKey());
+    },
+
+    prevMonth() {
+      this._cursor = new Date(this._cursor.getFullYear(), this._cursor.getMonth() - 1, 1);
+      this.render();
+    },
+
+    nextMonth() {
+      this._cursor = new Date(this._cursor.getFullYear(), this._cursor.getMonth() + 1, 1);
+      this.render();
+    },
+
+    toggle(key) {
+      if (this._selected.has(key)) {
+        if (this._selected.size > 1) this._selected.delete(key);
+      } else {
+        this._selected.add(key);
+      }
+      this.render();
+    },
+
+    render() {
+      const grid = document.getElementById("taskFixedMiniCal");
+      const label = document.getElementById("taskFixedMonthLabel");
+      const chips = document.getElementById("taskFixedSelectedChips");
+      const counter = document.getElementById("taskFixedDateCount");
+      if (!grid || !label || !chips || !counter) return;
+
+      const y = this._cursor.getFullYear();
+      const m = this._cursor.getMonth();
+      label.textContent = `Tháng ${m + 1}/${y}`;
+
+      const firstDow = new Date(y, m, 1).getDay(); // 0 = Sun
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      const todayKey = this._todayKey();
+      const dow = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+
+      let html = dow.map((d) => `<div class="font-semibold py-1" style="color:#94a3b8">${d}</div>`).join("");
+      for (let i = 0; i < firstDow; i++) html += `<div></div>`;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const key = this._dateKey(new Date(y, m, day));
+        const isPast = key < todayKey;
+        const isToday = key === todayKey;
+        const isSelected = this._selected.has(key);
+        const base = "w-full h-7 rounded-md flex items-center justify-center transition-colors";
+        let style = "";
+        if (isPast) {
+          style = "color:#cbd5e1;cursor:not-allowed;background:#f8fafc";
+        } else if (isSelected) {
+          style = "color:#fff;background:#dc2626;font-weight:700;cursor:pointer";
+        } else if (isToday) {
+          style = "color:#b91c1c;background:#fee2e2;font-weight:600;cursor:pointer";
+        } else {
+          style = "color:#1e293b;cursor:pointer";
+        }
+        html += `<div class="${base}" data-date-key="${key}" data-past="${isPast ? 1 : 0}" style="${style}">${day}</div>`;
+      }
+      grid.innerHTML = html;
+
+      // Selected chips
+      const sorted = this.getSelectedKeys();
+      counter.textContent = sorted.length;
+      chips.innerHTML = sorted.length
+        ? sorted.map((k) => {
+            const d = this._parseKey(k);
+            const label = `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
+            return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold" style="background:#fee2e2;color:#b91c1c" data-chip-key="${k}">
+              ${label}<button type="button" class="hover:text-red-900" data-remove-key="${k}" aria-label="Bỏ chọn">&times;</button>
+            </span>`;
+          }).join("")
+        : `<span class="text-[10px] italic" style="color:#94a3b8">Chưa chọn ngày nào</span>`;
+    },
+
+    bind() {
+      const grid = document.getElementById("taskFixedMiniCal");
+      const chips = document.getElementById("taskFixedSelectedChips");
+      const prev = document.getElementById("taskFixedPrevMonth");
+      const next = document.getElementById("taskFixedNextMonth");
+      if (grid && !grid._bound) {
+        grid._bound = true;
+        grid.addEventListener("click", (e) => {
+          const cell = e.target.closest("[data-date-key]");
+          if (!cell || cell.dataset.past === "1") return;
+          this.toggle(cell.dataset.dateKey);
+        });
+      }
+      if (chips && !chips._bound) {
+        chips._bound = true;
+        chips.addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-remove-key]");
+          if (!btn) return;
+          this._selected.delete(btn.dataset.removeKey);
+          if (this._selected.size === 0) this._selected.add(this._todayKey());
+          this.render();
+        });
+      }
+      if (prev && !prev._bound) { prev._bound = true; prev.addEventListener("click", () => this.prevMonth()); }
+      if (next && !next._bound) { next._bound = true; next.addEventListener("click", () => this.nextMonth()); }
+    },
+  };
 
   let loadCategoriesRetries = 0;
   const MAX_RETRIES = 5;
@@ -454,7 +623,7 @@
       return;
     }
     loadCategoriesRetries = 0;
-    container.innerHTML = `<div id="category-loading" class="text-gray-400 text-center py-2 text-xs">Đang tải...</div>`;
+    container.innerHTML = `<div id="category-loading" class="text-gray-400 text-center py-2 text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Đang tải...</div>`;
     try {
       const token = localStorage.getItem("auth_token");
       if (!token) throw new Error("No auth token");
@@ -466,7 +635,7 @@
       if (result.success && result.data) renderCategories(result.data);
       else throw new Error(result.message || "Failed to load categories");
     } catch (error) {
-      container.innerHTML = `<div class="text-red-500 text-center p-2 text-xs">${error.message} <button onclick="loadCategoriesForModal()" class="text-blue-500 underline ml-1">Thử lại</button></div>`;
+      container.innerHTML = `<div class="text-red-500 text-center p-2 text-xs"><i class="fas fa-exclamation-triangle mr-1"></i>${error.message} <button onclick="loadCategoriesForModal()" class="text-red-500 underline ml-1">Thử lại</button></div>`;
     }
   }
 
@@ -478,9 +647,9 @@
       return;
     }
     container.innerHTML = categories.map((cat, i) => `
-      <div class="flex items-center rounded-lg px-2 py-1.5 mb-1 hover:bg-blue-50 transition-colors">
+      <div class="flex items-center rounded-lg px-2 py-1.5 mb-1 hover:bg-red-50 transition-colors">
         <label class="flex items-center gap-2 cursor-pointer flex-1">
-          <input type="radio" name="taskCategory" value="${cat.MaLoai}" class="category-radio h-3.5 w-3.5 text-blue-600" ${i === 0 ? "checked" : ""} />
+          <input type="radio" name="taskCategory" value="${cat.MaLoai}" class="category-radio h-3.5 w-3.5 text-red-600" ${i === 0 ? "checked" : ""} />
           <span class="text-xs font-medium text-gray-700">${cat.TenLoai}</span>
         </label>
       </div>
@@ -516,8 +685,10 @@
     }
     const toast = document.createElement("div");
     toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-md shadow-lg transition-all duration-300 ${
-      type === "success" ? "bg-green-500 text-white" : type === "error" ? "bg-red-500 text-white" : "bg-blue-500 text-white"}`;
-    toast.innerHTML = `<div class="flex items-center gap-2"><span>${message}</span></div>`;
+      type === "success" ? "bg-green-500 text-white" : type === "error" ? "bg-red-500 text-white" : "bg-red-500 text-white"}`;
+    toast.innerHTML = `<div class="flex items-center gap-2"><i class="fas ${
+      type === "success" ? "fa-check-circle" : type === "error" ? "fa-exclamation-circle" : "fa-info-circle"
+    }"></i><span>${message}</span></div>`;
     document.body.appendChild(toast);
     setTimeout(() => { toast.style.transform = "translateX(120%)"; setTimeout(() => toast.remove(), 300); }, 3000);
   }
@@ -531,14 +702,8 @@
     }
   }
 
-  // ===== Hide prefill badge =====
-  function hidePrefillBadge() {
-    document.getElementById("prefillTimeBadge")?.classList.add("hidden");
-  }
-
   // ===== Close modal =====
   function closeMainModal() {
-    hidePrefillBadge();
     const form = document.getElementById("createTaskForm");
     if (form) {
       form.reset();
@@ -555,7 +720,6 @@
 
   // ===== Reset to create mode =====
   function resetFormToCreateMode() {
-    hidePrefillBadge();
     const form = document.getElementById("createTaskForm");
     if (form) {
       form.reset();
@@ -563,10 +727,10 @@
       const fixedTimeEl = document.getElementById("taskFixedTime");
       if (fixedTimeEl) fixedTimeEl.checked = false;
       document.getElementById("fixedTimeFields")?.classList.add("hidden");
-      const modalTitle = document.getElementById("createTaskModalTitle");
-      if (modalTitle) modalTitle.textContent = "Công việc mới";
+      const modalTitle = document.querySelector("#createTaskModalContent h2");
+      if (modalTitle) modalTitle.textContent = "Tạo công việc mới";
       const submitBtn = document.querySelector("#createTaskForm button[type='submit'] .submit-text");
-      if (submitBtn) submitBtn.textContent = "Tạo công việc";
+      if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-plus text-xs"></i> Tạo công việc';
       window.currentEditingTaskId = null;
     }
   }
@@ -616,21 +780,16 @@
         submitBtn.disabled = true;
       }
       try {
-        const isFixed = document.getElementById("taskFixedTime").checked;
-        const durationVal = parseInt(document.getElementById("taskDuration").value) || 60;
         const formData = {
           TieuDe: document.getElementById("taskTitle").value.trim(),
           MoTa: document.getElementById("taskDescription").value.trim(),
-          ThoiGianUocTinh: durationVal,
+          ThoiGianUocTinh: parseInt(document.getElementById("taskDuration").value) || 60,
           MucDoUuTien: getPriority(),
           MucDoPhucTap: document.getElementById("taskComplexity").value ? parseInt(document.getElementById("taskComplexity").value) : null,
           MucDoTapTrung: document.getElementById("taskFocusLevel").value ? parseInt(document.getElementById("taskFocusLevel").value) : null,
           ThoiDiemThichHop: (() => { const v = document.getElementById("taskSuitableTime").value; return v && v.trim() !== "" ? v : null; })(),
           LuongTheoGio: parseInt(document.getElementById("taskHourlyWage").value) || 0,
-          // New normalized fields (backend accepts both Vietnamese & English)
-          is_fixed: isFixed,
-          CoThoiGianCoDinh: isFixed,
-          default_duration_minutes: durationVal,
+          CoThoiGianCoDinh: document.getElementById("taskFixedTime").checked,
           Tag: getTagsFromInput().join(","),
           MaLoai: getSelectedCategoryId(),
         };
@@ -650,28 +809,28 @@
           if (!ok) { showNotification("Hãy điền đầy đủ các trường để tối ưu hóa AI tư vấn", "info"); throw new Error("User cancelled"); }
         }
 
-        if (isFixed) {
-          const startTime = document.getElementById("taskFixedStartTime").value;
-          const endTime = document.getElementById("taskFixedEndTime").value;
-          if (!startTime) { showNotification("Vui lòng chọn thời gian bắt đầu cho công việc cố định", "error"); throw new Error("Missing start time"); }
-          // New normalized fields
-          formData.fixed_start = new Date(startTime).toISOString();
-          formData.GioBatDauCoDinh = startTime;
-          if (endTime) {
-            formData.fixed_end = new Date(endTime).toISOString();
-            formData.GioKetThucCoDinh = endTime;
-          } else {
-            // Derive from start + default_duration
-            const derivedEnd = new Date(new Date(startTime).getTime() + durationVal * 60000);
-            formData.fixed_end = derivedEnd.toISOString();
-            formData.GioKetThucCoDinh = formatDateTime(derivedEnd);
-          }
-          // Override default_duration from fixed section if user set it
-          const defDur = parseInt(document.getElementById("taskDefaultDuration")?.value);
-          if (defDur > 0) formData.default_duration_minutes = defDur;
+        let fixedDateKeys = [];
+        let fixedStartHM = "";
+        let fixedDurationMin = 60;
+        let repeatVal = "";
 
-          const rep = document.getElementById("taskRepeatOption").value;
-          if (rep) formData.LapLai = rep;
+        if (formData.CoThoiGianCoDinh) {
+          fixedStartHM = document.getElementById("taskFixedStartHour").value;
+          if (!fixedStartHM) { showNotification("Vui lòng chọn giờ bắt đầu", "error"); throw new Error("Missing start time"); }
+          fixedDurationMin = parseInt(document.getElementById("taskFixedDuration").value) || 60;
+          if (fixedDurationMin <= 0) { showNotification("Thời lượng phải lớn hơn 0", "error"); throw new Error("Invalid duration"); }
+          fixedDateKeys = FixedDates.getSelectedKeys();
+          if (fixedDateKeys.length === 0) { showNotification("Vui lòng chọn ít nhất một ngày", "error"); throw new Error("Missing dates"); }
+          repeatVal = document.getElementById("taskRepeatOption").value || "";
+
+          // Primary date = first selected date; used for edit mode + task template.
+          const primaryStart = buildLocalIso(fixedDateKeys[0], fixedStartHM);
+          const primaryStartDate = new Date(primaryStart);
+          const primaryEndDate = new Date(primaryStartDate.getTime() + fixedDurationMin * 60000);
+          formData.GioBatDauCoDinh = primaryStart;
+          formData.GioKetThucCoDinh = `${fixedDateKeys[0]}T${minutesToHM(hmToMinutes(fixedStartHM) + fixedDurationMin)}:00`;
+          formData.ThoiGianUocTinh = fixedDurationMin;
+          if (repeatVal) formData.LapLai = repeatVal;
         }
 
         if (isEditing) {
@@ -679,26 +838,45 @@
         } else {
           const token = localStorage.getItem("auth_token");
           if (!token) { showNotification("Vui lòng đăng nhập lại", "error"); throw new Error("No auth token"); }
-          const response = await fetch("/api/tasks", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify(formData),
-          });
-          const result = await response.json();
-          if (result.success) {
-            showNotification("Tạo công việc thành công!", "success");
+
+          // Build one payload per selected date for fixed-time tasks; otherwise single POST.
+          const payloads = formData.CoThoiGianCoDinh && fixedDateKeys.length > 0
+            ? fixedDateKeys.map((k) => ({
+                ...formData,
+                GioBatDauCoDinh: buildLocalIso(k, fixedStartHM),
+                GioKetThucCoDinh: `${k}T${minutesToHM(hmToMinutes(fixedStartHM) + fixedDurationMin)}:00`,
+              }))
+            : [formData];
+
+          const results = await Promise.all(
+            payloads.map((p) =>
+              fetch("/api/tasks", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify(p),
+              }).then((r) => r.json()).catch(() => ({ success: false, message: "Lỗi mạng" }))
+            )
+          );
+
+          const succeeded = results.filter((r) => r.success);
+          const failed = results.length - succeeded.length;
+
+          if (succeeded.length > 0) {
+            const msg = payloads.length > 1
+              ? `Tạo ${succeeded.length}/${payloads.length} công việc thành công!`
+              : "Tạo công việc thành công!";
+            showNotification(msg, failed ? "info" : "success");
             window.WorkManager?.showSuccessOverlay?.("Tạo mới thành công!");
             triggerModalSidebarRefresh();
             closeMainModal();
             form.reset(); setPriority("2");
             document.getElementById("taskFixedTime").checked = false;
             document.getElementById("fixedTimeFields")?.classList.add("hidden");
+            FixedDates.reset();
             window.WorkManager?.reload?.();
-            // Refresh calendar so new instance appears immediately
-            document.dispatchEvent(new CustomEvent("taskCreated", { detail: { task: result.data } }));
-            document.dispatchEvent(new CustomEvent("calendar:reload"));
+            window.dispatchEvent(new CustomEvent("taskCreated", { detail: { task: succeeded[0].data } }));
           } else {
-            showNotification(result.message || "Lỗi khi tạo công việc", "error");
+            showNotification(results[0]?.message || "Lỗi khi tạo công việc", "error");
           }
         }
       } catch (error) {
@@ -719,14 +897,23 @@
   function handleFixedTimeToggle() {
     const fixedTimeCheckbox = document.getElementById("taskFixedTime");
     const fixedTimeFields = document.getElementById("fixedTimeFields");
+    const startHour = document.getElementById("taskFixedStartHour");
+    const endHour = document.getElementById("taskFixedEndHour");
+    const duration = document.getElementById("taskFixedDuration");
 
     if (fixedTimeCheckbox) {
       fixedTimeCheckbox.addEventListener("change", function () {
         fixedTimeFields?.classList.toggle("hidden", !this.checked);
+        if (this.checked) {
+          FixedDates.render();
+          FixedDates.bind();
+        }
       });
     }
+    startHour?.addEventListener("change", recalcEndFromDuration);
+    duration?.addEventListener("input", recalcEndFromDuration);
+    endHour?.addEventListener("change", recalcDurationFromEnd);
 
-    // "+ Tạo danh mục mới" button — open create-category modal stacked
     const createCategoryBtn = document.getElementById("createNewCategoryBtn");
     if (!createCategoryBtn) return;
     createCategoryBtn.addEventListener("click", function (e) {
@@ -739,23 +926,22 @@
     });
   }
 
+  // Build ISO "YYYY-MM-DDTHH:MM:SS" in local time (no Z) — Supabase will treat as UTC,
+  // but we keep the wall-clock value the user picked.
+  function buildLocalIso(dateKey, hm) {
+    return `${dateKey}T${hm}:00`;
+  }
+
   // ===== Load task into form (edit mode) =====
   function loadTaskDataIntoForm(taskData) {
-    const modalTitle = document.getElementById("createTaskModalTitle");
+    const modalTitle = document.querySelector("#createTaskModalContent h2");
     if (modalTitle) modalTitle.textContent = "Chỉnh sửa công việc";
     const submitBtn = document.querySelector("#createTaskForm button[type='submit'] .submit-text");
-    if (submitBtn) submitBtn.textContent = "Cập nhật";
+    if (submitBtn) submitBtn.innerHTML = "Cập nhật";
 
     if (taskData.TieuDe) document.getElementById("taskTitle").value = taskData.TieuDe;
     if (taskData.MoTa) document.getElementById("taskDescription").value = taskData.MoTa;
-    // Support both legacy ThoiGianUocTinh and new default_duration_minutes
-    const dur = taskData.default_duration_minutes || taskData.ThoiGianUocTinh;
-    if (dur) {
-      const durEl = document.getElementById("taskDuration");
-      const defDurEl = document.getElementById("taskDefaultDuration");
-      if (durEl) durEl.value = dur;
-      if (defDurEl) defDurEl.value = dur;
-    }
+    if (taskData.ThoiGianUocTinh) document.getElementById("taskDuration").value = taskData.ThoiGianUocTinh;
     if (taskData.MucDoUuTien) setPriority(taskData.MucDoUuTien);
     if (taskData.MucDoPhucTap) document.getElementById("taskComplexity").value = taskData.MucDoPhucTap;
     if (taskData.MucDoTapTrung) document.getElementById("taskFocusLevel").value = taskData.MucDoTapTrung;
@@ -770,16 +956,24 @@
       }, 500);
     }
 
-    // Support both new (is_fixed / fixed_start / fixed_end) and legacy fields
-    const isFixed = taskData.is_fixed || taskData.CoThoiGianCoDinh;
-    if (isFixed) {
+    if (taskData.CoThoiGianCoDinh) {
       document.getElementById("taskFixedTime").checked = true;
       document.getElementById("fixedTimeFields")?.classList.remove("hidden");
-      const rawStart = taskData.fixed_start || taskData.GioBatDauCoDinh;
-      const rawEnd   = taskData.fixed_end   || taskData.GioKetThucCoDinh;
-      if (rawStart) document.getElementById("taskFixedStartTime").value = formatDateTime(new Date(rawStart));
-      if (rawEnd)   document.getElementById("taskFixedEndTime").value   = formatDateTime(new Date(rawEnd));
+      if (taskData.GioBatDauCoDinh) {
+        const s = new Date(taskData.GioBatDauCoDinh);
+        const sHM = `${String(s.getHours()).padStart(2, "0")}:${String(s.getMinutes()).padStart(2, "0")}`;
+        document.getElementById("taskFixedStartHour").value = sHM;
+        FixedDates.setSelectedKeys([FixedDates._dateKey(s)]);
+        FixedDates._cursor = new Date(s.getFullYear(), s.getMonth(), 1);
+      }
+      if (taskData.GioKetThucCoDinh) {
+        const e = new Date(taskData.GioKetThucCoDinh);
+        document.getElementById("taskFixedEndHour").value = `${String(e.getHours()).padStart(2, "0")}:${String(e.getMinutes()).padStart(2, "0")}`;
+        recalcDurationFromEnd();
+      }
       if (taskData.LapLai) document.getElementById("taskRepeatOption").value = taskData.LapLai;
+      FixedDates.render();
+      FixedDates.bind();
     }
 
     window.currentEditingTaskId = taskData.MaCongViec || taskData.ID;
@@ -806,15 +1000,21 @@
       if (e.detail?.modalId === "createTaskModal") resetFormToCreateMode();
     });
 
-    // Listen for calendar drag prefill dispatched by Phase 04
-    document.addEventListener("calendar:prefill-task", function (e) {
-      if (e.detail) applyPrefill(e.detail);
-    });
-
-    // Apply any pending prefill that arrived before modal was open
-    if (window.__pendingTaskPrefill) {
-      applyPrefill(window.__pendingTaskPrefill);
+    // Default time = next whole hour, duration 60min.
+    const startHour = document.getElementById("taskFixedStartHour");
+    const duration = document.getElementById("taskFixedDuration");
+    if (startHour) {
+      const now = new Date();
+      now.setHours(now.getHours() + 1, 0, 0, 0);
+      startHour.value = `${String(now.getHours()).padStart(2, "0")}:00`;
+      if (duration) duration.value = "60";
+      recalcEndFromDuration();
     }
+
+    // Default date = today, render mini calendar.
+    FixedDates.reset();
+    FixedDates.render();
+    FixedDates.bind();
   }
 
   // ===== Global exports =====
@@ -841,19 +1041,11 @@
   };
 
   // ===== Auto-init triggers =====
-  function _onModalOpenForPrefill() {
-    // Re-apply prefill each time modal opens (prefill may arrive via event before init)
-    setTimeout(() => {
-      initCreateTaskModal();
-      if (window.__pendingTaskPrefill) applyPrefill(window.__pendingTaskPrefill);
-    }, 100);
-  }
-
   document.addEventListener("modalOpened", e => {
-    if (e.detail?.modalId === "createTaskModal") _onModalOpenForPrefill();
+    if (e.detail?.modalId === "createTaskModal") setTimeout(initCreateTaskModal, 100);
   });
   document.addEventListener("modalShown", e => {
-    if (e.detail?.modalId === "createTaskModal") _onModalOpenForPrefill();
+    if (e.detail?.modalId === "createTaskModal") setTimeout(initCreateTaskModal, 100);
   });
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => setTimeout(initCreateTaskModal, 200));
@@ -898,49 +1090,6 @@
   #priorityChipsContainer label:hover .priority-chip { opacity: 0.85; }
 
   /* Peer checkbox toggle */
-  #taskFixedTime:checked + div { background: #2563eb !important; }
+  #taskFixedTime:checked + div { background: #dc2626 !important; }
   #taskFixedTime:checked + div + div { transform: translateX(1.25rem); }
-
-  /* Newspaper buttons scoped to modal */
-  #createTaskModalContent .np-button {
-    padding: 0.55rem 1.25rem;
-    border-radius: 6px;
-  }
-
-  /* Dark mode overrides for modal */
-  body.dark #createTaskModalContent {
-    background: #1e1b16;
-    color: #e8e0d0;
-  }
-
-  body.dark #createTaskModalContent input,
-  body.dark #createTaskModalContent textarea,
-  body.dark #createTaskModalContent select {
-    background: #2a2520 !important;
-    border-color: #4a4238 !important;
-    color: #e8e0d0 !important;
-  }
-
-  body.dark #createTaskModalContent input::placeholder,
-  body.dark #createTaskModalContent textarea::placeholder {
-    color: #6b5f4a;
-  }
-
-  body.dark #createTaskModalContent .np-label {
-    color: #8a7f6a;
-  }
-
-  body.dark #createTaskModalContent .rounded-xl[style*="background:#f8fafc"],
-  body.dark #createTaskModalContent .rounded-xl[style*="background:#f0f7ff"] {
-    background: #221e19 !important;
-    border-color: #4a4238 !important;
-  }
-
-  body.dark #createTaskModalContent .rounded-xl[style*="background:#f0f7ff"] span {
-    color: #93c5fd;
-  }
-
-  body.dark #prefillTimeBadge span {
-    background: rgba(59, 130, 246, 0.15) !important;
-  }
 </style>

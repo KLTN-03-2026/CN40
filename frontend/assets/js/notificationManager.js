@@ -2,7 +2,6 @@
   "use strict";
 
   if (window.NotificationManager) {
-
     return;
   }
 
@@ -13,20 +12,13 @@
 
     init() {
       if (this.initialized) {
-
         return;
       }
 
-
-
       this.loadUserData();
-
       this.checkTelegramStatus();
-
       this.bindEvents();
-
       this.initialized = true;
-
     },
 
     loadUserData() {
@@ -34,10 +26,9 @@
         const userData = localStorage.getItem("user_data");
         if (userData) {
           this.currentUser = JSON.parse(userData);
-
         }
       } catch (err) {
-        console.error(" Error loading user data:", err);
+        console.error("Error loading user data:", err);
       }
     },
 
@@ -90,16 +81,11 @@
           }
         }
       });
-
-
     },
 
     openNotificationModal() {
-
-
       const modal = document.getElementById("notificationModal");
       if (!modal) {
-        console.error(" Notification modal not found");
         return;
       }
 
@@ -123,7 +109,6 @@
             e.stopPropagation();
             this.connectTelegram();
           };
-
         }
 
         const saveBtn = document.getElementById("saveNotificationSettingsBtn");
@@ -133,11 +118,8 @@
             e.stopPropagation();
             this.saveSettingsAndClose();
           };
-
         }
       }, 100);
-
-
     },
 
     async checkTelegramStatusInModal() {
@@ -163,16 +145,11 @@
 
           this.updateConnectionStatus(connected);
           this.toggleConnectionSection(!connected);
-
-          if (connected) {
-
-          }
         } else {
           this.updateConnectionStatus(false);
           this.toggleConnectionSection(true);
         }
       } catch (err) {
-        console.warn(" Could not check telegram status:", err);
         this.updateConnectionStatus(false);
         this.toggleConnectionSection(true);
       }
@@ -219,14 +196,11 @@
           this.telegramConnected = data.connected || false;
 
           if (this.telegramConnected) {
-
             this.updateConnectionStatus(true);
           }
-        } else if (response.status === 404) {
-
         }
       } catch (err) {
-        console.warn(" Could not check telegram status:", err);
+        // Telegram status check failed silently
       }
     },
 
@@ -260,28 +234,23 @@
           if (dailySummaryTime && parsed.dailySummaryTime) {
             dailySummaryTime.value = parsed.dailySummaryTime;
           }
-
-
         }
       } catch (err) {
-        console.warn(" Could not load settings:", err);
+        // Settings load failed silently
       }
     },
 
     async connectTelegram() {
-
-
       const connectBtn = document.getElementById("connectTelegramBtn");
       if (!connectBtn) {
-        console.error(" Connect button not found!");
-        this.showStatus("Lỗi: Nút kết nối không được tìm thấy", "error");
+        this.showStatus(" Lỗi: Nút kết nối không được tìm thấy", "error");
         return;
       }
 
       const originalText = connectBtn.innerHTML;
       connectBtn.disabled = true;
       connectBtn.innerHTML =
-        'Đang mở Telegram...';
+        '<i class="fas fa-spinner fa-spin"></i> Đang mở Telegram...';
 
       try {
         // Bước 1: Lấy URL và code kết nối từ backend
@@ -297,7 +266,7 @@
 
         if (!response.ok) {
           const error = await response.json();
-          this.showStatus(error.message || "Lỗi kết nối Telegram", "error");
+          this.showStatus(` ${error.message}`, "error");
           connectBtn.disabled = false;
           connectBtn.innerHTML = originalText;
           return;
@@ -306,11 +275,8 @@
         const result = await response.json();
         const { telegramUrl, code } = result;
 
-
-
-
         this.showStatus(
-          "Đang mở Telegram... Hãy nhấn /start để kết nối",
+          " Đang mở Telegram... Hãy nhấn /start để kết nối",
           "info"
         );
 
@@ -323,7 +289,6 @@
 
         const connectionCheckInterval = setInterval(async () => {
           checkCount++;
-
 
           try {
             const token = localStorage.getItem("auth_token");
@@ -347,7 +312,6 @@
               const statusData = await statusResponse.json();
 
               if (statusData.connected) {
-
                 clearInterval(connectionCheckInterval);
 
                 // Bước 4: Gọi connect-telegram để xác thực với backend
@@ -368,12 +332,11 @@
                 if (verifyResponse.ok) {
                   const verifyData = await verifyResponse.json();
 
-
                   this.telegramConnected = true;
                   this.updateConnectionStatus(true);
                   this.toggleConnectionSection(false);
                   this.showStatus(
-                    "Kết nối Telegram thành công! Lịch trình đã được gửi.",
+                    " ✅ Kết nối Telegram thành công! Lịch trình đã được gửi.",
                     "success"
                   );
 
@@ -408,13 +371,13 @@
                   }, 2000);
                 } else {
                   const error = await verifyResponse.json();
-                  console.error(" Verification error:", error);
-                  this.showStatus(`Lỗi xác thực: ${error.message}`, "error");
+                  console.error("Telegram verification error:", error);
+                  this.showStatus(` Lỗi xác thực: ${error.message}`, "error");
                 }
               }
             }
           } catch (err) {
-            console.warn(" Error checking connection status:", err);
+            // Connection status check failed silently
           }
 
           // Hết timeout
@@ -422,9 +385,8 @@
             clearInterval(connectionCheckInterval);
             connectBtn.disabled = false;
             connectBtn.innerHTML = originalText;
-
             this.showStatus(
-              "Timeout: Vui lòng kiểm tra Telegram và thử lại",
+              " Timeout: Vui lòng kiểm tra Telegram và thử lại",
               "error"
             );
           }
@@ -438,8 +400,8 @@
           }
         }, 3000);
       } catch (error) {
-        console.error(" Error starting connection:", error);
-        this.showStatus(`Lỗi: ${error.message}`, "error");
+        console.error("Error starting Telegram connection:", error);
+        this.showStatus(` Lỗi: ${error.message}`, "error");
         if (connectBtn) {
           connectBtn.disabled = false;
           connectBtn.innerHTML = originalText;
@@ -464,7 +426,6 @@
       };
 
       localStorage.setItem("notification_settings", JSON.stringify(settings));
-
       return settings;
     },
 
@@ -484,25 +445,23 @@
           });
 
           if (response.ok) {
-            const result = await response.json();
-
-            this.showStatus("Cài đặt đã được lưu thành công", "success");
+            this.showStatus(" ✅ Cài đặt đã được lưu thành công", "success");
           } else {
             const error = await response.json();
-            console.error(" Server error:", error);
-            this.showStatus(`Lỗi: ${error.message}`, "error");
+            console.error("Error saving notification settings:", error);
+            this.showStatus(` ❌ Lỗi: ${error.message}`, "error");
             return;
           }
         } else {
-          this.showStatus("Cài đặt đã được lưu cục bộ", "success");
+          this.showStatus(" ⚠️ Cài đặt đã được lưu cuc bộ", "success");
         }
 
         setTimeout(() => {
           this.closeModal();
         }, 1500);
       } catch (error) {
-        console.error(" Error saving settings:", error);
-        this.showStatus(`Lỗi: ${error.message}`, "error");
+        console.error("Error saving notification settings:", error);
+        this.showStatus(` ❌ Lỗi: ${error.message}`, "error");
       }
     },
 
@@ -527,9 +486,9 @@
       const statusEl = document.getElementById("notificationStatusMessage");
       if (!statusEl) return;
 
-      let bgColor = "bg-blue-50";
-      let borderColor = "border-blue-200";
-      let textColor = "text-blue-700";
+      let bgColor = "bg-red-50";
+      let borderColor = "border-red-200";
+      let textColor = "text-red-700";
 
       if (type === "success") {
         bgColor = "bg-green-50";
@@ -551,8 +510,6 @@
     },
 
     closeModal() {
-
-
       const modal = document.getElementById("notificationModal");
       if (!modal) return;
 
@@ -564,12 +521,9 @@
       }
 
       document.body.style.overflow = "";
-
     },
 
-    cleanup() {
-
-    },
+    cleanup() {},
   };
 
   window.NotificationManager = NotificationManager;
@@ -581,6 +535,4 @@
   } else {
     setTimeout(() => NotificationManager.init(), 100);
   }
-
-
 })();

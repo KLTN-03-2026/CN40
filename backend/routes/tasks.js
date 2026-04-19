@@ -14,13 +14,48 @@ const STATUS_MAP = {
   canceled: 3,
 };
 
-// Mapping màu theo độ ưu tiên
+// Priority color fallback (frontend PriorityTheme is the source of truth for UI).
+// Backend returns these for legacy consumers; they match the muted defaults in main.css.
 const PRIORITY_COLORS = {
-  1: "#34D399",
-  2: "#60A5FA",
-  3: "#FBBF24",
-  4: "#F87171",
+  1: "#10B981",
+  2: "#3B82F6",
+  3: "#F59E0B",
+  4: "#DC2626",
 };
+
+// DB schema has NOT NULL on CongViec.MaLoai. When a task is created without
+// an explicit category, reuse (or lazily create) a per-user default "Chưa phân loại".
+async function ensureDefaultCategory(userId) {
+  const DEFAULT_NAME = "Chưa phân loại";
+
+  // Reuse existing default if present.
+  const { data: existing } = await supabase
+    .from("LoaiCongViec")
+    .select("MaLoai")
+    .eq("UserID", userId)
+    .eq("TenLoai", DEFAULT_NAME)
+    .limit(1)
+    .maybeSingle();
+  if (existing?.MaLoai) return existing.MaLoai;
+
+  // Otherwise fall back to the user's first category, or create the default.
+  const { data: anyCat } = await supabase
+    .from("LoaiCongViec")
+    .select("MaLoai")
+    .eq("UserID", userId)
+    .order("MaLoai", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (anyCat?.MaLoai) return anyCat.MaLoai;
+
+  const { data: created, error } = await supabase
+    .from("LoaiCongViec")
+    .insert({ UserID: userId, TenLoai: DEFAULT_NAME, MoTa: "Danh mục mặc định" })
+    .select("MaLoai")
+    .single();
+  if (error) throw error;
+  return created.MaLoai;
+}
 
 // Middleware xác thực JWT
 const authenticateToken = async (req, res, next) => {
@@ -74,7 +109,6 @@ router.get("/", authenticateToken, async (req, res) => {
       TieuDe: task.TieuDe,
       MoTa: task.MoTa,
       Tag: task.Tag,
-      // Legacy fixed-time fields (kept for backward compat)
       CoThoiGianCoDinh: task.CoThoiGianCoDinh,
       GioBatDauCoDinh: task.GioBatDauCoDinh,
       GioKetThucCoDinh: task.GioKetThucCoDinh,
@@ -87,13 +121,8 @@ router.get("/", authenticateToken, async (req, res) => {
       MucDoTapTrung: task.MucDoTapTrung,
       ThoiDiemThichHop: task.ThoiDiemThichHop,
       LuongTheoGio: task.LuongTheoGio,
-      MauSac: PRIORITY_COLORS[task.MucDoUuTien] || "#60A5FA",
+      MauSac: PRIORITY_COLORS[task.MucDoUuTien] || "#3B82F6",
       TenLoai: task.LoaiCongViec?.TenLoai || null,
-      // Derived fixed-time fields (from legacy columns — no migration needed)
-      is_fixed: task.CoThoiGianCoDinh || false,
-      fixed_start: task.GioBatDauCoDinh || null,
-      fixed_end: task.GioKetThucCoDinh || null,
-      default_duration_minutes: task.ThoiGianUocTinh || null,
     }));
 
     res.json({ success: true, data: result });
@@ -102,72 +131,6 @@ router.get("/", authenticateToken, async (req, res) => {
     res.status(500).json({ success: false, message: "Lỗi server" });
   }
 });
-
-// ---------------------------------------------------------------------------
-// Helpers for fixed-time normalization (used by POST and PUT)
-// ---------------------------------------------------------------------------
-
-/**
- * Parse a timestamp string; return ISO string or null.
- * @param {string|undefined} value
- * @returns {string|null}
- */
-function parseTs(value) {
-  if (!value) return null;
-  const d = new Date(value);
-  return isNaN(d.getTime()) ? null : d.toISOString();
-}
-
-/**
- * Derive fixed_end from fixed_start + duration when end is omitted.
- * @param {string} startIso  — ISO start
- * @param {number} minutes   — fallback duration in minutes (default 60)
- * @returns {string}         — ISO end
- */
-function deriveEnd(startIso, minutes) {
-  return new Date(new Date(startIso).getTime() + (minutes || 60) * 60000).toISOString();
-}
-
-// Module-level flag: warn once when task_instances table is missing
-let _autoInstanceTableMissingWarned = false;
-
-/**
- * Create a task_instances row for a fixed-time task.
- * Failures are logged but do NOT abort the task creation response.
- * PGRST205 (table missing) is swallowed silently after a one-time warning.
- * @param {object} task  — created task row from Supabase
- * @param {string} userId
- */
-async function autoCreateFixedInstance(task, userId) {
-  if (!task.CoThoiGianCoDinh || !task.GioBatDauCoDinh || !task.GioKetThucCoDinh) return;
-
-  const { error } = await supabase.from("task_instances").insert({
-    task_id: task.MaCongViec,
-    user_id: userId,
-    start_at: task.GioBatDauCoDinh,
-    end_at: task.GioKetThucCoDinh,
-    status: "scheduled",
-    is_ai_suggested: false,
-  });
-
-  if (error) {
-    const isMissing =
-      error.code === "PGRST205" ||
-      (error.message && error.message.includes("task_instances"));
-
-    if (isMissing) {
-      if (!_autoInstanceTableMissingWarned) {
-        _autoInstanceTableMissingWarned = true;
-        console.warn(
-          "[instances] table missing — using LichTrinh fallback; run migrations/001_add_task_instances.sql"
-        );
-      }
-      // Swallow — task was created successfully, instance is just not persisted yet
-    } else {
-      console.error("Warning: failed to auto-create task_instance for fixed task:", error.message);
-    }
-  }
-}
 
 // POST /api/tasks
 router.post("/", authenticateToken, async (req, res) => {
@@ -182,7 +145,6 @@ router.post("/", authenticateToken, async (req, res) => {
       });
     }
 
-    // ---- Legacy fixed-time fields (CoThoiGianCoDinh / GioBatDauCoDinh / GioKetThucCoDinh) ----
     let gioBatDauCoDinh = null;
     let gioKetThucCoDinh = null;
     let thoiGianUocTinh = parseInt(d.ThoiGianUocTinh) || 60;
@@ -219,39 +181,31 @@ router.post("/", authenticateToken, async (req, res) => {
       gioKetThucCoDinh = gioKetThucCoDinh.toISOString();
     }
 
-    // ---- New normalized fixed-time fields ----
-    // Accept both camelCase (is_fixed) and legacy (CoThoiGianCoDinh) so both
-    // old frontend and new frontend work simultaneously.
-    const isFixed = d.is_fixed === true || d.is_fixed === "true" || d.CoThoiGianCoDinh === true;
-
-    // Prefer new fields; fall back to legacy fields
-    const rawFixedStart = d.fixed_start || d.GioBatDauCoDinh || null;
-    const rawFixedEnd   = d.fixed_end   || d.GioKetThucCoDinh || null;
-    const defaultDuration = parseInt(d.default_duration_minutes) || parseInt(d.ThoiGianUocTinh) || 60;
-
-    let fixedStart = parseTs(rawFixedStart);
-    let fixedEnd   = parseTs(rawFixedEnd);
-
-    if (isFixed && fixedStart && !fixedEnd) {
-      fixedEnd = deriveEnd(fixedStart, defaultDuration);
-    }
-
-    if (isFixed && fixedStart && !parseTs(rawFixedStart)) {
-      return res.status(400).json({ success: false, message: "fixed_start is invalid" });
+    // Resolve category: explicit MaLoai, else fall back to user's default.
+    let maLoai = d.MaLoai ? parseInt(d.MaLoai, 10) : null;
+    if (!maLoai || Number.isNaN(maLoai)) {
+      try {
+        maLoai = await ensureDefaultCategory(userId);
+      } catch (e) {
+        console.error("Không tạo được danh mục mặc định:", e);
+        return res.status(500).json({
+          success: false,
+          message: "Không tạo được danh mục mặc định. Vui lòng tạo danh mục trước.",
+        });
+      }
     }
 
     const { data: createdTask, error } = await supabase
       .from("CongViec")
       .insert({
         UserID: userId,
-        MaLoai: d.MaLoai || null,
+        MaLoai: maLoai,
         TieuDe: d.TieuDe.trim(),
         MoTa: d.MoTa || "",
         Tag: d.Tag || "",
-        // Legacy columns (keep in sync)
-        CoThoiGianCoDinh: isFixed,
-        GioBatDauCoDinh: fixedStart || gioBatDauCoDinh,
-        GioKetThucCoDinh: fixedEnd   || gioKetThucCoDinh,
+        CoThoiGianCoDinh: d.CoThoiGianCoDinh ? true : false,
+        GioBatDauCoDinh: gioBatDauCoDinh,
+        GioKetThucCoDinh: gioKetThucCoDinh,
         LapLai: d.LapLai || null,
         TrangThaiThucHien: 0,
         NgayTao: new Date().toISOString(),
@@ -274,12 +228,9 @@ router.post("/", authenticateToken, async (req, res) => {
       });
     }
 
-    // Auto-create a task_instance when task has fixed times
-    await autoCreateFixedInstance(createdTask, userId);
-
     const responseTask = {
       ...createdTask,
-      MauSac: PRIORITY_COLORS[createdTask.MucDoUuTien] || "#60A5FA",
+      MauSac: PRIORITY_COLORS[createdTask.MucDoUuTien] || "#3B82F6",
     };
 
     res.status(201).json({
@@ -326,7 +277,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
       data: {
         ID: task.MaCongViec,
         ...task,
-        MauSac: PRIORITY_COLORS[task.MucDoUuTien] || "#60A5FA",
+        MauSac: PRIORITY_COLORS[task.MucDoUuTien] || "#3B82F6",
       },
     });
   } catch (error) {
@@ -344,7 +295,6 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
     const updateData = {};
 
-    // ---- Legacy fixed-time block ----
     if (d.CoThoiGianCoDinh !== undefined) {
       updateData.CoThoiGianCoDinh = d.CoThoiGianCoDinh ? true : false;
 
@@ -377,31 +327,16 @@ router.put("/:id", authenticateToken, async (req, res) => {
       }
     }
 
-    // ---- New normalized fixed-time fields → map to legacy columns ----
-    if (d.is_fixed !== undefined) {
-      updateData.CoThoiGianCoDinh = d.is_fixed === true || d.is_fixed === "true";
-    }
-
-    if (d.fixed_start !== undefined) {
-      const parsed = parseTs(d.fixed_start);
-      if (d.fixed_start && !parsed) {
-        return res.status(400).json({ success: false, message: "fixed_start is invalid" });
-      }
-      updateData.GioBatDauCoDinh = parsed;
-    }
-
-    if (d.fixed_end !== undefined) {
-      const parsed = parseTs(d.fixed_end);
-      if (d.fixed_end && !parsed) {
-        return res.status(400).json({ success: false, message: "fixed_end is invalid" });
-      }
-      updateData.GioKetThucCoDinh = parsed;
-    }
-
-    // ---- Standard task fields ----
     if (d.TieuDe) updateData.TieuDe = d.TieuDe;
     if (d.MoTa !== undefined) updateData.MoTa = d.MoTa;
-    if (d.MaLoai !== undefined) updateData.MaLoai = d.MaLoai;
+    if (d.MaLoai !== undefined) {
+      // MaLoai is NOT NULL in DB — auto-fall back to default if cleared.
+      let maLoai = d.MaLoai ? parseInt(d.MaLoai, 10) : null;
+      if (!maLoai || Number.isNaN(maLoai)) {
+        try { maLoai = await ensureDefaultCategory(req.userId); } catch (_) { maLoai = null; }
+      }
+      if (maLoai) updateData.MaLoai = maLoai;
+    }
     if (d.Tag !== undefined) updateData.Tag = d.Tag;
     if (d.ThoiGianUocTinh !== undefined) updateData.ThoiGianUocTinh = d.ThoiGianUocTinh;
     if (d.MucDoUuTien !== undefined) updateData.MucDoUuTien = d.MucDoUuTien;
@@ -419,7 +354,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
         .json({ success: false, message: "Không có dữ liệu để cập nhật" });
     }
 
-    const { data, error } = await supabase
+    const { data, error, count } = await supabase
       .from("CongViec")
       .update(updateData)
       .eq("MaCongViec", taskId)

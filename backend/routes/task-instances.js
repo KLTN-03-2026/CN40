@@ -16,10 +16,10 @@ const { supabase } = require("../config/database");
 
 // Priority → color mapping (mirrors tasks.js)
 const PRIORITY_COLORS = {
-  1: "#34D399",
-  2: "#60A5FA",
-  3: "#FBBF24",
-  4: "#F87171",
+  1: "#10B981",
+  2: "#3B82F6",
+  3: "#F59E0B",
+  4: "#DC2626",
 };
 
 // Allowed status values
@@ -61,7 +61,7 @@ function parseTimestamp(value) {
 /** Build the joined event shape returned to the frontend. */
 function buildEventShape(instance, task) {
   const priorityColor = task?.MucDoUuTien
-    ? PRIORITY_COLORS[task.MucDoUuTien] || "#60A5FA"
+    ? PRIORITY_COLORS[task.MucDoUuTien] || "#3B82F6"
     : "#60A5FA";
 
   return {

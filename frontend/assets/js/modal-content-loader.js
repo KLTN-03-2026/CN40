@@ -10,7 +10,6 @@
         const content = modal?.querySelector(".modal-content");
 
         if (!modal || !content) {
-          console.error(" Modal or content not found");
           reject(new Error("Modal structure missing"));
           return;
         }
@@ -18,16 +17,11 @@
         const hasChildren = content.children.length > 0;
         const hasHTML = content.innerHTML.trim().length > 100;
 
-
-
         if (hasChildren && hasHTML) {
-
           resolve(true);
         } else if (Date.now() - startTime > timeout) {
-          console.error(" Timeout waiting for content");
           reject(new Error("Content not populated in time"));
         } else {
-
           setTimeout(checkContent, 100);
         }
       };
@@ -38,8 +32,6 @@
 
   async function forceLoadModalContent() {
     try {
-
-
       const modal = document.getElementById("aiSuggestionModal");
       if (!modal) {
         throw new Error("Modal not found");
@@ -47,7 +39,6 @@
 
       const existingContent = modal.querySelector(".modal-content");
       if (existingContent && existingContent.children.length > 0) {
-
         return true;
       }
 
@@ -75,23 +66,19 @@
         modal.appendChild(newContent);
       }
 
-
       return true;
     } catch (error) {
-      console.error(" Error loading modal content:", error);
+      console.error("Error loading modal content:", error);
       return false;
     }
   }
 
   async function initializeAIModalFull() {
     try {
-
-
       const modal = document.getElementById("aiSuggestionModal");
       const content = modal?.querySelector(".modal-content");
 
       if (!content || content.children.length === 0) {
-
         await forceLoadModalContent();
       }
 
@@ -118,33 +105,15 @@
         `;
 
         void modalContent.offsetHeight;
-
-
       }
 
       if (window.AIHandler && window.AIHandler.initAIModal) {
-
         await AIHandler.initAIModal();
       }
 
-      setTimeout(() => {
-        const finalContent = document.querySelector(
-          "#aiSuggestionModal .modal-content"
-        );
-        if (finalContent) {
-
-
-          if (finalContent.offsetWidth === 0) {
-            console.error(" STILL 0x0 - Check modal HTML file!");
-          } else {
-
-          }
-        }
-      }, 200);
-
       return true;
     } catch (error) {
-      console.error(" Error initializing modal:", error);
+      console.error("Error initializing AI modal:", error);
       return false;
     }
   }
@@ -153,13 +122,9 @@
 
   if (originalShowModalById) {
     window.ModalManager.showModalById = function (modalId) {
-
-
       const result = originalShowModalById.call(this, modalId);
 
       if (modalId === "aiSuggestionModal") {
-
-
         setTimeout(async () => {
           await initializeAIModalFull();
         }, 100);
@@ -167,13 +132,8 @@
 
       return result;
     };
-
-
   }
 
   window.initAIModalFull = initializeAIModalFull;
   window.forceLoadModalContent = forceLoadModalContent;
-
-
-
 })();

@@ -2,7 +2,6 @@
   "use strict";
 
   if (window.App) {
-
     return;
   }
 
@@ -11,72 +10,41 @@
 
     async init() {
       if (this.initialized) {
-
         return;
       }
 
       this.initialized = true;
 
-
       if (!this.isAuthenticated()) {
-        console.warn(" Not authenticated, redirecting to login...");
         window.location.href = "/login.html";
         return;
       }
 
+      await this.waitForFontAwesome();
 
       try {
         await ComponentLoader.init();
-
-
-        const sidebarContainer = document.getElementById("sidebar-container");
-        if (sidebarContainer && sidebarContainer.children.length > 0) {
-
-        } else {
-          console.warn(" Sidebar loaded but may be empty");
-        }
       } catch (err) {
         console.error(" Component loading failed:", err);
         throw err;
       }
 
-
       this.updateUserInfo();
-
-
 
       if (window.AppNavigation) {
         if (typeof AppNavigation.init === "function") {
           AppNavigation.init();
-
-
-
-
-        } else {
-          console.error(" Navigation.init is not a function!");
         }
-      } else {
-        console.error(" Navigation object not found!");
       }
-
 
       if (window.ModalManager?.init) {
         ModalManager.init();
-
-      } else {
-        console.warn(" ModalManager not available");
       }
-
 
       if (window.StatsManager?.init) {
         try {
           await StatsManager.init();
-
-        } catch (err) {
-          console.warn(" StatsManager initialization error:", err);
-        }
-      } else {
-        console.warn(" StatsManager not available");
+        } catch (err) {}
       }
 
       const authLoading = document.getElementById("auth-loading");
@@ -84,54 +52,84 @@
 
       if (authLoading) {
         authLoading.style.display = "none";
-
       }
 
       if (mainApp) {
         mainApp.classList.add("ready");
-
       }
 
-      // refreshIcons removed (Font Awesome removed from project)
+      setTimeout(() => {
+        this.refreshIcons();
+      }, 300);
 
       this.verifyInitialization();
-
-
     },
 
-    // waitForFontAwesome and refreshIcons removed — Font Awesome removed from project.
+    async waitForFontAwesome(timeout = 3000) {
+      return new Promise((resolve) => {
+        const startTime = Date.now();
+
+        const check = () => {
+          const testEl = document.createElement("i");
+          testEl.className = "fas fa-check";
+          testEl.style.position = "absolute";
+          testEl.style.left = "-9999px";
+          document.body.appendChild(testEl);
+
+          const computed = window.getComputedStyle(testEl, ":before");
+          const hasContent =
+            computed.content &&
+            computed.content !== "none" &&
+            computed.content !== '""';
+
+          document.body.removeChild(testEl);
+
+          if (hasContent) {
+            document.body.classList.add("fa-loaded");
+            resolve(true);
+          } else if (Date.now() - startTime < timeout) {
+            setTimeout(check, 50);
+          } else {
+            document.body.classList.add("fa-loaded");
+            resolve(false);
+          }
+        };
+
+        check();
+      });
+    },
+
+    refreshIcons() {
+      const icons = document.querySelectorAll(
+        'i[class*="fa-"], span[class*="fa-"]'
+      );
+
+      let fixedCount = 0;
+
+      icons.forEach((icon) => {
+        const computed = window.getComputedStyle(icon);
+        const fontFamily = computed.fontFamily;
+
+        if (!fontFamily.includes("Font Awesome")) {
+          icon.style.fontFamily =
+            '"Font Awesome 6 Free", "Font Awesome 6 Brands"';
+          icon.style.fontWeight = "900";
+          icon.style.display = "inline-block";
+          fixedCount++;
+        }
+
+        if (icon.style.opacity === "0" || computed.opacity === "0") {
+          icon.style.opacity = "1";
+        }
+      });
+    },
 
     verifyInitialization() {
-
-
       const sections = document.querySelectorAll(".section");
-      const activeSection = document.querySelector(".section.active");
-
-
       const navButtons = document.querySelectorAll("[data-section]");
-
-
-      // FA icon checks removed
-
-
-      if (window.AppNavigation) {
-
-      } else {
-        console.error("  Navigation object missing!");
-      }
-
-      sections.forEach((section) => {
-        const isActive = section.classList.contains("active");
-        const display = window.getComputedStyle(section).display;
-
-      });
-
-      if (navButtons.length > 0) {
-
-        navButtons.forEach((btn) => {
-
-        });
-      }
+      const icons = document.querySelectorAll(
+        'i[class*="fa-"], span[class*="fa-"]'
+      );
     },
 
     isAuthenticated() {
@@ -141,9 +139,6 @@
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
         const isValid = Date.now() < payload.exp * 1000;
-        if (!isValid) {
-          console.warn(" Token expired");
-        }
         return isValid;
       } catch (err) {
         console.error(" Token validation error:", err);
@@ -154,48 +149,30 @@
     updateUserInfo() {
       const user = JSON.parse(localStorage.getItem("user_data") || "{}");
 
-      const userName    = user.hoten || user.username || "Người dùng";
-      const userEmail   = user.email || "";
+      const userName = user.hoten || user.username || "Người dùng";
+      const userEmail = user.email || "";
       const avatarLetter = userName.charAt(0).toUpperCase();
-      const avatarUrl   = user.avatarUrl || user.AvatarUrl || null;
 
       document
         .querySelectorAll(".user-name, [data-user-name], #nav-user-name")
-        .forEach((el) => { el.textContent = userName; });
+        .forEach((el) => {
+          el.textContent = userName;
+        });
 
       document
         .querySelectorAll(".user-email, [data-user-email]")
-        .forEach((el) => { el.textContent = userEmail; });
+        .forEach((el) => {
+          el.textContent = userEmail;
+        });
 
-      // Update letter fallbacks
       document.querySelectorAll(".avatar-letter").forEach((el) => {
         el.textContent = avatarLetter;
       });
-
-      // Update any .avatar-img elements alongside their letter spans
-      if (avatarUrl && (avatarUrl.startsWith("data:") || avatarUrl.startsWith("http"))) {
-        document.querySelectorAll(".avatar-img").forEach((img) => {
-          img.src = avatarUrl;
-          img.style.display = "block";
-          const letter = img.parentElement.querySelector(".avatar-letter");
-          if (letter) letter.style.display = "none";
-        });
-      } else {
-        document.querySelectorAll(".avatar-img").forEach((img) => {
-          img.src = "";
-          img.style.display = "none";
-          const letter = img.parentElement.querySelector(".avatar-letter");
-          if (letter) letter.style.display = "";
-        });
-      }
     },
 
     testNavigation(sectionName) {
-
       if (window.AppNavigation && AppNavigation.navigateToSection) {
         AppNavigation.navigateToSection(sectionName);
-      } else {
-        console.error(" Navigation not available for testing");
       }
     },
 
@@ -208,38 +185,34 @@
         sectionsCount: document.querySelectorAll(".section").length,
         navButtonsCount: document.querySelectorAll("[data-section]").length,
         activeSection: document.querySelector(".section.active")?.id,
-        // FA icon state removed — Font Awesome removed from project
+        iconsCount: document.querySelectorAll(
+          'i[class*="fa-"], span[class*="fa-"]'
+        ).length,
+        visibleIconsCount: Array.from(
+          document.querySelectorAll('i[class*="fa-"], span[class*="fa-"]')
+        ).filter((icon) => window.getComputedStyle(icon).opacity !== "0")
+          .length,
+        fontAwesomeLoaded: document.body.classList.contains("fa-loaded"),
       };
     },
   };
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", () => {
-
       App.init();
     });
   } else {
-
     setTimeout(() => App.init(), 100);
   }
-
 
 })();
 
 window.debugApp = function () {
-
   const state = window.App?.getState();
   console.table(state);
-
-
-
-
 };
 
 window.refreshUI = function () {
-
-
   if (window.App && window.App.updateUserInfo) {
     window.App.updateUserInfo();
   }
@@ -252,15 +225,41 @@ window.refreshUI = function () {
     WorkManager.loadTasks();
   }
 
-  // Font Awesome removed
-
-
+  if (window.FontAwesome && FontAwesome.dom && FontAwesome.dom.i2svg) {
+    setTimeout(() => FontAwesome.dom.i2svg(), 100);
+  }
 };
 
 window.testNav = function (section) {
   window.App?.testNavigation(section);
 };
 
-// debugIcons removed — Font Awesome removed from project
+window.debugIcons = function () {
+  const icons = document.querySelectorAll(
+    'i[class*="fa-"], span[class*="fa-"]'
+  );
 
-// fixIcons removed — Font Awesome removed from project
+  const iconData = Array.from(icons).map((icon, index) => {
+    const computed = window.getComputedStyle(icon, "::before");
+    const computedMain = window.getComputedStyle(icon);
+    return {
+      index: index + 1,
+      tag: icon.tagName.toLowerCase(),
+      className: icon.className,
+      fontFamily: computedMain.fontFamily,
+      content: computed.content,
+      opacity: computedMain.opacity,
+      display: computedMain.display,
+      visible: computedMain.opacity !== "0",
+    };
+  });
+
+  console.table(iconData);
+};
+
+window.fixIcons = function () {
+  window.App?.refreshIcons();
+  setTimeout(() => {
+    window.debugIcons();
+  }, 500);
+};

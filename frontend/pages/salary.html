@@ -1,216 +1,167 @@
-<div class="salary-page">
-  <div class="np-container">
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý lương</title>
+    <link rel="stylesheet" href="/frontend/assets/css/salary.css" />
+</head>
+<body>
+    <div class="salary-page">
+        <div class="container">
+            <div class="header">
+                <h1>Quản lý lương</h1>
+                <div class="tabs">
+                    <button class="tab active" data-tab="salary">Tính lương</button>
+                    <button class="tab" data-tab="stats">Thống kê</button>
+                </div>
+            </div>
 
-    <!-- Masthead -->
-    <header class="np-masthead">
-      <div class="np-masthead-rule"></div>
-      <h1 class="np-masthead-title">THỐNG KÊ & LƯƠNG</h1>
-      <p class="np-masthead-subtitle" id="masthead-subtitle">Đang tải...</p>
-      <div class="np-masthead-rule"></div>
-    </header>
+            <!-- View tính lương -->
+            <div id="salary-view">
+                <div class="date-filter">
+                    <label>Chọn khoảng thời gian:</label>
+                    <input type="date" id="salary-from">
+                    <span>đến</span>
+                    <input type="date" id="salary-to">
+                    <button class="btn-apply" id="apply-salary-btn">Áp dụng</button>
+                </div>
 
-    <!-- Tab bar -->
-    <div class="np-tab-bar" style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:2px solid var(--np-border,#1a1a1a);">
-      <button id="salary-stats-tab" class="np-tab-btn np-tab-btn--active" data-tab="stats" style="
-        flex:1;padding:0.6rem 1rem;border:none;cursor:pointer;
-        font-family:var(--np-font-heading,'Playfair Display',serif);
-        font-size:0.95rem;font-weight:700;
-        background:var(--np-bg-card,#faf7f2);
-        color:var(--np-accent,#8b0000);
-        border-bottom:3px solid var(--np-accent,#8b0000);
-        transition:all 0.15s;
-      ">Thống kê</button>
-      <button id="salary-tab" class="np-tab-btn" data-tab="salary" style="
-        flex:1;padding:0.6rem 1rem;border:none;cursor:pointer;
-        font-family:var(--np-font-heading,'Playfair Display',serif);
-        font-size:0.95rem;font-weight:700;
-        background:transparent;
-        color:var(--np-text-muted,#6b5f4a);
-        border-bottom:3px solid transparent;
-        transition:all 0.15s;
-      ">Tính lương</button>
+                <div class="main-grid">
+                    <div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Chi tiết công việc đã hoàn thành</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-container" id="salary-table">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon"></div>
+                                        <div>Đang tải dữ liệu...</div>
+                                    </div>
+                                </div>
+                                <div class="total-box">
+                                    <div class="label">Tổng lương:</div>
+                                    <div class="amount" id="total-amount">0 VND</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-stats">
+                        <div class="quick-stats-header">
+                            <h3>Thống kê nhanh</h3>
+                        </div>
+                        <div class="quick-stats-tabs">
+                            <button class="quick-tab active" data-period="week">Tuần</button>
+                            <button class="quick-tab" data-period="month">Tháng</button>
+                            <button class="quick-tab" data-period="year">Năm</button>
+                        </div>
+                        <div class="quick-stats-body">
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Tổng công việc</span>
+                                <span class="quick-stat-value" id="quick-total">0</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Đã hoàn thành</span>
+                                <span class="quick-stat-value" id="quick-completed">0</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Tỷ lệ hoàn thành</span>
+                                <span class="quick-stat-value" id="quick-percent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View thống kê -->
+            <div id="stats-view" class="hidden">
+                <div class="date-filter">
+                    <label>Chọn khoảng thời gian:</label>
+                    <input type="date" id="stats-from">
+                    <span>đến</span>
+                    <input type="date" id="stats-to">
+                    <button class="btn-apply" id="apply-stats-btn">Áp dụng</button>
+                </div>
+
+                <div class="main-grid">
+                    <div>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">Tổng công việc</div>
+                                <div class="stat-value" id="stats-total">0</div>
+                                <div class="stat-meta">
+                                    Hoàn thành: <strong id="stats-completed">0</strong> | 
+                                    Chưa hoàn thành: <strong id="stats-pending">0</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-title">Biểu đồ công việc theo ngày</div>
+                            <div style="position:relative;height:200px">
+                              <canvas id="bar-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-title">Tỷ lệ hoàn thành</div>
+                            <div style="position:relative;height:180px;display:flex;align-items:center;justify-content:center">
+                              <canvas id="donut-chart" style="max-width:260px"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-stats">
+                        <div class="quick-stats-header">
+                            <h3>Thống kê nhanh</h3>
+                        </div>
+                        <div class="quick-stats-tabs">
+                            <button class="quick-tab active" data-period="week">Tuần</button>
+                            <button class="quick-tab" data-period="month">Tháng</button>
+                            <button class="quick-tab" data-period="year">Năm</button>
+                        </div>
+                        <div class="quick-stats-body">
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Tổng công việc</span>
+                                <span class="quick-stat-value" id="side-total">0</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Đã hoàn thành</span>
+                                <span class="quick-stat-value" id="side-completed">0</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Tỷ lệ hoàn thành</span>
+                                <span class="quick-stat-value" id="side-percent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Stats View (shown first) -->
-    <div id="stats-content">
-      <!-- Overview cards -->
-      <div class="np-stats-row">
-        <div class="np-card">
-          <div class="np-card-label">Tổng công việc</div>
-          <div class="np-card-value" id="stats-total">—</div>
-        </div>
-        <div class="np-card">
-          <div class="np-card-label">Đã hoàn thành</div>
-          <div class="np-card-value" id="stats-completed">—</div>
-        </div>
-        <div class="np-card">
-          <div class="np-card-label">Đang chờ</div>
-          <div class="np-card-value" id="stats-pending">—</div>
-        </div>
-      </div>
-
-      <!-- Quick period tabs -->
-      <div style="display:flex;gap:0.5rem;margin:1rem 0;flex-wrap:wrap;" id="stats-view">
-        <button class="np-preset quick-tab active" data-period="week">Tuần này</button>
-        <button class="np-preset quick-tab" data-period="month">Tháng này</button>
-        <button class="np-preset quick-tab" data-period="year">Năm nay</button>
-      </div>
-
-      <!-- Date filter -->
-      <div class="np-toolbar" style="margin-bottom:1rem;">
-        <div class="np-toolbar-group">
-          <label class="np-label">Từ</label>
-          <input type="date" id="stats-from" class="np-input" />
-          <label class="np-label">Đến</label>
-          <input type="date" id="stats-to" class="np-input" />
-          <button class="np-btn np-btn--primary" id="apply-stats-btn">Áp dụng</button>
-        </div>
-      </div>
-
-      <!-- Charts -->
-      <div class="np-section">
-        <div class="np-section-rule"></div>
-        <h2 class="np-section-title">Công việc theo ngày</h2>
-        <div class="np-section-rule np-section-rule--thin"></div>
-        <div class="np-chart-wrap" style="height:300px;">
-          <canvas id="bar-chart"></canvas>
-        </div>
-      </div>
-
-      <div class="np-section">
-        <div class="np-section-rule"></div>
-        <h2 class="np-section-title">Tỷ lệ hoàn thành</h2>
-        <div class="np-section-rule np-section-rule--thin"></div>
-        <div class="np-chart-wrap" style="height:280px;max-width:400px;margin:0 auto;">
-          <canvas id="donut-chart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Salary View (hidden initially) -->
-    <div id="salary-content" class="hidden">
-      <!-- Stat cards row -->
-      <div class="np-stats-row">
-        <div class="np-card">
-          <div class="np-card-label">Tổng giờ làm</div>
-          <div class="np-card-value" id="stat-total-hours">—</div>
-          <div class="np-card-unit">giờ</div>
-        </div>
-        <div class="np-card">
-          <div class="np-card-label">Tổng lương</div>
-          <div class="np-card-value" id="stat-total-salary">—</div>
-          <div class="np-card-unit">VND</div>
-        </div>
-        <div class="np-card">
-          <div class="np-card-label">Trung bình / ngày</div>
-          <div class="np-card-value" id="stat-avg-day">—</div>
-          <div class="np-card-unit">VND</div>
-        </div>
-        <div class="np-card">
-          <div class="np-card-label">Công việc nhiều nhất</div>
-          <div class="np-card-value np-card-value--sm" id="stat-top-task">—</div>
-          <div class="np-card-unit" id="stat-top-task-hours"></div>
-        </div>
-      </div>
-
-      <!-- Filter toolbar -->
-      <div class="np-toolbar">
-        <div class="np-toolbar-group">
-          <label class="np-label">Từ</label>
-          <input type="date" id="filter-from" class="np-input" />
-          <label class="np-label">Đến</label>
-          <input type="date" id="filter-to" class="np-input" />
-          <button class="np-btn np-btn--primary" id="btn-apply">Áp dụng</button>
-        </div>
-        <div class="np-toolbar-group np-toolbar-presets">
-          <button class="np-preset" data-preset="week">Tuần này</button>
-          <button class="np-preset" data-preset="month">Tháng này</button>
-          <button class="np-preset" data-preset="quarter">Quý này</button>
-          <button class="np-preset" data-preset="year">Năm nay</button>
-        </div>
-      </div>
-
-      <!-- Secondary filter row -->
-      <div class="np-filter-row">
-        <select id="filter-category" class="np-input np-select">
-          <option value="">Tất cả danh mục</option>
-        </select>
-        <input type="search" id="filter-search" class="np-input np-search"
-               placeholder="Tìm công việc..." />
-        <button class="np-btn np-btn--ghost" id="btn-export-csv">Xuất CSV</button>
-      </div>
-
-      <!-- Main table -->
-      <div class="np-section">
-        <div class="np-section-rule"></div>
-        <h2 class="np-section-title">Chi tiết công việc đã hoàn thành</h2>
-        <div class="np-section-rule np-section-rule--thin"></div>
-        <div class="np-table-wrap" id="salary-table-wrap">
-          <div class="np-loading">Đang tải dữ liệu...</div>
-        </div>
-      </div>
-
-      <!-- Chart section -->
-      <div class="np-section">
-        <div class="np-section-rule"></div>
-        <h2 class="np-section-title">Biểu đồ thu nhập theo ngày</h2>
-        <div class="np-section-rule np-section-rule--thin"></div>
-        <div class="np-chart-wrap">
-          <canvas id="salary-chart"></canvas>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<script>
-// Tab switching logic — newspaper theme
-(function() {
-  const statsTab = document.getElementById('salary-stats-tab');
-  const salaryTab = document.getElementById('salary-tab');
-  const statsContent = document.getElementById('stats-content');
-  const salaryContent = document.getElementById('salary-content');
-
-  function activateTab(activeTab, inactiveTab, activeContent, inactiveContent) {
-    // Active tab styling
-    activeTab.style.background = 'var(--np-bg-card, #faf7f2)';
-    activeTab.style.color = 'var(--np-accent, #8b0000)';
-    activeTab.style.borderBottom = '3px solid var(--np-accent, #8b0000)';
-
-    // Inactive tab styling
-    inactiveTab.style.background = 'transparent';
-    inactiveTab.style.color = 'var(--np-text-muted, #6b5f4a)';
-    inactiveTab.style.borderBottom = '3px solid transparent';
-
-    // Content visibility
-    activeContent.classList.remove('hidden');
-    inactiveContent.classList.add('hidden');
-  }
-
-  if (statsTab && salaryTab) {
-    statsTab.addEventListener('click', function() {
-      activateTab(statsTab, salaryTab, statsContent, salaryContent);
-      if (window.StatsManager && window.StatsManager.init) {
-        window.StatsManager.init();
-      }
-    });
-
-    salaryTab.addEventListener('click', function() {
-      activateTab(salaryTab, statsTab, salaryContent, statsContent);
-      if (window.SalaryManager && window.SalaryManager.init) {
-        window.SalaryManager.init();
-      }
-    });
-
-    // Auto-init stats on load
-    setTimeout(function() {
-      if (window.StatsManager && window.StatsManager.init) {
-        window.StatsManager.init();
-      }
-    }, 500);
-  }
-})();
-</script>
-
-<script src="/frontend/assets/js/salary-manager.js"></script>
+    <!-- Import Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Import các module JS - THỨ TỰ QUAN TRỌNG -->
+    <script src="/frontend/assets/js/statsManager.js"></script>
+    <script src="/frontend/assets/js/salaryManager.js"></script>
+    
+    <!-- Khởi tạo StatsManager sau khi DOM ready -->
+    <script>
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", function() {
+                if (window.StatsManager) {
+                    window.StatsManager.init();
+                }
+            });
+        } else {
+            if (window.StatsManager) {
+                window.StatsManager.init();
+            }
+        }
+    </script>
+</body>
+</html>

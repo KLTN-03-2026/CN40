@@ -95,8 +95,6 @@ if (typeof window.Utils === "undefined") {
       }
 
       try {
-
-
         const response = await fetch(url, options);
 
         // Xử lý response không có nội dung
@@ -112,7 +110,6 @@ if (typeof window.Utils === "undefined") {
           try {
             result = JSON.parse(text);
           } catch (e) {
-            console.warn("Không parse được JSON:", text);
             return {
               success: false,
               message: "Server trả về dữ liệu không hợp lệ",
@@ -160,10 +157,8 @@ if (typeof window.Utils === "undefined") {
           result.status = response.status;
         }
 
-
         return result;
       } catch (err) {
-        console.error("❌ Request failed:", err.message, err);
 
         // Phân loại lỗi
         let userMessage = err.message;
@@ -239,71 +234,58 @@ if (typeof window.Utils === "undefined") {
         const response = await fetch(url, options);
         return await response.json();
       } catch (err) {
-        console.error("Upload failed:", err);
         this.showToast("Lỗi upload file", "error");
         throw err;
       }
     },
 
     /**
-     * Compact newspaper-style toast notification.
-     * @param {string} message - Toast body text
-     * @param {string} type    - "success" | "error" | "warning" | "info"
-     * @param {number} duration - Auto-dismiss ms (default 2500)
+     * Hiển thị thông báo toast
+     * @param {string} message - Nội dung thông báo
+     * @param {string} type - Loại thông báo: success, error, warning, info
+     * @param {number} duration - Thời gian hiển thị (ms)
      */
-    showToast: function (message, type = "info", duration = 2500) {
-      // Normalise alias "warning" → "warn" for internal key lookup
-      const variant = type === "warning" ? "warn" : type;
+    // Cải thiện hàm showToast nếu cần
+    showToast: function (message, type = "info") {
+      const toastContainer =
+        document.getElementById("toast-container") ||
+        (() => {
+          const container = document.createElement("div");
+          container.id = "toast-container";
+          container.className = "toast-container";
+          document.body.appendChild(container);
+          return container;
+        })();
 
-      // Left-bar accent colours per variant
-      const barColors = {
-        success: "#8a9a5b",
-        error:   "#a83232",
-        info:    "#4a6fa5",
-        warn:    "#c97b3c",
+      const toastId = "toast-" + Date.now();
+
+      const colors = {
+        success: "bg-green-50 border-green-200 text-green-800",
+        error: "bg-red-50 border-red-200 text-red-800",
+        warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
+        info: "bg-gray-50 border-gray-200 text-gray-700",
+        loading: "bg-gray-50 border-gray-200 text-gray-700",
       };
-      const barColor = barColors[variant] || barColors.info;
 
-      // Lazy-create the stack container (bottom-right, newest on top via flex-col-reverse)
-      let container = document.getElementById("np-toast-container");
-      if (!container) {
-        container = document.createElement("div");
-        container.id = "np-toast-container";
-        document.body.appendChild(container);
-      }
+      const toast = document.createElement("div");
+      toast.id = toastId;
+      toast.className = `border ${colors[type]} animate-slide-in`;
+      toast.style.cssText = "font-size:12px;padding:6px 12px;border-radius:6px;max-width:280px;pointer-events:auto;box-shadow:0 2px 8px rgba(0,0,0,0.1);";
+      toast.innerHTML = `<span class="font-medium">${message}</span>`;
 
-      const el = document.createElement("div");
-      el.className = "np-toast";
-      el.style.setProperty("--toast-bar", barColor);
-      el.textContent = message;
+      toastContainer.appendChild(toast);
 
-      // Click to dismiss immediately
-      el.addEventListener("click", () => dismissToast(el));
-
-      // Prepend so newest appears on top
-      container.insertBefore(el, container.firstChild);
-
-      // Trigger slide-in on next frame
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => el.classList.add("np-toast--visible"));
-      });
-
-      function dismissToast(node) {
-        if (node._dismissing) return;
-        node._dismissing = true;
-        node.classList.remove("np-toast--visible");
-        node.classList.add("np-toast--out");
+      const duration = type === "error" ? 2500 : 1500;
+      setTimeout(() => {
+        toast.classList.add("animate-fade-out");
         setTimeout(() => {
-          if (node.parentNode) node.parentNode.removeChild(node);
-        }, 320);
-      }
+          if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 300);
+      }, duration);
 
-      const timer = setTimeout(() => dismissToast(el), duration);
-      el._dismissing = false;
-      // Clear timer if user clicks before auto-dismiss fires
-      el.addEventListener("click", () => clearTimeout(timer), { once: true });
-
-      return el;
+      return toastId;
     },
 
     /**
@@ -331,7 +313,7 @@ if (typeof window.Utils === "undefined") {
                 <button class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition" id="confirm-cancel">
                   Hủy
                 </button>
-                <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" id="confirm-ok">
+                <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition" id="confirm-ok">
                   OK
                 </button>
               </div>
@@ -448,7 +430,6 @@ if (typeof window.Utils === "undefined") {
         this.showToast("Đã sao chép vào clipboard", "success", 2000);
         return true;
       } catch (err) {
-        console.error("Copy failed:", err);
         this.showToast("Không thể sao chép", "error");
         return false;
       }
@@ -467,29 +448,6 @@ if (typeof window.Utils === "undefined") {
       a.click();
       document.body.removeChild(a);
     },
-
-    showElement(el) {
-      if (el) el.classList.remove("hidden");
-    },
-
-    hideElement(el) {
-      if (el) el.classList.add("hidden");
-    },
   };
-
-  // ── Global toast API ──────────────────────────────────────────────────────
-  // window.toast.success(msg) / .error / .info / .warn
-  // window.showToast(msg, type) — legacy alias maintained for call-site compat
-  window.toast = {
-    success: (msg, duration) => Utils.showToast(msg, "success", duration),
-    error:   (msg, duration) => Utils.showToast(msg, "error",   duration),
-    info:    (msg, duration) => Utils.showToast(msg, "info",    duration),
-    warn:    (msg, duration) => Utils.showToast(msg, "warn",    duration),
-    // "warning" spelled out variant for safety
-    warning: (msg, duration) => Utils.showToast(msg, "warn",    duration),
-  };
-
-  // Legacy global alias so standalone callers (auth.js, profile.js, etc.) keep working
-  window.showToast = (msg, type, duration) => Utils.showToast(msg, type, duration);
 
 }

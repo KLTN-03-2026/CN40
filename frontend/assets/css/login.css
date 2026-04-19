@@ -1,278 +1,243 @@
-/* ===== LOGIN / REGISTER — Newspaper Style ===== */
-/* Full replacement: cream paper, serif, square borders, masthead */
+/* ============================================================
+   Login / Register — Apple-inspired (per DESIGN.md)
+   Binary surface rhythm: #f5f5f7 form side, #000000 hero side.
+   Apple Blue accent, SF Pro typography, pill CTAs.
+   ============================================================ */
 
-/* ===== RESET (scoped to auth) ===== */
-.auth-page * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #f5f5f7;
+  min-height: 100vh;
+  color: #1d1d1f;
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.auth-page {
-  font-family: 'Merriweather', 'Times New Roman', Georgia, serif;
-  background: #f4efe6;
-  color: #1a1a1a;
-  min-height: 100vh;
+.auth-container {
   display: flex;
-  flex-direction: column;
+  min-height: 100vh;
+}
+
+.form-panel {
+  flex: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
+  background-color: #f5f5f7;
+  padding: 2rem;
 }
 
-/* ===== MASTHEAD ===== */
-.auth-masthead {
+.form-wrapper {
   width: 100%;
-  max-width: 480px;
-  text-align: center;
-  margin-bottom: 2rem;
+  max-width: 440px;
+  padding: 0 2rem;
 }
 
-.auth-masthead-rule-thick {
-  height: 3px;
-  background: #1a1a1a;
-  margin-bottom: 3px;
-}
-
-.auth-masthead-rule-thin {
-  height: 1px;
-  background: #1a1a1a;
-  margin-bottom: 0.5rem;
-}
-
-.auth-masthead-title {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 2.25rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: #1a1a1a;
-  line-height: 1.1;
-  margin-bottom: 0.5rem;
-}
-
-.auth-masthead-subtitle {
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #6b5f4a;
-  margin-bottom: 0.5rem;
-}
-
-/* ===== FORM CARD ===== */
-.auth-card {
-  width: 100%;
-  max-width: 480px;
-  background: #faf7f2;
-  border: 1.5px solid #1a1a1a;
-  border-radius: 2px;
-  box-shadow: 6px 6px 0 #1a1a1a;
-  padding: 2.25rem 2.5rem;
-}
-
-.auth-card-title {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 0.25rem;
-  line-height: 1.2;
-}
-
-.auth-card-tagline {
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #6b5f4a;
-  margin-bottom: 2rem;
-  display: block;
-}
-
-/* ===== INPUT GROUPS ===== */
-.auth-field {
-  margin-bottom: 1.5rem;
-}
-
-.auth-label {
-  display: block;
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #6b5f4a;
-  margin-bottom: 0.35rem;
-}
-
-.auth-input {
-  display: block;
-  width: 100%;
-  font-family: 'Merriweather', Georgia, serif;
-  font-size: 0.9375rem;
-  background: transparent;
-  border: none;
-  border-bottom: 1.5px solid #c8b99a;
-  border-radius: 0;
-  padding: 0.4rem 0.25rem;
-  color: #1a1a1a;
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-
-.auth-input:focus {
-  border-bottom-color: #8b0000;
-}
-
-.auth-input::placeholder {
-  color: #9a8a72;
-  font-style: italic;
-}
-
-/* ===== SUBMIT BUTTON ===== */
-.auth-submit {
-  display: block;
-  width: 100%;
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.7rem 1.5rem;
-  background: #8b0000;
-  border: 1.5px solid #8b0000;
-  border-radius: 2px;
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 3px 3px 0 #1a1a1a;
-  transition: box-shadow 0.12s ease, transform 0.12s ease, background 0.12s ease;
-  margin-top: 0.5rem;
-}
-
-.auth-submit:hover {
-  background: #a31212;
-  border-color: #a31212;
-  box-shadow: 4px 4px 0 #1a1a1a;
-  transform: translate(-1px, -1px);
-}
-
-.auth-submit:active {
-  box-shadow: 1px 1px 0 #1a1a1a;
-  transform: translate(1px, 1px);
-}
-
-/* ===== DIVIDER RULE ===== */
-.auth-divider {
-  border: none;
-  border-top: 1px solid #c8b99a;
-  margin: 1.5rem 0;
-}
-
-/* ===== SWITCH LINK ===== */
-.auth-switch {
-  text-align: center;
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.8rem;
-  color: #6b5f4a;
-  margin-top: 1rem;
-}
-
-.auth-switch a {
-  color: #8b0000;
+.form-title {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 56px;
   font-weight: 600;
-  text-decoration: none;
+  color: #1d1d1f;
+  margin-bottom: 2.5rem;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
 }
 
-.auth-switch a:hover {
-  text-decoration: underline;
+/* ===== INPUTS — soft rounded fields on white surface ===== */
+.input-group {
+  margin-bottom: 1.25rem;
+  position: relative;
 }
 
-/* ===== PASSWORD REQUIREMENTS ===== */
-.auth-pw-req {
+.input-group input {
+  width: 100%;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: 17px;
+  letter-spacing: -0.374px;
+  color: #1d1d1f;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+.input-group input::placeholder {
+  color: rgba(0, 0, 0, 0.48);
+}
+.input-group input:focus {
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.16);
+}
+
+/* ===== PASSWORD CHECKLIST ===== */
+.password-requirements {
   display: none;
   margin-top: 0.75rem;
-  padding: 0.85rem 1rem;
-  background: #f0ebe1;
-  border: 1px solid #c8b99a;
-  border-radius: 2px;
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.78rem;
-  color: #6b5f4a;
+  padding: 14px 16px;
+  font-size: 14px;
+  letter-spacing: -0.224px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: rgba(0, 0, 0, 0.08) 0 2px 12px 0;
 }
-
-.auth-pw-req.visible {
-  display: block;
+.password-requirements.visible { display: block; }
+.password-requirements ul { list-style: none; padding: 0; }
+.password-requirements li {
+  margin-bottom: 0.4rem;
+  transition: color 0.3s ease;
+  color: rgba(0, 0, 0, 0.48);
 }
-
-.auth-pw-req ul {
-  list-style: none;
-  padding: 0;
+.password-requirements li.valid {
+  color: #30d158;
+  text-decoration: line-through;
 }
-
-.auth-pw-req li {
-  margin-bottom: 0.3rem;
-  transition: color 0.25s ease;
+.password-requirements li::before {
+  content: "•";
+  margin-right: 0.5rem;
+  font-weight: bold;
 }
+.password-requirements li.valid::before { content: "✓"; }
 
-.auth-pw-req li.invalid { color: #9ca3af; }
-.auth-pw-req li.valid   { color: #5a8a5a; text-decoration: line-through; }
-.auth-pw-req li::before { content: "•"; margin-right: 0.4rem; font-weight: bold; }
-.auth-pw-req li.valid::before { content: "✓"; }
-
-/* ===== LOADING STATE ===== */
-.auth-loading {
-  text-align: center;
-  margin-top: 1rem;
-}
-
-.auth-loading.hidden { display: none; }
-
-.auth-spinner {
-  display: inline-block;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 2px solid #c8b99a;
-  border-top-color: #8b0000;
-  border-radius: 50%;
-  animation: auth-spin 0.8s linear infinite;
-}
-
-@keyframes auth-spin { to { transform: rotate(360deg); } }
-
-.auth-loading p {
-  color: #6b5f4a;
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.8rem;
-  margin-top: 0.5rem;
-  font-style: italic;
-}
-
-/* ===== BOTTOM MASTHEAD RULE ===== */
-.auth-footer {
+/* ===== PRIMARY CTA — Apple Blue, 8px radius ===== */
+.submit-btn {
   width: 100%;
-  max-width: 480px;
+  padding: 14px 16px;
+  background-color: #0071e3;
+  color: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.374px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
   margin-top: 1.5rem;
 }
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 540px) {
-  .auth-card {
-    padding: 1.5rem 1.25rem;
-    box-shadow: 4px 4px 0 #1a1a1a;
-  }
-
-  .auth-masthead-title {
-    font-size: 1.65rem;
-  }
-
-  .auth-card-title {
-    font-size: 1.25rem;
-  }
+.submit-btn:hover { background-color: #0077ed; }
+.submit-btn:active { transform: scale(0.99); }
+.submit-btn:focus-visible {
+  outline: 2px solid #0071e3;
+  outline-offset: 2px;
 }
 
-/* ===== LEGACY CLASS COMPAT (keep old class names working) ===== */
-/* These map old login.css / inline styles to np tokens                */
-.auth-container { display: none; } /* old layout suppressed */
+/* ===== WELCOME PANEL — Apple cinematic black, pill CTA ===== */
+.welcome-panel {
+  flex: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000;
+  padding: 3rem;
+}
+.welcome-panel-left { border-radius: 0 200px 200px 0; }
+.welcome-panel-right { border-radius: 200px 0 0 200px; }
+
+.welcome-content {
+  text-align: center;
+  color: #fff;
+}
+.welcome-title {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 56px;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+}
+.welcome-content p {
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1.19;
+  letter-spacing: 0.011em;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 2rem;
+}
+
+/* Pill link — signature Apple CTA shape */
+.switch-btn {
+  display: inline-block;
+  padding: 10px 26px;
+  border: 1px solid #2997ff;
+  color: #2997ff;
+  text-decoration: none;
+  border-radius: 980px;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.374px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.switch-btn:hover {
+  background-color: #2997ff;
+  color: #000;
+}
+
+/* ===== MOBILE LINK ===== */
+.mobile-link {
+  display: none;
+  text-align: center;
+  margin-top: 1.25rem;
+}
+.mobile-link p {
+  color: rgba(0, 0, 0, 0.64);
+  font-size: 14px;
+  letter-spacing: -0.224px;
+}
+.mobile-link a {
+  color: #0066cc;
+  font-weight: 400;
+  text-decoration: none;
+  margin-left: 0.25rem;
+}
+.mobile-link a:hover { text-decoration: underline; }
+
+/* ===== LOADING ===== */
+.loading {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+.loading.hidden { display: none; }
+.spinner {
+  display: inline-block;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 3px solid rgba(0, 0, 0, 0.08);
+  border-top-color: #0071e3;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading p {
+  color: rgba(0, 0, 0, 0.48);
+  margin-top: 0.75rem;
+  font-size: 14px;
+  letter-spacing: -0.224px;
+}
 
 .hidden { display: none !important; }
+
+/* ===== RESPONSIVE ===== */
+@media (min-width: 1024px) {
+  .welcome-panel { display: flex; }
+}
+@media (max-width: 1023px) {
+  .auth-container { flex-direction: column; }
+  .form-panel { min-height: 100vh; }
+  .form-title { font-size: 40px; line-height: 1.10; }
+  .mobile-link { display: block; }
+}
+@media (max-width: 640px) {
+  .form-wrapper { padding: 0 1rem; }
+  .form-title { font-size: 32px; margin-bottom: 1.5rem; }
+  .welcome-title { font-size: 32px; }
+}

@@ -4,92 +4,21 @@
     box-sizing: border-box !important;
   }
 
-  /* ── Sidebar always 240px expanded ── */
-  #sidebar-container {
-    width: 240px !important;
-    min-width: 240px !important;
-  }
-
-  /* Sidebar aside fills the container */
-  #sidebar-container aside#np-sidebar {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-
-  /* .sb-label: always visible */
-  #sidebar-container .sb-label {
-    display: block !important;
-  }
-  /* special: profile row label */
-  #sidebar-container #sidebarProfileBtn .sb-label {
-    display: block !important;
-  }
-
-  /* Nav btn base */
-  #sidebar-container .sb-nav-btn {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    width: 100% !important;
-    padding: 10px 12px !important;
-    border: none !important;
-    border-radius: 2px !important;
-    background: transparent !important;
-    cursor: pointer !important;
-    transition: background 0.15s, border-left 0.15s !important;
-    font-size: 12px !important;
-    border-left: 3px solid transparent !important;
-    justify-content: flex-start !important;
-    color: var(--np-text-muted, #6b5f4a) !important;
-  }
-
-  /* Active nav btn — newspaper accent with solid background */
-  #sidebar-container .sb-nav-btn.bg-gray-200,
-  #sidebar-container .sb-nav-btn[aria-current="page"] {
-    background: var(--np-accent, #8b0000) !important;
-    border-left: 3px solid var(--np-accent, #8b0000) !important;
-    color: #fff !important;
-  }
-  #sidebar-container .sb-nav-btn:hover:not(.bg-gray-200):not([aria-current="page"]) {
-    background: var(--np-bg-input, #f0ebe1) !important;
-    color: var(--np-text, #1a1a1a) !important;
-  }
-
-  /* Header: row layout */
-  #sidebar-container aside > div:first-child {
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 10px 12px 0 !important;
-  }
-
-  /* Bottom buttons: left-align */
-  #sidebar-container #sidebarProfileBtn {
-    justify-content: flex-start !important;
-    gap: 10px !important;
-  }
-  #sidebar-container #settingsBtn,
-  #sidebar-container [data-logout] {
-    justify-content: flex-start !important;
-    gap: 10px !important;
-  }
-
   #sidebar-container aside {
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
-    background: var(--np-bg-card, #faf7f2) !important;
-    width: 100% !important;
+    background: #1e293b !important;
+    width: 256px !important;
     position: relative !important;
     left: 0 !important;
     right: 0 !important;
     top: 0 !important;
     margin: 0 !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    border-right: 2px solid var(--np-border-muted, #c8b99a) !important;
-    padding: 0 !important;
+    min-width: 256px !important;
+    max-width: 256px !important;
+    border-right: 1px solid #e5e7eb !important;
+    padding: 16px 12px !important;
     user-select: none !important;
     min-height: 100vh !important;
     max-height: 100vh !important;
@@ -123,30 +52,23 @@
     display: flex !important;
     align-items: center !important;
     gap: 12px !important;
-    padding: 10px !important;
-    border-radius: 2px !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
     border: none !important;
     background: transparent !important;
     cursor: pointer !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
     width: 100% !important;
     visibility: visible !important;
     opacity: 1 !important;
-  }
-
-  /* Nav buttons always left-aligned with gap */
-  #sidebar-container .sb-nav-btn {
-    justify-content: flex-start !important;
-    padding: 10px 12px !important;
-    gap: 12px !important;
   }
 
   #sidebar-container .bg-gray-200 {
     background: #e5e7eb !important;
   }
 
-  #sidebar-container .bg-blue-500 {
-    background: #3b82f6 !important;
+  #sidebar-container .bg-red-500 {
+    background: #ef4444 !important;
   }
 
   #sidebar-container .text-white {
@@ -232,6 +154,33 @@
     color: #374151 !important;
   }
 
+  /* ===== Nav button state ===== */
+  #sidebar-container .nav-btn {
+    color: #94a3b8 !important;
+    background: transparent !important;
+    transition: background .15s, color .15s !important;
+  }
+  #sidebar-container .nav-btn > i {
+    color: inherit !important;
+    width: 18px;
+    text-align: center;
+  }
+  #sidebar-container .nav-btn:hover {
+    background: rgba(255,255,255,0.06) !important;
+    color: #cbd5e1 !important;
+  }
+  #sidebar-container .nav-btn.is-active {
+    background: linear-gradient(135deg,#2d3f55 0%,#334155 100%) !important;
+    color: #f1f5f9 !important;
+    font-weight: 600 !important;
+  }
+  #sidebar-container .nav-btn.is-active > i {
+    color: #f87171 !important;
+  }
+  body.dark #sidebar-container .nav-btn.is-active {
+    background: linear-gradient(135deg,#273548 0%,#2d3f55 100%) !important;
+  }
+
   #sidebar-container .hover\:bg-gray-100:hover {
     background: #f3f4f6 !important;
   }
@@ -256,14 +205,21 @@
     border-radius: 12px !important;
   }
 
-  /* New sidebar structure: aside has 3 direct children:
-     1. toggle-header (flex-shrink:0), 2. nav-wrapper (flex:1), 3. user-bottom (flex-shrink:0)
-     Let inline styles on those divs control layout. */
   #sidebar-container aside > div {
+    display: flex !important;
+    flex-direction: column !important;
     width: 100% !important;
     overflow: visible !important;
     visibility: visible !important;
     opacity: 1 !important;
+  }
+
+  #sidebar-container aside > div:first-child {
+    flex: 1 !important;
+  }
+
+  #sidebar-container aside > div:last-child {
+    flex: 0 0 auto !important;
   }
 
   #main-app {
@@ -273,23 +229,30 @@
     min-height: 100vh !important;
   }
 
-  /* #sidebar-container base — always 240px */
   #sidebar-container {
     display: block !important;
     position: fixed !important;
     left: 0 !important;
     top: 0 !important;
-    width: 240px !important;
-    min-width: 240px !important;
+    width: 256px !important;
     height: 100vh !important;
     z-index: 999 !important;
-    background: transparent !important;
-    border: none !important;
+    background: #1e293b !important;
+    border-right: 1px solid #334155 !important;
     margin: 0 !important;
     padding: 0 !important;
     visibility: visible !important;
     opacity: 1 !important;
     overflow: hidden !important;
+  }
+
+  body.dark #sidebar-container {
+    background: #1a2332 !important;
+    border-right: 1px solid #2d3d50 !important;
+  }
+
+  body.dark #sidebar-container aside {
+    background: #1a2332 !important;
   }
 
   #sidebar-container aside {
@@ -299,18 +262,18 @@
     top: 0 !important;
   }
 
-  /* Light newspaper sidebar text overrides */
-  #sidebar-container .text-gray-900 { color: var(--np-text, #1a1a1a) !important; }
-  #sidebar-container .text-gray-700 { color: var(--np-text, #1a1a1a) !important; }
-  #sidebar-container .text-gray-600 { color: var(--np-text-muted, #6b5f4a) !important; }
-  #sidebar-container .text-gray-500 { color: var(--np-text-muted, #6b5f4a) !important; }
-  #sidebar-container .border-t { border-top: 1px solid var(--np-border-muted, #c8b99a) !important; }
-  #sidebar-container .border-gray-200 { border-color: var(--np-border-muted, #c8b99a) !important; }
-  #sidebar-container .bg-gray-200 { background: var(--np-bg-input, #f0ebe1) !important; }
-  #sidebar-container .hover\:bg-gray-100:hover { background: var(--np-bg-input, #f0ebe1) !important; }
-  #sidebar-container .hover\:bg-gray-50:hover { background: var(--np-bg-card, #faf7f2) !important; }
-  #sidebar-container .hover\:text-gray-700:hover { color: var(--np-text, #1a1a1a) !important; }
-  #sidebar-container .hover\:text-red-600:hover { color: var(--np-accent, #8b0000) !important; }
+  /* Dark sidebar overrides */
+  #sidebar-container .text-gray-900 { color: #f1f5f9 !important; }
+  #sidebar-container .text-gray-700 { color: #cbd5e1 !important; }
+  #sidebar-container .text-gray-600 { color: #94a3b8 !important; }
+  #sidebar-container .text-gray-500 { color: #64748b !important; }
+  #sidebar-container .border-t { border-top: 1px solid #334155 !important; }
+  #sidebar-container .border-gray-200 { border-color: #334155 !important; }
+  #sidebar-container .bg-gray-200 { background: #334155 !important; }
+  #sidebar-container .hover\:bg-gray-100:hover { background: #334155 !important; }
+  #sidebar-container .hover\:bg-gray-50:hover { background: #273548 !important; }
+  #sidebar-container .hover\:text-gray-700:hover { color: #f1f5f9 !important; }
+  #sidebar-container .hover\:text-red-600:hover { color: #f87171 !important; }
 
   #settingsModal {
     position: fixed !important;
@@ -379,7 +342,7 @@
     left: 0 !important;
     right: 0 !important;
     height: 4px !important;
-    background: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6) !important;
+    background: linear-gradient(90deg, #ec4899, #8b5cf6, #ef4444) !important;
   }
 
   #settingsModal .modal-content h3 {
@@ -509,12 +472,12 @@
   }
 
   #settingsModal #openProfileBtn {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%) !important;
   }
 
   #settingsModal #openProfileBtn:hover {
-    border-color: #3b82f6 !important;
-    color: #1e40af !important;
+    border-color: #ef4444 !important;
+    color: #991b1b !important;
   }
 
   #settingsModal #openNotificationBtn {
@@ -632,254 +595,375 @@
   }
 </style>
 
-<!-- Sidebar always 240px expanded, light newspaper background -->
 <aside
-  id="np-sidebar"
-  class="flex flex-col justify-between select-none"
-  style="
-    background: var(--np-bg-card, #faf7f2);
-    border-right: 2px solid var(--np-border-muted, #c8b99a);
-    height: 100vh;
-    overflow: hidden;
-    position: relative;
-  "
+  class="flex flex-col justify-between w-64 py-4 px-3 select-none min-h-screen"
+  style="background:#1e293b;border-right:1px solid #334155;"
 >
-  <!-- Brand header -->
-  <div style="flex-shrink:0;padding:12px 12px 0;display:flex;align-items:center;gap:10px;">
-    <!-- Brand icon -->
-    <div style="width:36px;height:36px;border-radius:4px;background:var(--np-accent,#8b0000);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <span style="color:#fff;font-size:13px;font-weight:700;font-family:'Merriweather',Georgia,serif;line-height:1;">SAI</span>
+  <!-- Logo/Brand -->
+  <div>
+    <div class="px-4 mb-5 flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center">
+        <i class="fas fa-calendar-check text-white text-sm"></i>
+      </div>
+      <span style="color:#f1f5f9;font-weight:700;font-size:15px;">Schedule AI</span>
     </div>
-    <!-- Brand label -->
-    <span class="sb-label" style="
-      color:var(--np-text,#1a1a1a);
-      font-weight:700;font-size:14px;letter-spacing:.02em;
-      font-family:'Merriweather',Georgia,serif;
-      white-space:nowrap;overflow:hidden;flex:1;
-    ">Schedule AI</span>
-  </div>
 
-  <!-- Nav -->
-  <div style="flex:1;padding:12px 8px;overflow-y:auto;overflow-x:hidden;">
-    <nav style="display:flex;flex-direction:column;gap:2px;">
-      <button type="button" class="nav-btn sb-nav-btn" data-section="schedule">
-        <span class="sb-label" style="font-size:14px;font-weight:700;letter-spacing:.03em;font-family:'Merriweather',Georgia,serif;">Lịch trình</span>
+    <nav class="space-y-1">
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm font-medium rounded-lg px-4 py-3 is-active"
+        data-section="schedule"
+      >
+        <i class="far fa-calendar-alt"></i>
+        <span>Lịch trình</span>
       </button>
-      <button type="button" class="nav-btn sb-nav-btn" data-section="work">
-        <span class="sb-label" style="font-size:14px;font-weight:700;letter-spacing:.03em;font-family:'Merriweather',Georgia,serif;">Công việc</span>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="work"
+      >
+        <i class="far fa-clipboard"></i>
+        <span>Công việc</span>
       </button>
-      <button type="button" class="nav-btn sb-nav-btn" data-section="ai">
-        <span class="sb-label" style="font-size:14px;font-weight:700;letter-spacing:.03em;font-family:'Merriweather',Georgia,serif;">Tham Khảo AI</span>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="ai"
+      >
+        <i class="fas fa-magic"></i>
+        <span>Tham Khảo AI</span>
       </button>
-      <button type="button" class="nav-btn sb-nav-btn" data-section="salary">
-        <span class="sb-label" style="font-size:14px;font-weight:700;letter-spacing:.03em;font-family:'Merriweather',Georgia,serif;">Thống kê & Lương</span>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="salary"
+      >
+        <i class="fas fa-calculator"></i>
+        <span>Tính lương</span>
       </button>
     </nav>
   </div>
 
   <!-- User Info Bottom -->
-  <div style="flex-shrink:0;border-top:1px solid var(--np-border-muted,#c8b99a);padding:10px 8px 8px;">
-    <!-- Avatar / profile click area -->
-    <button id="sidebarProfileBtn" title="Xem hồ sơ" style="
-      width:100%;display:flex;align-items:center;gap:10px;
-      background:var(--np-bg-input,#f0ebe1);border:none;border-radius:4px;
-      padding:8px;cursor:pointer;text-align:left;
-      transition:background .15s;
-    " onmouseover="this.style.background='rgba(139,0,0,0.1)'" onmouseout="this.style.background='var(--np-bg-input,#f0ebe1)'">
-      <div id="sidebarAvatarWrap" style="
-        width:34px;height:34px;border-radius:50%;flex-shrink:0;
-        background:linear-gradient(135deg,var(--np-accent,#8b0000),#a31212);
-        display:flex;align-items:center;justify-content:center;
-        color:#fff;font-weight:700;font-size:14px;
-        border:1.5px solid rgba(139,0,0,0.3);
-        overflow:hidden;position:relative;
-      ">
+  <div style="border-top:1px solid #334155;padding-top:16px;margin-top:16px;">
+    <div id="sidebarProfileBtn" class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all hover:opacity-80" style="background:#0f172a;" title="Cập nhật hồ sơ">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-red-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden" id="sidebarAvatarContainer">
         <span class="avatar-letter">?</span>
-        <img class="avatar-img" src="" alt="" style="
-          position:absolute;inset:0;width:100%;height:100%;
-          object-fit:cover;display:none;border-radius:50%;
-        "/>
       </div>
-      <div class="sb-label" style="flex:1;min-width:0;overflow:hidden;">
-        <p class="user-name" style="color:var(--np-text,#1a1a1a);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Merriweather',Georgia,serif;">Người dùng</p>
-        <p class="user-email" style="color:var(--np-text-muted,#6b5f4a);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">email@example.com</p>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold truncate user-name" style="color:#f1f5f9;">Người dùng</p>
+        <p class="text-xs truncate user-email" style="color:#64748b;">email@example.com</p>
       </div>
-    </button>
-    <!-- Settings + Logout -->
-    <div style="display:flex;flex-direction:column;gap:2px;margin-top:6px;">
-      <button id="settingsBtn" style="
-        width:100%;display:flex;align-items:center;gap:10px;
-        background:transparent;border:none;border-radius:4px;
-        padding:8px 12px;cursor:pointer;color:var(--np-text-muted,#6b5f4a);
-        font-size:13px;font-family:'Merriweather',Georgia,serif;transition:background .15s;
-      " onmouseover="this.style.background='var(--np-bg-input,#f0ebe1)';this.style.color='var(--np-text,#1a1a1a)'" onmouseout="this.style.background='transparent';this.style.color='var(--np-text-muted,#6b5f4a)'">
-        <span class="sb-label" style="white-space:nowrap;font-weight:600;">Cài đặt</span>
+    </div>
+    <div class="mt-2 space-y-1">
+      <button
+        id="settingsBtn"
+        class="w-full text-left text-xs flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
+        style="color:#64748b;"
+        onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#cbd5e1';"
+        onmouseout="this.style.background='transparent';this.style.color='#64748b';"
+      >
+        <i class="fas fa-cog"></i>
+        <span>Cài đặt</span>
       </button>
-      <button data-logout style="
-        width:100%;display:flex;align-items:center;gap:10px;
-        background:transparent;border:none;border-radius:4px;
-        padding:8px 12px;cursor:pointer;color:var(--np-accent,#8b0000);
-        font-size:13px;font-family:'Merriweather',Georgia,serif;transition:background .15s;
-      " onmouseover="this.style.background='rgba(139,0,0,0.08)'" onmouseout="this.style.background='transparent'">
-        <span class="sb-label" style="white-space:nowrap;font-weight:600;">Đăng xuất</span>
+      <button
+        data-logout
+        class="w-full text-left text-xs flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
+        style="color:#64748b;"
+        onmouseover="this.style.background='rgba(248,113,113,0.08)';this.style.color='#f87171';"
+        onmouseout="this.style.background='transparent';this.style.color='#64748b';"
+      >
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Đăng xuất</span>
       </button>
     </div>
   </div>
 </aside>
 
 <div id="settingsModal" class="modal hidden" style="align-items:center;justify-content:center">
-  <div id="settingsModalPanel" class="np-card" style="
-    width:380px;max-width:calc(100vw - 2rem);
+  <div id="settingsModalPanel" class="settings-modal-panel" style="
+    width:480px;max-width:calc(100vw - 2rem);
+    background:var(--sm-bg,#fff);
+    border-radius:20px;
+    box-shadow:0 25px 60px rgba(0,0,0,0.18),0 8px 24px rgba(0,0,0,0.1);
+    overflow:hidden;
     display:flex;flex-direction:column;
     max-height:calc(100vh - 3rem);
-    overflow:hidden;
-    padding:1.25rem 1.5rem 1rem;
   ">
 
-    <!-- Header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
-      <div style="display:flex;align-items:center;gap:10px">
-        <!-- Mini avatar -->
+    <!-- ── HERO HEADER ── -->
+    <div style="
+      background:linear-gradient(135deg,#b91c1c 0%,#4f46e5 50%,#7c3aed 100%);
+      padding:24px 24px 20px;
+      position:relative;overflow:hidden;flex-shrink:0
+    ">
+      <!-- decorative circles -->
+      <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:rgba(255,255,255,0.06);border-radius:50%"></div>
+      <div style="position:absolute;bottom:-20px;left:60px;width:80px;height:80px;background:rgba(255,255,255,0.04);border-radius:50%"></div>
+
+      <!-- close btn -->
+      <button id="closeSettingsModal" style="
+        position:absolute;top:16px;right:16px;
+        width:32px;height:32px;border-radius:8px;
+        background:rgba(255,255,255,0.15);border:none;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;
+        color:rgba(255,255,255,0.8);transition:all .2s;
+      " onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+         onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+        <i class="fas fa-times" style="font-size:13px"></i>
+      </button>
+
+      <!-- Avatar + Info -->
+      <div style="display:flex;align-items:center;gap:16px;position:relative">
         <div style="
-          width:40px;height:40px;border-radius:50%;flex-shrink:0;
-          background:linear-gradient(135deg,var(--np-accent,#8b0000),#a31212);
+          width:60px;height:60px;border-radius:16px;flex-shrink:0;
+          background:rgba(255,255,255,0.2);
+          border:2px solid rgba(255,255,255,0.35);
           display:flex;align-items:center;justify-content:center;
-          color:#fff;font-weight:700;font-size:15px;
-          border:1.5px solid rgba(255,255,255,0.2);
-          overflow:hidden;position:relative;
+          font-size:22px;font-weight:700;color:#fff;
+          box-shadow:0 4px 16px rgba(0,0,0,0.2)
         ">
-          <span class="settings-avatar-letter" style="position:relative;z-index:1">?</span>
+          <span class="settings-avatar-letter">?</span>
         </div>
-        <div>
-          <div class="settings-user-name" style="font-family:var(--np-font-heading,'Playfair Display',serif);font-size:1rem;font-weight:700;color:var(--np-text,#1a1a1a);line-height:1.2">Người dùng</div>
-          <div class="settings-user-email" style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.7rem;color:var(--np-text-muted,#6b5f4a);margin-top:2px">email@example.com</div>
+        <div style="flex:1;min-width:0">
+          <div style="color:#fff;font-size:17px;font-weight:700;line-height:1.2" class="settings-user-name">Người dùng</div>
+          <div style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:3px" class="settings-user-email">email@example.com</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:6px">
+            <span style="width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;box-shadow:0 0 0 2px rgba(74,222,128,0.3)"></span>
+            <span style="color:rgba(255,255,255,0.6);font-size:11px">Đang hoạt động</span>
+          </div>
         </div>
       </div>
-      <button id="closeSettingsModal" style="
-        width:28px;height:28px;border-radius:var(--np-radius,2px);
-        background:transparent;border:1px solid var(--np-border-muted,#c8b99a);cursor:pointer;
-        display:flex;align-items:center;justify-content:center;
-        color:var(--np-text-muted,#6b5f4a);font-size:0.85rem;
-        transition:background .12s,border-color .12s;flex-shrink:0;
-      " onmouseover="this.style.background='var(--np-border-muted,#c8b99a)';this.style.borderColor='var(--np-border,#1a1a1a)';this.style.color='var(--np-text,#1a1a1a)'"
-         onmouseout="this.style.background='transparent';this.style.borderColor='var(--np-border-muted,#c8b99a)';this.style.color='var(--np-text-muted,#6b5f4a)'">
-        &#x2715;
-      </button>
     </div>
 
-    <hr style="border:none;border-top:1px solid var(--np-border-muted,#c8b99a);margin:0 0 0.6rem" />
+    <!-- ── SCROLLABLE BODY ── -->
+    <div style="overflow-y:auto;flex:1;padding:20px 20px 8px">
 
-    <!-- Scrollable body -->
-    <div style="overflow-y:auto;flex:1;padding:0 0 0.5rem">
+      <!-- ── SECTION: TÀI KHOẢN ── -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--sm-label,#94a3b8);margin-bottom:8px;padding:0 4px">
+          Tài khoản
+        </div>
 
-      <!-- Tài khoản section -->
-      <div style="margin-bottom:0.75rem">
-        <span style="display:block;font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.65rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--np-text-muted,#6b5f4a);margin-bottom:0.35rem">Tài khoản</span>
-
+        <!-- Update Profile -->
         <button id="openProfileBtn" class="sm-menu-item" style="
           width:100%;display:flex;align-items:center;justify-content:space-between;
-          padding:0.45rem 0.5rem;border-radius:var(--np-radius,2px);background:transparent;
-          border:none;cursor:pointer;transition:background .12s;text-align:left;
-          font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.85rem;
-          color:var(--np-text,#1a1a1a);margin-bottom:2px;
-        " onmouseover="this.style.background='var(--np-bg,#f4efe6)'"
+          padding:11px 12px;border-radius:12px;background:transparent;border:none;cursor:pointer;
+          transition:background .15s;text-align:left;margin-bottom:2px
+        " onmouseover="this.style.background='var(--sm-hover,#fef2f2)'"
            onmouseout="this.style.background='transparent'">
-          <span>Cập nhật hồ sơ</span>
-          <span style="color:var(--np-text-muted,#6b5f4a)">&#8250;</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fas fa-user-circle" style="color:#dc2626;font-size:15px"></i>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--sm-text,#1e293b)">Cập nhật hồ sơ</div>
+              <div style="font-size:11px;color:var(--sm-muted,#94a3b8);margin-top:1px">Tên, ảnh đại diện, thông tin</div>
+            </div>
+          </div>
+          <i class="fas fa-chevron-right" style="font-size:11px;color:var(--sm-muted,#94a3b8)"></i>
         </button>
 
+        <!-- Notifications -->
         <button id="openNotificationBtn" class="sm-menu-item" style="
           width:100%;display:flex;align-items:center;justify-content:space-between;
-          padding:0.45rem 0.5rem;border-radius:var(--np-radius,2px);background:transparent;
-          border:none;cursor:pointer;transition:background .12s;text-align:left;
-          font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.85rem;
-          color:var(--np-text,#1a1a1a);
-        " onmouseover="this.style.background='var(--np-bg,#f4efe6)'"
+          padding:11px 12px;border-radius:12px;background:transparent;border:none;cursor:pointer;
+          transition:background .15s;text-align:left
+        " onmouseover="this.style.background='var(--sm-hover-cyan,#ecfeff)'"
            onmouseout="this.style.background='transparent'">
-          <span>Thông báo</span>
-          <span style="color:var(--np-text-muted,#6b5f4a)">&#8250;</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:#cffafe;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fas fa-bell" style="color:#0891b2;font-size:15px"></i>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--sm-text,#1e293b)">Thông báo</div>
+              <div style="font-size:11px;color:var(--sm-muted,#94a3b8);margin-top:1px">Nhắc nhở, cảnh báo sự kiện</div>
+            </div>
+          </div>
+          <i class="fas fa-chevron-right" style="font-size:11px;color:var(--sm-muted,#94a3b8)"></i>
         </button>
       </div>
 
-      <hr style="border:none;border-top:1px solid var(--np-border-muted,#c8b99a);margin:0 0 0.6rem" />
+      <!-- ── SECTION: GIAO DIỆN ── -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--sm-label,#94a3b8);margin-bottom:8px;padding:0 4px">
+          Giao diện
+        </div>
 
-      <!-- Giao diện section -->
-      <div style="margin-bottom:0.75rem">
-        <span style="display:block;font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.65rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--np-text-muted,#6b5f4a);margin-bottom:0.35rem">Giao diện</span>
+        <!-- Theme card row -->
+        <div style="background:var(--sm-section-bg,#f8fafc);border-radius:14px;padding:14px;border:1px solid var(--sm-border,#e2e8f0)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:32px;height:32px;border-radius:8px;background:#f3e8ff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fas fa-adjust" style="color:#7c3aed;font-size:13px"></i>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--sm-text,#1e293b)">Chế độ màu</div>
+              <div style="font-size:11px;color:var(--sm-muted,#94a3b8)">Chọn giao diện sáng hoặc tối</div>
+            </div>
+          </div>
 
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.45rem 0.5rem">
-          <span style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.85rem;color:var(--np-text,#1a1a1a)">Chế độ tối</span>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:0.7rem;color:var(--np-text-muted,#6b5f4a)" id="sm-theme-label">Sáng</span>
-            <button id="sidebarThemeToggle"
-                    onclick="if(window.ThemeManager){ThemeManager.toggle();updateSidebarThemeToggle();updateSettingsThemeUI();}"
-                    style="
-                      position:relative;width:36px;height:20px;border-radius:10px;
-                      background:var(--np-border-muted,#c8b99a);border:1px solid var(--np-border,#1a1a1a);
-                      cursor:pointer;transition:background .2s;flex-shrink:0;padding:0;
-                    ">
-              <span id="sidebarThemeThumb" style="
-                position:absolute;top:2px;left:2px;
-                width:14px;height:14px;border-radius:50%;
-                background:#fff;transition:transform .2s;
-              "></span>
+          <!-- Light / Dark preview cards -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <!-- Light Mode -->
+            <button id="smLightBtn" onclick="if(window.ThemeManager&&document.body.classList.contains('dark')){ThemeManager.toggle();updateSidebarThemeToggle();updateSettingsThemeUI();}" style="
+              border-radius:10px;padding:10px;border:2px solid #e2e8f0;
+              background:#fff;cursor:pointer;transition:all .2s;text-align:center
+            " onmouseover="this.style.borderColor='#dc2626'" onmouseout="if(!document.body.classList.contains('dark')){this.style.borderColor='#dc2626'}else{this.style.borderColor='#e2e8f0'}">
+              <!-- mini UI mockup - light -->
+              <div style="background:#f1f5f9;border-radius:6px;height:36px;margin-bottom:6px;padding:4px;display:flex;gap:3px;align-items:flex-start">
+                <div style="width:8px;background:#e2e8f0;border-radius:2px;height:100%"></div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+                  <div style="height:6px;background:#e2e8f0;border-radius:2px;width:70%"></div>
+                  <div style="height:6px;background:#e2e8f0;border-radius:2px;width:90%"></div>
+                  <div style="height:6px;background:#fee2e2;border-radius:2px;width:50%"></div>
+                </div>
+              </div>
+              <div style="font-size:11px;font-weight:600;color:#475569;display:flex;align-items:center;justify-content:center;gap:4px">
+                <i class="fas fa-sun" style="color:#f59e0b;font-size:10px"></i> Sáng
+              </div>
             </button>
+
+            <!-- Dark Mode -->
+            <button id="smDarkBtn" onclick="if(window.ThemeManager&&!document.body.classList.contains('dark')){ThemeManager.toggle();updateSidebarThemeToggle();updateSettingsThemeUI();}" style="
+              border-radius:10px;padding:10px;border:2px solid #e2e8f0;
+              background:#1e293b;cursor:pointer;transition:all .2s;text-align:center
+            " onmouseover="this.style.borderColor='#818cf8'" onmouseout="if(document.body.classList.contains('dark')){this.style.borderColor='#818cf8'}else{this.style.borderColor='#e2e8f0'}">
+              <!-- mini UI mockup - dark -->
+              <div style="background:#0f172a;border-radius:6px;height:36px;margin-bottom:6px;padding:4px;display:flex;gap:3px;align-items:flex-start">
+                <div style="width:8px;background:#334155;border-radius:2px;height:100%"></div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+                  <div style="height:6px;background:#334155;border-radius:2px;width:70%"></div>
+                  <div style="height:6px;background:#334155;border-radius:2px;width:90%"></div>
+                  <div style="height:6px;background:#1e3a5f;border-radius:2px;width:50%"></div>
+                </div>
+              </div>
+              <div style="font-size:11px;font-weight:600;color:#94a3b8;display:flex;align-items:center;justify-content:center;gap:4px">
+                <i class="fas fa-moon" style="color:#818cf8;font-size:10px"></i> Tối
+              </div>
+            </button>
+          </div>
+
+          <!-- Toggle switch alternative -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--sm-border,#e2e8f0)">
+            <span style="font-size:12px;color:var(--sm-muted,#94a3b8)">
+              <i class="fas fa-magic" style="margin-right:5px;color:#a78bfa"></i>Chuyển đổi nhanh
+            </span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <i class="fas fa-sun" style="color:#f59e0b;font-size:11px"></i>
+              <button id="sidebarThemeToggle"
+                      onclick="if(window.ThemeManager){ThemeManager.toggle();updateSidebarThemeToggle();updateSettingsThemeUI();}"
+                      style="
+                        position:relative;width:44px;height:24px;border-radius:12px;
+                        background:#cbd5e1;border:none;cursor:pointer;
+                        transition:background .3s;flex-shrink:0
+                      ">
+                <span id="sidebarThemeThumb" style="
+                  position:absolute;top:2px;left:2px;
+                  width:20px;height:20px;border-radius:50%;
+                  background:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.2);
+                  transition:transform .3s
+                "></span>
+              </button>
+              <i class="fas fa-moon" style="color:#818cf8;font-size:11px"></i>
+            </div>
           </div>
         </div>
       </div>
 
-      <hr style="border:none;border-top:1px solid var(--np-border-muted,#c8b99a);margin:0 0 0.6rem" />
-
-      <!-- Hệ thống section -->
-      <div style="margin-bottom:0.5rem">
-        <span style="display:block;font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.65rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--np-text-muted,#6b5f4a);margin-bottom:0.35rem">Hệ thống</span>
-
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.45rem 0.5rem">
-          <span style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.85rem;color:var(--np-text,#1a1a1a)">Ngôn ngữ</span>
-          <span style="font-size:0.72rem;color:var(--np-text-muted,#6b5f4a);font-style:italic">Tiếng Việt</span>
+      <!-- ── SECTION: HỆ THỐNG ── -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--sm-label,#94a3b8);margin-bottom:8px;padding:0 4px">
+          Hệ thống
         </div>
 
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.45rem 0.5rem">
-          <span style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.85rem;color:var(--np-text,#1a1a1a)">Schedule With AI</span>
-          <span style="font-size:0.65rem;font-family:var(--np-font-ui,'Inter',sans-serif);letter-spacing:0.08em;text-transform:uppercase;color:var(--np-text-muted,#6b5f4a)">v1.0.0</span>
+        <!-- Language -->
+        <div style="
+          display:flex;align-items:center;justify-content:space-between;
+          padding:11px 12px;border-radius:12px;
+          background:var(--sm-section-bg,#f8fafc);border:1px solid var(--sm-border,#e2e8f0)
+        ">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fas fa-globe" style="color:#d97706;font-size:15px"></i>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--sm-text,#1e293b)">Ngôn ngữ</div>
+              <div style="font-size:11px;color:var(--sm-muted,#94a3b8);margin-top:1px">Language / Ngôn ngữ</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:11px;font-weight:600;color:#7c3aed;background:#f3e8ff;padding:3px 10px;border-radius:20px">🇻🇳 Tiếng Việt</span>
+          </div>
+        </div>
+
+        <!-- App info row -->
+        <div style="
+          display:flex;align-items:center;justify-content:space-between;
+          padding:11px 12px;border-radius:12px;margin-top:6px
+        ">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fas fa-info-circle" style="color:#16a34a;font-size:15px"></i>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--sm-text,#1e293b)">Schedule With AI</div>
+              <div style="font-size:11px;color:var(--sm-muted,#94a3b8);margin-top:1px">Phiên bản 1.0.0</div>
+            </div>
+          </div>
+          <span style="font-size:10px;font-weight:600;color:#16a34a;background:#dcfce7;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px">Stable</span>
         </div>
       </div>
 
     </div><!-- end scrollable body -->
 
-    <!-- Logout footer -->
-    <hr style="border:none;border-top:1px solid var(--np-border-muted,#c8b99a);margin:0.5rem 0" />
-    <button id="modalLogoutBtn" style="
-      width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
-      padding:0.5rem 1rem;border-radius:var(--np-radius,2px);
-      border:1.5px solid var(--np-accent,#8b0000);
-      background:transparent;cursor:pointer;transition:background .15s;
-      color:var(--np-accent,#8b0000);
-      font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.8rem;
-      font-weight:500;letter-spacing:0.06em;text-transform:uppercase;
-    " onmouseover="this.style.background='var(--np-accent,#8b0000)';this.style.color='#fff'"
-       onmouseout="this.style.background='transparent';this.style.color='var(--np-accent,#8b0000)'">
-      Đăng xuất
-    </button>
+    <!-- ── LOGOUT FOOTER ── -->
+    <div style="padding:12px 20px 16px;border-top:1px solid var(--sm-border,#e2e8f0);flex-shrink:0">
+      <button id="modalLogoutBtn" style="
+        width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+        padding:11px 16px;border-radius:12px;border:1.5px solid #fecaca;
+        background:#fff5f5;cursor:pointer;transition:all .2s;
+        color:#dc2626;font-size:13px;font-weight:600
+      " onmouseover="this.style.background='#fee2e2';this.style.borderColor='#f87171'"
+         onmouseout="this.style.background='#fff5f5';this.style.borderColor='#fecaca'">
+        <i class="fas fa-sign-out-alt" style="font-size:14px"></i>
+        Đăng xuất
+      </button>
+    </div>
 
   </div>
 </div>
 
 <style>
-/* Settings modal dark mode */
+/* Settings modal dark mode via CSS vars */
 body.dark #settingsModalPanel {
-  background: var(--np-bg-card, #221e19) !important;
-  border-color: var(--np-border, #4a4238) !important;
-  box-shadow: 4px 4px 0 var(--np-border, #4a4238) !important;
-  color: var(--np-text, #e8e0d0) !important;
+  --sm-bg: #1e293b;
+  --sm-text: #f1f5f9;
+  --sm-muted: #64748b;
+  --sm-label: #475569;
+  --sm-border: #334155;
+  --sm-hover: rgba(96,165,250,0.08);
+  --sm-hover-cyan: rgba(34,211,238,0.06);
+  --sm-section-bg: #162032;
 }
-body.dark #settingsModalPanel .settings-user-name { color: var(--np-text, #e8e0d0) !important; }
-body.dark #settingsModalPanel .sm-menu-item { color: var(--np-text, #e8e0d0) !important; }
-body.dark #settingsModalPanel #sidebarThemeToggle {
-  background: var(--np-accent, #c44a4a) !important;
-  border-color: var(--np-accent, #c44a4a) !important;
+body.dark #settingsModalPanel .sm-menu-item:hover {
+  background: rgba(96,165,250,0.08) !important;
 }
-body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !important; }
+body.dark #settingsModalPanel #smLightBtn {
+  background: #0f172a;
+  border-color: #334155;
+}
+body.dark #settingsModalPanel #smDarkBtn {
+  background: #1e293b;
+  border-color: #818cf8;
+}
+body.dark #settingsModalPanel #modalLogoutBtn {
+  background: rgba(220,38,38,0.08) !important;
+  border-color: rgba(248,113,113,0.3) !important;
+}
+body.dark #settingsModalPanel #modalLogoutBtn:hover {
+  background: rgba(220,38,38,0.15) !important;
+  border-color: #f87171 !important;
+}
 </style>
 
 <script>
@@ -888,14 +972,17 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
     const isDark = document.body.classList.contains('dark');
     const btn   = document.getElementById('sidebarThemeToggle');
     const thumb = document.getElementById('sidebarThemeThumb');
-    const label = document.getElementById('sm-theme-label');
-    if (btn)   btn.style.background  = isDark ? 'var(--np-accent,#8b0000)' : 'var(--np-border-muted,#c8b99a)';
-    if (thumb) thumb.style.transform = isDark ? 'translateX(16px)' : 'translateX(0)';
-    if (label) label.textContent     = isDark ? 'Tối' : 'Sáng';
+    if (btn)   btn.style.background   = isDark ? '#4f46e5' : '#cbd5e1';
+    if (thumb) thumb.style.transform  = isDark ? 'translateX(22px)' : 'translateX(2px)';
   }
 
-  // Alias kept for backwards compat (called by theme card buttons which no longer exist but may be in other code)
+  // Update the light/dark preview card borders in the settings modal
   function updateSettingsThemeUI() {
+    const isDark = document.body.classList.contains('dark');
+    const lightBtn = document.getElementById('smLightBtn');
+    const darkBtn  = document.getElementById('smDarkBtn');
+    if (lightBtn) lightBtn.style.borderColor = isDark ? '#334155' : '#dc2626';
+    if (darkBtn)  darkBtn.style.borderColor  = isDark ? '#818cf8' : '#334155';
     updateSidebarThemeToggle();
   }
 
@@ -909,7 +996,6 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
   updateSettingsThemeUI();
 
   (function () {
-    console.log("Sidebar + Settings Modal loaded");
 
     const settingsModal = document.getElementById("settingsModal");
     const openBtn = document.getElementById("settingsBtn");
@@ -919,45 +1005,29 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
     function updateUserInfo(user) {
       if (!user) return;
 
-      const name  = user.hoten || user.username || "Người dùng";
-      const email = user.email || "email@example.com";
-      const letter = name.charAt(0).toUpperCase();
-      const avatarUrl = user.avatarUrl || user.AvatarUrl || null;
+      document.querySelector(".user-name").textContent =
+        user.hoten || user.username || "Người dùng";
+      document.querySelector(".user-email").textContent =
+        user.email || "email@example.com";
+      document.querySelector(".avatar-letter").textContent = (
+        user.hoten ||
+        user.username ||
+        "?"
+      )
+        .charAt(0)
+        .toUpperCase();
 
-      // Name / email text
-      const nameEl  = document.querySelector(".user-name");
-      const emailEl = document.querySelector(".user-email");
-      if (nameEl)  nameEl.textContent  = name;
-      if (emailEl) emailEl.textContent = email;
-
-      // Sidebar mini avatar — image takes priority over letter
-      const avatarImgEl    = document.querySelector("#sidebarAvatarWrap .avatar-img");
-      const avatarLetterEl = document.querySelector("#sidebarAvatarWrap .avatar-letter");
-      if (avatarImgEl && avatarLetterEl) {
-        if (avatarUrl && (avatarUrl.startsWith("data:") || avatarUrl.startsWith("http"))) {
-          avatarImgEl.src           = avatarUrl;
-          avatarImgEl.style.display = "block";
-          avatarLetterEl.style.display = "none";
-        } else {
-          avatarImgEl.src           = "";
-          avatarImgEl.style.display = "none";
-          avatarLetterEl.style.display = "";
-          avatarLetterEl.textContent   = letter;
-        }
-      } else {
-        // Fallback: update all .avatar-letter elements
-        document.querySelectorAll(".avatar-letter").forEach((el) => {
-          el.textContent = letter;
-        });
-      }
-
-      // Settings modal user info
-      const settingsName  = document.querySelector(".settings-user-name");
-      const settingsEmail = document.querySelector(".settings-user-email");
-      const settingsLetter = document.querySelector(".settings-avatar-letter");
-      if (settingsName)  settingsName.textContent  = name;
-      if (settingsEmail) settingsEmail.textContent = email;
-      if (settingsLetter) settingsLetter.textContent = letter;
+      document.querySelector(".settings-user-name").textContent =
+        user.hoten || user.username || "Người dùng";
+      document.querySelector(".settings-user-email").textContent =
+        user.email || "email@example.com";
+      document.querySelector(".settings-avatar-letter").textContent = (
+        user.hoten ||
+        user.username ||
+        "?"
+      )
+        .charAt(0)
+        .toUpperCase();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -976,16 +1046,12 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
       e.preventDefault();
       settingsModal.classList.remove("hidden");
       if (window.ProfileManager && !window.ProfileManager.initialized) {
-        console.log("🔧 Initializing ProfileManager from settings modal...");
         window.ProfileManager.init();
       }
       if (
         window.NotificationManager &&
         !window.NotificationManager.initialized
       ) {
-        console.log(
-          "🔧 Initializing NotificationManager from settings modal..."
-        );
         window.NotificationManager.init();
       }
     });
@@ -993,12 +1059,10 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
     function bindProfileButton() {
       const btn = document.getElementById("openProfileBtn");
       if (!btn) {
-        console.log("⏳ Profile button not ready, retry in 100ms...");
         setTimeout(bindProfileButton, 100);
         return;
       }
 
-      console.log("🔗 Binding profile button...");
 
       btn.onclick = null;
 
@@ -1007,16 +1071,13 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
           e.preventDefault();
           e.stopPropagation();
         }
-        console.log("📋 Profile button clicked!");
         handleOpenProfileModal();
         return false;
       };
 
-      console.log("✅ Profile button bound!");
     }
 
     function handleOpenProfileModal() {
-      console.log("📋 Opening profile modal from settings...");
 
       closeModal();
 
@@ -1024,15 +1085,9 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
         const profileModal = document.getElementById("profileModal");
 
         if (!profileModal) {
-          console.error("❌ Profile modal not found in DOM!");
-          console.log(
-            "Available modals:",
-            [...document.querySelectorAll("[id*='Modal']")].map((m) => m.id)
-          );
           return;
         }
 
-        console.log("✅ Profile modal found, opening...");
 
         profileModal.classList.remove("hidden");
         profileModal.classList.add("active", "show");
@@ -1048,11 +1103,9 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
           window.ProfileManager &&
           window.ProfileManager.fillFormWithUserData
         ) {
-          console.log("📝 Filling form with user data...");
           window.ProfileManager.fillFormWithUserData();
         }
 
-        console.log("✅ Profile modal opened successfully");
       }, 100);
     }
 
@@ -1061,7 +1114,6 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
     setInterval(() => {
       const btn = document.getElementById("openProfileBtn");
       if (btn && !btn.onclick) {
-        console.log("🔄 Re-binding profile button (periodic check)...");
         bindProfileButton();
       }
     }, 500);
@@ -1119,6 +1171,22 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
       });
     }
 
+    // Sidebar profile button - opens profile modal directly
+    const sidebarProfileBtn = document.getElementById("sidebarProfileBtn");
+    if (sidebarProfileBtn) {
+      sidebarProfileBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const tryOpen = () => {
+          if (window.ProfileManager && ProfileManager.openProfileModal) {
+            ProfileManager.openProfileModal();
+          } else {
+            setTimeout(tryOpen, 100);
+          }
+        };
+        tryOpen();
+      });
+    }
+
     //  NEW: Open Notification Modal - Work early, before manager init
     const openNotificationBtn = document.getElementById("openNotificationBtn");
     if (openNotificationBtn) {
@@ -1152,34 +1220,5 @@ body.dark #settingsModalPanel #sidebarThemeThumb { transform: translateX(16px) !
       }
     }, 100);
     setTimeout(() => clearInterval(initNav), 5000);
-
-    // Sidebar is always 240px expanded — no collapse/expand logic needed
-
-    // ── Sidebar profile button → open profileModal ────────────────────────
-    const sidebarProfileBtn = document.getElementById('sidebarProfileBtn');
-    if (sidebarProfileBtn) {
-      sidebarProfileBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        // Use ModalManager if available
-        if (window.ModalManager && window.ModalManager.showModalById) {
-          window.ModalManager.showModalById('profileModal');
-          // Fill form with user data
-          setTimeout(() => {
-            if (window.ProfileManager?.fillFormWithUserData) {
-              window.ProfileManager.fillFormWithUserData();
-            }
-          }, 100);
-        } else {
-          // Fallback: show directly
-          const pm = document.getElementById('profileModal');
-          if (pm) {
-            pm.classList.remove('hidden');
-            pm.classList.add('active', 'show');
-            pm.style.zIndex = '10100';
-            document.body.style.overflow = 'hidden';
-          }
-        }
-      });
-    }
   })();
 </script>

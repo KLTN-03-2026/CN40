@@ -2,14 +2,12 @@
   "use strict";
 
   if (window.TabManager) {
-
     return;
   }
 
   window.TabManager = {
     init() {
       this.initSalaryTabs();
-
     },
 
     initSalaryTabs() {
@@ -24,7 +22,6 @@
         !salaryContent ||
         !salaryStatsContent
       ) {
-        console.warn(" Salary tab elements not found");
         return;
       }
 
@@ -37,20 +34,14 @@
         this.activateTab(salaryStatsTab, salaryTab);
         this.showContent(salaryStatsContent, salaryContent);
       });
-
-
     },
 
     activateTab(activeTab, inactiveTab) {
-      // Active: newspaper accent style
-      activeTab.style.background = 'var(--np-bg-card, #faf7f2)';
-      activeTab.style.color = 'var(--np-accent, #8b0000)';
-      activeTab.style.borderBottom = '3px solid var(--np-accent, #8b0000)';
+      activeTab.classList.remove("text-gray-700", "bg-gray-200");
+      activeTab.classList.add("text-white", "bg-red-600");
 
-      // Inactive: muted style
-      inactiveTab.style.background = 'transparent';
-      inactiveTab.style.color = 'var(--np-text-muted, #6b5f4a)';
-      inactiveTab.style.borderBottom = '3px solid transparent';
+      inactiveTab.classList.remove("text-white", "bg-red-600");
+      inactiveTab.classList.add("text-gray-700", "bg-gray-200");
     },
 
     showContent(activeContent, inactiveContent) {
@@ -63,6 +54,4 @@
       }
     },
   };
-
-
 })();

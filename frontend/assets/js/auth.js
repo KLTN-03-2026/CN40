@@ -1,8 +1,6 @@
 const AuthManager = {
   async login(username, password) {
     try {
-
-
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -28,8 +26,6 @@ const AuthManager = {
 
   async register(userData) {
     try {
-
-
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,7 +72,6 @@ const AuthManager = {
 
 if (typeof window !== "undefined") {
   window.AuthManager = AuthManager;
-
 }
 
 if (typeof window === "undefined") {

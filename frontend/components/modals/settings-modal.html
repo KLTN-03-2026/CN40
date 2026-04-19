@@ -1,337 +1,178 @@
-<div class="np-settings-modal">
-  <!-- Header -->
-  <div class="np-settings-header">
-    <h3 class="np-settings-title">Cài đặt</h3>
+<div class="modal-content p-6 w-80 max-w-full">
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="text-lg font-semibold text-gray-800">Cài đặt</h3>
     <button
-      id="closeSettingsModal"
-      class="np-settings-close"
+      id="settingsBtn"
+      class="text-gray-500 hover:text-gray-700 text-xl"
       type="button"
-      aria-label="Đóng"
-      onclick="if(window.ModalManager) ModalManager.hideModal('settingsModal')"
-    >&#x2715;</button>
+    >
+      <i class="fas fa-times"></i>
+    </button>
   </div>
 
-  <hr class="np-settings-rule" />
+  <div class="space-y-4">
+    <div class="bg-gray-50 p-4 rounded-lg">
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center"
+        >
+          <span class="text-white font-semibold text-sm">U</span>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-800">Người dùng</p>
+          <p class="text-xs text-gray-500">user@example.com</p>
+        </div>
+      </div>
+    </div>
 
-  <!-- Theme toggle row -->
-  <div class="np-settings-section">
-    <span class="np-label np-settings-section-label">Giao diện</span>
-    <div class="np-settings-row">
-      <span class="np-settings-row-icon">&#9790;</span>
-      <span class="np-settings-row-text">Chế độ tối</span>
+    <div class="space-y-2">
       <button
-        id="themeToggleBtn"
-        class="np-toggle"
-        role="switch"
-        aria-checked="false"
-        onclick="window.ThemeManager && ThemeManager.toggle(); _npSyncToggle();"
-        title="Chuyển sáng / tối"
+        id="updateProfileBtn"
+        class="w-full flex items-center justify-between p-3 text-left text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors"
       >
-        <span class="np-toggle-thumb"></span>
+        <span class="flex items-center">
+          <i class="fas fa-user-edit text-gray-400 mr-3 text-xs"></i>
+          Cập nhật hồ sơ
+        </span>
+        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+      </button>
+
+      <button
+        class="w-full flex items-center justify-between p-3 text-left text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors"
+      >
+        <span class="flex items-center">
+          <i class="fas fa-bell text-gray-400 mr-3 text-xs"></i>
+          Thông báo
+        </span>
+        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+      </button>
+
+      <div class="w-full flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
+        <span class="flex items-center text-sm text-gray-700">
+          <i class="fas fa-palette text-gray-400 mr-3 text-xs"></i>
+          Giao diện
+        </span>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-500" id="theme-label">Sáng</span>
+          <button
+            id="themeToggleBtn"
+            class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none"
+            style="background:#cbd5e1"
+            onclick="window.ThemeManager && ThemeManager.toggle(); updateThemeToggle();"
+            title="Chuyển chế độ sáng/tối"
+          >
+            <span
+              id="themeToggleThumb"
+              class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+              style="transform:translateX(2px)"
+            ></span>
+          </button>
+          <i class="fas fa-moon text-gray-400 text-xs"></i>
+        </div>
+      </div>
+
+      <button
+        class="w-full flex items-center justify-between p-3 text-left text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors"
+      >
+        <span class="flex items-center">
+          <i class="fas fa-globe text-gray-400 mr-3 text-xs"></i>
+          Ngôn ngữ
+        </span>
+        <span class="text-xs text-gray-500">Tiếng Việt</span>
+      </button>
+
+      <button
+        class="w-full flex items-center justify-between p-3 text-left text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors"
+      >
+        <span class="flex items-center">
+          <i class="fas fa-question-circle text-gray-400 mr-3 text-xs"></i>
+          Trợ giúp & Hỗ trợ
+        </span>
+        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+      </button>
+    </div>
+
+    <div class="border-t border-gray-200 my-4"></div>
+
+    <div class="space-y-2">
+      <button
+        class="w-full text-left p-3 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+      >
+        <i class="fas fa-shield-alt text-gray-400 mr-3 text-xs"></i>
+        Chính sách bảo mật
+      </button>
+
+      <button
+        class="w-full text-left p-3 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+      >
+        <i class="fas fa-file-contract text-gray-400 mr-3 text-xs"></i>
+        Điều khoản dịch vụ
+      </button>
+
+      <button
+        id="logoutBtn"
+        class="w-full text-left p-3 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors mt-2"
+      >
+        <i class="fas fa-sign-out-alt text-red-500 mr-3 text-xs"></i>
+        Đăng xuất
       </button>
     </div>
   </div>
 
-  <hr class="np-settings-rule" />
-
-  <!-- Navigation links -->
-  <div class="np-settings-section">
-    <span class="np-label np-settings-section-label">Tài khoản</span>
-
-    <button
-      id="openProfileBtn"
-      class="np-settings-link"
-      type="button"
-      onclick="if(window.ModalManager){ ModalManager.hideModal('settingsModal'); setTimeout(()=>ModalManager.showModal('profileModal'),150); }"
-    >
-      <span>&#9998;&ensp;Cập nhật hồ sơ</span>
-      <span class="np-settings-chevron">&#8250;</span>
-    </button>
-
-    <button
-      id="openNotificationBtn"
-      class="np-settings-link"
-      type="button"
-      onclick="if(window.ModalManager){ ModalManager.hideModal('settingsModal'); setTimeout(()=>ModalManager.showModal('notificationModal'),150); }"
-    >
-      <span>&#9993;&ensp;Thông báo</span>
-      <span class="np-settings-chevron">&#8250;</span>
-    </button>
-  </div>
-
-  <hr class="np-settings-rule" />
-
-  <!-- Info links (static) -->
-  <div class="np-settings-section">
-    <span class="np-label np-settings-section-label">Thông tin</span>
-
-    <button class="np-settings-link" type="button">
-      <span>&#9873;&ensp;Chính sách bảo mật</span>
-    </button>
-
-    <button class="np-settings-link" type="button">
-      <span>&#9636;&ensp;Điều khoản dịch vụ</span>
-    </button>
-
-    <button class="np-settings-link np-settings-link--muted" type="button">
-      <span>&#9881;&ensp;Ngôn ngữ</span>
-      <span class="np-settings-meta">Tiếng Việt</span>
-    </button>
-  </div>
-
-  <hr class="np-settings-rule" />
-
-  <!-- Danger zone -->
-  <div class="np-settings-section">
-    <button
-      id="logoutBtn"
-      class="np-settings-link np-settings-link--danger"
-      type="button"
-    >
-      <span>&#x21B5;&ensp;Đăng xuất</span>
-    </button>
-  </div>
-
-  <!-- Version footer -->
-  <div class="np-settings-footer">
-    <span class="np-label">Phiên bản 1.0.0</span>
+  <div class="mt-6 pt-4 border-t border-gray-200 text-center">
+    <p class="text-xs text-gray-500">Phiên bản 1.0.0</p>
   </div>
 </div>
 
 <style>
-/* ===== SETTINGS MODAL — Newspaper Style ===== */
-.np-settings-modal {
-  width: 320px;
-  max-width: 95vw;
-  background: var(--np-bg-card, #faf7f2);
-  border: 1.5px solid var(--np-border, #1a1a1a);
-  border-radius: var(--np-radius, 2px);
-  box-shadow: var(--np-shadow, 4px 4px 0 #1a1a1a);
-  padding: 1.25rem 1.5rem 1rem;
-  font-family: var(--np-font-body, 'Merriweather', serif);
-  color: var(--np-text, #1a1a1a);
-}
+  .settings-option {
+    transition: all 0.2s ease;
+  }
 
-/* Header */
-.np-settings-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.np-settings-title {
-  font-family: var(--np-font-heading, 'Playfair Display', serif);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--np-text, #1a1a1a);
-  margin: 0;
-}
-
-.np-settings-close {
-  background: transparent;
-  border: 1px solid var(--np-border-muted, #c8b99a);
-  border-radius: var(--np-radius, 2px);
-  color: var(--np-text-muted, #6b5f4a);
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 0.85rem;
-  line-height: 1;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
-}
-
-.np-settings-close:hover {
-  background: var(--np-border-muted, #c8b99a);
-  color: var(--np-text, #1a1a1a);
-  border-color: var(--np-border, #1a1a1a);
-}
-
-/* Horizontal rule */
-.np-settings-rule {
-  border: none;
-  border-top: 1px solid var(--np-border-muted, #c8b99a);
-  margin: 0.6rem 0;
-}
-
-/* Section */
-.np-settings-section {
-  padding: 0.4rem 0;
-}
-
-.np-settings-section-label {
-  display: block;
-  margin-bottom: 0.35rem;
-}
-
-/* Row item (theme toggle) */
-.np-settings-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.35rem 0;
-}
-
-.np-settings-row-icon {
-  font-size: 0.85rem;
-  color: var(--np-text-muted, #6b5f4a);
-  width: 1rem;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.np-settings-row-text {
-  flex: 1;
-  font-family: var(--np-font-ui, 'Inter', sans-serif);
-  font-size: 0.85rem;
-  color: var(--np-text, #1a1a1a);
-}
-
-/* Toggle switch */
-.np-toggle {
-  position: relative;
-  width: 36px;
-  height: 20px;
-  background: var(--np-border-muted, #c8b99a);
-  border: 1px solid var(--np-border, #1a1a1a);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.2s;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.np-toggle[aria-checked="true"] {
-  background: var(--np-accent, #8b0000);
-  border-color: var(--np-accent, #8b0000);
-}
-
-.np-toggle-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  background: #fff;
-  border-radius: 50%;
-  transition: transform 0.2s;
-}
-
-.np-toggle[aria-checked="true"] .np-toggle-thumb {
-  transform: translateX(16px);
-}
-
-/* Link rows */
-.np-settings-link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.45rem 0.5rem;
-  background: transparent;
-  border: none;
-  border-radius: var(--np-radius, 2px);
-  font-family: var(--np-font-ui, 'Inter', sans-serif);
-  font-size: 0.85rem;
-  color: var(--np-text, #1a1a1a);
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.12s;
-}
-
-.np-settings-link:hover {
-  background: color-mix(in srgb, var(--np-bg-card, #faf7f2) 60%, var(--np-border-muted, #c8b99a) 40%);
-}
-
-.np-settings-link--muted {
-  color: var(--np-text-muted, #6b5f4a);
-}
-
-.np-settings-link--danger {
-  color: var(--np-accent, #8b0000);
-}
-
-.np-settings-link--danger:hover {
-  background: color-mix(in srgb, var(--np-bg-card, #faf7f2) 70%, #8b0000 30%);
-}
-
-.np-settings-chevron {
-  font-size: 1rem;
-  color: var(--np-text-muted, #6b5f4a);
-}
-
-.np-settings-meta {
-  font-size: 0.75rem;
-  color: var(--np-text-muted, #6b5f4a);
-  font-style: italic;
-}
-
-/* Footer */
-.np-settings-footer {
-  padding-top: 0.5rem;
-  text-align: center;
-}
-
-/* Dark mode overrides */
-body.dark .np-settings-modal {
-  background: var(--np-bg-card, #221e19);
-  border-color: var(--np-border, #4a4238);
-  box-shadow: 4px 4px 0 var(--np-border, #4a4238);
-  color: var(--np-text, #e8e0d0);
-}
-
-body.dark .np-settings-title { color: var(--np-text, #e8e0d0); }
-body.dark .np-settings-rule  { border-color: var(--np-border-muted, #3a3028); }
-body.dark .np-settings-close {
-  border-color: var(--np-border-muted, #3a3028);
-  color: var(--np-text-muted, #8a7f6a);
-}
-body.dark .np-settings-close:hover {
-  background: var(--np-border-muted, #3a3028);
-  border-color: var(--np-border, #4a4238);
-  color: var(--np-text, #e8e0d0);
-}
-body.dark .np-settings-link { color: var(--np-text, #e8e0d0); }
-body.dark .np-settings-link--muted { color: var(--np-text-muted, #8a7f6a); }
-body.dark .np-settings-link--danger { color: var(--np-accent, #c44a4a); }
-body.dark .np-toggle {
-  background: var(--np-border-muted, #3a3028);
-  border-color: var(--np-border, #4a4238);
-}
-body.dark .np-toggle[aria-checked="true"] {
-  background: var(--np-accent, #c44a4a);
-  border-color: var(--np-accent, #c44a4a);
-}
+  .settings-option:hover {
+    transform: translateX(2px);
+  }
 </style>
 
 <script>
-  /* Sync toggle state with ThemeManager on load and after toggle */
-  function _npSyncToggle() {
-    const btn = document.getElementById('themeToggleBtn');
-    if (!btn) return;
+  function updateThemeToggle() {
     const isDark = document.body.classList.contains('dark');
-    btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+    const btn = document.getElementById('themeToggleBtn');
+    const thumb = document.getElementById('themeToggleThumb');
+    const label = document.getElementById('theme-label');
+    if (btn) btn.style.background = isDark ? '#dc2626' : '#cbd5e1';
+    if (thumb) thumb.style.transform = isDark ? 'translateX(18px)' : 'translateX(2px)';
+    if (label) label.textContent = isDark ? 'Tối' : 'Sáng';
   }
 
-  // Run on load
-  _npSyncToggle();
+  // Init on load
+  updateThemeToggle();
+  document.addEventListener('theme-changed', updateThemeToggle);
 
-  // Listen for external theme changes
-  document.addEventListener('theme-changed', _npSyncToggle);
+  document.addEventListener("DOMContentLoaded", function () {
+    const settingButtons = document.querySelectorAll(
+      "#settingsModal button:not(#closeSettingsBtn)"
+    );
+    settingButtons.forEach((button) => {
+      button.addEventListener("mouseenter", function () {
+        this.classList.add("settings-option");
+      });
 
-  // Logout handler
-  const _logoutBtn = document.getElementById('logoutBtn');
-  if (_logoutBtn) {
-    _logoutBtn.addEventListener('click', function () {
-      if (window.AuthManager && AuthManager.logout) {
-        AuthManager.logout();
-      } else {
-        localStorage.clear();
-        location.href = '/login.html';
-      }
+      button.addEventListener("mouseleave", function () {
+        this.classList.remove("settings-option");
+      });
     });
-  }
+
+    const updateProfileBtn = document.getElementById("updateProfileBtn");
+    if (updateProfileBtn) {
+      updateProfileBtn.addEventListener("click", function () {
+      });
+    }
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", function () {
+      });
+    }
+  });
 </script>

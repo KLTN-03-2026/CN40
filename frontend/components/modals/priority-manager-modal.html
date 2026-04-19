@@ -1,0 +1,576 @@
+<div class="modal-overlay" data-modal-close></div>
+
+<div class="modal-content-wrapper">
+  <div
+    class="modal-content rounded-2xl shadow-2xl overflow-hidden"
+    id="priorityManagerModalContent"
+  >
+    <!-- Header -->
+    <div
+      class="modal-header sticky top-0 z-10 px-6 py-4 flex justify-between items-center"
+      style="background:linear-gradient(135deg,#1e3a5f 0%,#1e293b 100%)"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,0.15)">
+          <i class="fas fa-palette text-white text-sm"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold" style="color:#f1f5f9">Quản lý độ ưu tiên</h2>
+          <p class="text-xs" style="color:#94a3b8">Tuỳ chỉnh màu cho từng mức ưu tiên — đồng bộ trên mọi thiết bị</p>
+        </div>
+      </div>
+      <button
+        id="closePriorityMgrBtn"
+        class="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+        style="background:rgba(255,255,255,0.1);color:#94a3b8"
+        aria-label="Close"
+      >
+        <i class="fas fa-times text-sm"></i>
+      </button>
+    </div>
+
+    <div class="modal-body p-5 overflow-y-auto" style="max-height:75vh">
+      <div id="priorityMgrRows" class="space-y-3"></div>
+
+      <!-- Preview strip -->
+      <div class="mt-5 p-3 rounded-xl" style="background:#f8fafc;border:1px solid #e2e8f0">
+        <div class="text-[11px] font-semibold mb-2" style="color:#64748b;letter-spacing:0.5px">XEM TRƯỚC</div>
+        <div class="flex flex-wrap gap-2" id="priorityMgrPreview"></div>
+      </div>
+
+      <p class="mt-3 text-[11px]" style="color:#94a3b8">
+        <i class="fas fa-info-circle mr-1"></i>
+        Khi lưu, trang sẽ tải lại để áp dụng màu mới lên toàn hệ thống.
+      </p>
+
+      <div class="flex justify-between items-center gap-3 pt-4 mt-4 border-t" style="border-color:#e2e8f0">
+        <button
+          type="button"
+          id="priorityMgrResetBtn"
+          class="px-4 py-2 text-xs font-semibold rounded-xl transition-all"
+          style="color:#64748b;background:#f1f5f9"
+        >
+          <i class="fas fa-undo mr-1"></i>Về mặc định
+        </button>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            id="priorityMgrCancelBtn"
+            class="px-4 py-2 text-xs font-semibold rounded-xl border"
+            style="border-color:#e2e8f0;color:#64748b;background:#fff"
+          >
+            Huỷ
+          </button>
+          <button
+            type="button"
+            id="priorityMgrSaveBtn"
+            class="px-5 py-2 text-xs font-semibold text-white rounded-xl flex items-center gap-2"
+            style="background:linear-gradient(135deg,#dc2626,#4f46e5);box-shadow:0 4px 12px rgba(220,38,38,0.3)"
+          >
+            <span class="save-text"><i class="fas fa-save mr-1"></i>Lưu và tải lại</span>
+            <span class="save-loading hidden"><i class="fas fa-spinner fa-spin mr-1"></i>Đang lưu...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #priorityManagerModal .modal-content-wrapper {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 480px; width: 95%; max-height: 90vh;
+    display: flex; flex-direction: column; z-index: 10050;
+  }
+  #priorityManagerModalContent {
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; overflow: hidden;
+    animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .prio-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 12px;
+    background: #f8fafc; border: 1px solid #e2e8f0;
+  }
+  .prio-row .swatch {
+    width: 36px; height: 36px; border-radius: 10px;
+    border: 2px solid rgba(15,23,42,0.08);
+    flex-shrink: 0; cursor: pointer;
+    position: relative; overflow: hidden;
+    transition: transform 0.15s;
+  }
+  .prio-row .swatch:hover { transform: scale(1.06); }
+  .prio-row .swatch::after {
+    content: "\f53f"; font-family: "Font Awesome 5 Free"; font-weight: 900;
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.9); font-size: 11px; opacity: 0; transition: opacity 0.15s;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .prio-row .swatch:hover::after { opacity: 1; }
+
+  /* Custom color picker popover */
+  .cp-popover {
+    position: fixed; z-index: 10100;
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    padding: 12px; width: 224px;
+    user-select: none; -webkit-user-select: none;
+    animation: cpFadeIn 0.15s ease-out;
+  }
+  @keyframes cpFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  body.dark .cp-popover { background: #1e293b; border-color: #334155; }
+  .cp-sv {
+    width: 200px; height: 130px; position: relative;
+    border-radius: 8px; overflow: hidden; cursor: crosshair;
+    touch-action: none;
+  }
+  .cp-sv::before, .cp-sv::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+  }
+  .cp-sv::before { background: linear-gradient(to right, #fff, rgba(255,255,255,0)); }
+  .cp-sv::after  { background: linear-gradient(to top,  #000, rgba(0,0,0,0)); }
+  .cp-sv-marker {
+    position: absolute; width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
+    transform: translate(-50%, -50%); pointer-events: none; z-index: 2;
+  }
+  .cp-hue {
+    width: 200px; height: 14px; margin-top: 10px; position: relative;
+    border-radius: 10px; cursor: pointer; touch-action: none;
+    background: linear-gradient(to right,
+      #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
+  }
+  .cp-hue-marker {
+    position: absolute; top: -3px; width: 8px; height: 20px;
+    background: #fff; border: 1px solid rgba(0,0,0,0.5); border-radius: 3px;
+    transform: translateX(-50%); pointer-events: none;
+  }
+  .cp-presets {
+    display: grid; grid-template-columns: repeat(8, 1fr);
+    gap: 4px; margin-top: 10px;
+  }
+  .cp-preset {
+    width: 100%; aspect-ratio: 1; border-radius: 6px; cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.08); transition: transform 0.1s;
+  }
+  .cp-preset:hover { transform: scale(1.15); border-color: rgba(0,0,0,0.3); }
+  .cp-hex-row {
+    display: flex; gap: 6px; margin-top: 10px; align-items: center;
+  }
+  .cp-hex-row input {
+    flex: 1; padding: 6px 8px; border-radius: 8px;
+    border: 1px solid #e2e8f0; background: #fff;
+    font-size: 12px; font-family: ui-monospace, monospace;
+    text-transform: uppercase; color: #1e293b;
+  }
+  .cp-hex-row input:focus {
+    outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+  }
+  body.dark .cp-hex-row input { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+  .cp-close {
+    padding: 6px 10px; border-radius: 8px; border: 0; cursor: pointer;
+    background: #6366f1; color: #fff; font-size: 11px; font-weight: 600;
+  }
+  .cp-close:hover { background: #4f46e5; }
+  .prio-row .prio-label {
+    flex: 1; min-width: 0;
+  }
+  .prio-row .prio-name {
+    font-size: 13px; font-weight: 600; color: #1e293b;
+  }
+  .prio-row .prio-hint {
+    font-size: 11px; color: #94a3b8;
+  }
+  .prio-row input[type="text"].hex-input {
+    width: 96px; padding: 6px 8px; border-radius: 8px;
+    border: 1px solid #e2e8f0; background: #fff;
+    font-size: 12px; font-family: ui-monospace, monospace;
+    text-transform: uppercase; color: #1e293b;
+  }
+  .prio-row input[type="text"].hex-input:focus {
+    outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15);
+  }
+  .prio-row .reset-one {
+    width: 28px; height: 28px; border-radius: 8px;
+    border: none; background: transparent; color: #94a3b8;
+    cursor: pointer; font-size: 11px;
+  }
+  .prio-row .reset-one:hover { background: #f1f5f9; color: #1e293b; }
+
+  body.dark #priorityManagerModalContent { background: #1e293b; }
+  body.dark .prio-row { background: #162032; border-color: #334155; }
+  body.dark .prio-row .prio-name { color: #f1f5f9; }
+  body.dark .prio-row input[type="text"].hex-input {
+    background: #0f172a; border-color: #334155; color: #f1f5f9;
+  }
+</style>
+
+<script>
+  (function () {
+    const DEFAULTS = { 1: "#14B8A6", 2: "#6366F1", 3: "#F59E0B", 4: "#E11D48" };
+    const NAMES = { 1: "Thấp", 2: "Trung bình", 3: "Cao", 4: "Rất cao" };
+    let working = { ...DEFAULTS };
+
+    function currentPalette() {
+      return window.PriorityTheme ? PriorityTheme.getAll() : { ...DEFAULTS };
+    }
+
+    function renderRows() {
+      const host = document.getElementById("priorityMgrRows");
+      if (!host) return;
+      host.innerHTML = "";
+      [1, 2, 3, 4].forEach((p) => {
+        const row = document.createElement("div");
+        row.className = "prio-row";
+        row.dataset.p = String(p);
+        row.innerHTML = `
+          <button type="button" class="swatch" data-swatch="${p}" style="background:${working[p]}" title="Nhấn để chọn màu" aria-label="Chọn màu cho ${NAMES[p]}"></button>
+          <div class="prio-label">
+            <div class="prio-name">${NAMES[p]}</div>
+            <div class="prio-hint">Mức ${p}</div>
+          </div>
+          <input type="text" class="hex-input" value="${working[p]}" data-p="${p}" maxlength="7" />
+          <button type="button" class="reset-one" data-reset="${p}" title="Về mặc định (${DEFAULTS[p]})">
+            <i class="fas fa-undo"></i>
+          </button>
+        `;
+        host.appendChild(row);
+      });
+      renderPreview();
+    }
+
+    function syncRowDom(p) {
+      const row = document.querySelector(`.prio-row[data-p="${p}"]`);
+      if (!row) return;
+      const swatch = row.querySelector(".swatch");
+      if (swatch) swatch.style.background = working[p];
+      const hex = row.querySelector(".hex-input");
+      if (hex && hex !== document.activeElement) hex.value = working[p];
+    }
+
+    function renderPreview() {
+      const box = document.getElementById("priorityMgrPreview");
+      if (!box) return;
+      box.innerHTML = [1, 2, 3, 4].map((p) => `
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+          style="background:${working[p]}22;color:${working[p]}">
+          <span style="width:8px;height:8px;border-radius:50%;background:${working[p]};display:inline-block"></span>
+          ${NAMES[p]}
+        </span>`).join("");
+    }
+
+    function updateOne(p, hex) {
+      if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return false;
+      working[p] = hex.toUpperCase();
+      // Live preview via CSS var so rest of UI updates too.
+      document.documentElement.style.setProperty(`--prio-${p}`, working[p]);
+      // Update DOM in place — re-rendering would destroy an open picker mid-drag.
+      syncRowDom(p);
+      renderPreview();
+      return true;
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Custom HSV color picker popover
+    // ─────────────────────────────────────────────────────────────────
+    const PRESETS = [
+      "#EF4444","#F97316","#F59E0B","#EAB308","#84CC16","#22C55E","#10B981","#14B8A6",
+      "#06B6D4","#0EA5E9","#3B82F6","#6366F1","#8B5CF6","#A855F7","#D946EF","#EC4899",
+    ];
+    let activePicker = null;
+
+    function hexToRgb(hex) {
+      const h = hex.replace("#", "");
+      return {
+        r: parseInt(h.slice(0, 2), 16),
+        g: parseInt(h.slice(2, 4), 16),
+        b: parseInt(h.slice(4, 6), 16),
+      };
+    }
+    function rgbToHex(r, g, b) {
+      const c = (n) => n.toString(16).padStart(2, "0");
+      return ("#" + c(r) + c(g) + c(b)).toUpperCase();
+    }
+    function rgbToHsv(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+      let h = 0;
+      if (d) {
+        if (mx === r) h = ((g - b) / d) % 6;
+        else if (mx === g) h = (b - r) / d + 2;
+        else h = (r - g) / d + 4;
+        h *= 60;
+        if (h < 0) h += 360;
+      }
+      return { h, s: mx ? d / mx : 0, v: mx };
+    }
+    function hsvToRgb(h, s, v) {
+      const c = v * s;
+      const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+      const m = v - c;
+      let r = 0, g = 0, b = 0;
+      if (h < 60) { r = c; g = x; }
+      else if (h < 120) { r = x; g = c; }
+      else if (h < 180) { g = c; b = x; }
+      else if (h < 240) { g = x; b = c; }
+      else if (h < 300) { r = x; b = c; }
+      else { r = c; b = x; }
+      return {
+        r: Math.round((r + m) * 255),
+        g: Math.round((g + m) * 255),
+        b: Math.round((b + m) * 255),
+      };
+    }
+
+    function closeActivePicker() {
+      if (!activePicker) return;
+      activePicker.teardown?.();
+      activePicker.el?.remove();
+      activePicker = null;
+    }
+
+    function openPicker(opts) {
+      // opts: { positionEl, safeEls, initial, onChange, toggleKey }
+      closeActivePicker();
+
+      const pop = document.createElement("div");
+      pop.className = "cp-popover";
+      pop.innerHTML = `
+        <div class="cp-sv"><div class="cp-sv-marker"></div></div>
+        <div class="cp-hue"><div class="cp-hue-marker"></div></div>
+        <div class="cp-presets">${PRESETS.map(
+          (c) => `<div class="cp-preset" style="background:${c}" data-c="${c}" title="${c}"></div>`
+        ).join("")}</div>
+        <div class="cp-hex-row">
+          <input type="text" maxlength="7" />
+          <button type="button" class="cp-close">Xong</button>
+        </div>
+      `;
+      document.body.appendChild(pop);
+
+      // Position picker beside the hex input: prefer right-align below it.
+      const rect = opts.positionEl.getBoundingClientRect();
+      const pw = 224, ph = 280;
+      let left = rect.right - pw;
+      let top = rect.bottom + 6;
+      if (left < 10) left = 10;
+      if (left + pw > window.innerWidth - 10) left = window.innerWidth - pw - 10;
+      if (top + ph > window.innerHeight - 10) top = rect.top - ph - 6;
+      if (top < 10) top = 10;
+      pop.style.left = left + "px";
+      pop.style.top = top + "px";
+
+      const sv = pop.querySelector(".cp-sv");
+      const svMarker = pop.querySelector(".cp-sv-marker");
+      const hueBar = pop.querySelector(".cp-hue");
+      const hueMarker = pop.querySelector(".cp-hue-marker");
+      const hexInput = pop.querySelector('input[type="text"]');
+      const presetsBox = pop.querySelector(".cp-presets");
+
+      const initRgb = hexToRgb(opts.initial);
+      let { h, s, v } = rgbToHsv(initRgb.r, initRgb.g, initRgb.b);
+      if (!isFinite(h)) h = 0;
+
+      function apply() {
+        sv.style.background = `hsl(${h}, 100%, 50%)`;
+        svMarker.style.left = (s * 100) + "%";
+        svMarker.style.top = ((1 - v) * 100) + "%";
+        hueMarker.style.left = (h / 360 * 100) + "%";
+        const rgb = hsvToRgb(h, s, v);
+        const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+        if (hexInput !== document.activeElement) hexInput.value = hex;
+        opts.onChange?.(hex);
+      }
+      apply();
+
+      // Robust drag via pointer capture: target keeps receiving pointermove even
+      // when the pointer leaves its bounds, so kéo ra ngoài vẫn cập nhật liên tục.
+      function attachDrag(target, onPos) {
+        let activeId = null;
+        const compute = (ev) => {
+          const r = target.getBoundingClientRect();
+          const x = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width));
+          const y = Math.max(0, Math.min(1, (ev.clientY - r.top) / r.height));
+          onPos(x, y);
+          apply();
+        };
+        target.addEventListener("pointerdown", (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          activeId = ev.pointerId;
+          try { target.setPointerCapture(ev.pointerId); } catch (_) {}
+          compute(ev);
+        });
+        target.addEventListener("pointermove", (ev) => {
+          if (activeId !== ev.pointerId) return;
+          compute(ev);
+        });
+        const end = (ev) => {
+          if (activeId !== ev.pointerId) return;
+          try { target.releasePointerCapture(ev.pointerId); } catch (_) {}
+          activeId = null;
+        };
+        target.addEventListener("pointerup", end);
+        target.addEventListener("pointercancel", end);
+        target.addEventListener("lostpointercapture", end);
+      }
+      attachDrag(sv, (x, y) => { s = x; v = 1 - y; });
+      attachDrag(hueBar, (x) => { h = x * 360; });
+
+      hexInput.addEventListener("input", (e) => {
+        const val = e.target.value.trim();
+        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+          const rgb = hexToRgb(val);
+          const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+          h = isFinite(hsv.h) ? hsv.h : h; s = hsv.s; v = hsv.v;
+          apply();
+        }
+      });
+
+      presetsBox.addEventListener("click", (e) => {
+        const t = e.target.closest(".cp-preset");
+        if (!t) return;
+        const rgb = hexToRgb(t.dataset.c);
+        const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+        h = isFinite(hsv.h) ? hsv.h : h; s = hsv.s; v = hsv.v;
+        apply();
+      });
+
+      pop.querySelector(".cp-close").addEventListener("click", closeActivePicker);
+
+      const safeEls = opts.safeEls || [];
+      const outside = (e) => {
+        if (pop.contains(e.target)) return;
+        if (safeEls.some((el) => el && el.contains(e.target))) return;
+        closeActivePicker();
+      };
+      setTimeout(() => document.addEventListener("pointerdown", outside, true), 0);
+
+      const teardown = () => {
+        document.removeEventListener("pointerdown", outside, true);
+      };
+      activePicker = { el: pop, teardown, toggleKey: opts.toggleKey };
+    }
+
+    function bind() {
+      const host = document.getElementById("priorityMgrRows");
+      if (!host || host._bound) return;
+      host._bound = true;
+
+      host.addEventListener("input", (e) => {
+        const t = e.target;
+        if (t.matches(".hex-input[data-p]")) {
+          const v = t.value.trim();
+          if (/^#[0-9A-Fa-f]{6}$/.test(v)) updateOne(parseInt(t.dataset.p, 10), v);
+        }
+      });
+
+      host.addEventListener("click", (e) => {
+        const rb = e.target.closest("[data-reset]");
+        if (rb) {
+          const p = parseInt(rb.dataset.reset, 10);
+          closeActivePicker();
+          updateOne(p, DEFAULTS[p]);
+          return;
+        }
+        const sw = e.target.closest("[data-swatch]");
+        if (sw) {
+          const p = parseInt(sw.dataset.swatch, 10);
+          // Toggle: clicking the same swatch again closes the picker.
+          if (activePicker?.toggleKey === `p${p}`) {
+            closeActivePicker();
+            return;
+          }
+          const row = sw.closest(".prio-row");
+          const hexInputEl = row?.querySelector(".hex-input");
+          openPicker({
+            positionEl: hexInputEl || sw,
+            safeEls: [sw, hexInputEl],
+            initial: working[p],
+            onChange: (hex) => updateOne(p, hex),
+            toggleKey: `p${p}`,
+          });
+        }
+      });
+
+      document.getElementById("priorityMgrResetBtn")?.addEventListener("click", () => {
+        closeActivePicker();
+        working = { ...DEFAULTS };
+        [1, 2, 3, 4].forEach((p) => {
+          document.documentElement.style.setProperty(`--prio-${p}`, DEFAULTS[p]);
+        });
+        renderRows();
+      });
+
+      const closeWithRevert = () => {
+        closeActivePicker();
+        const orig = currentPalette();
+        [1, 2, 3, 4].forEach((p) =>
+          document.documentElement.style.setProperty(`--prio-${p}`, orig[p])
+        );
+        if (window.ModalManager) ModalManager.close("priorityManagerModal");
+      };
+      document.getElementById("priorityMgrCancelBtn")?.addEventListener("click", closeWithRevert);
+      document.getElementById("closePriorityMgrBtn")?.addEventListener("click", closeWithRevert);
+
+      document.getElementById("priorityMgrSaveBtn")?.addEventListener("click", async () => {
+        closeActivePicker();
+        const btn = document.getElementById("priorityMgrSaveBtn");
+        const st = btn.querySelector(".save-text");
+        const sl = btn.querySelector(".save-loading");
+        st?.classList.add("hidden"); sl?.classList.remove("hidden"); btn.disabled = true;
+
+        if (!window.PriorityTheme) {
+          alert("Không tìm thấy PriorityTheme. Reload trang và thử lại.");
+          st?.classList.remove("hidden"); sl?.classList.add("hidden"); btn.disabled = false;
+          return;
+        }
+        const result = await PriorityTheme.saveAll({
+          1: working[1], 2: working[2], 3: working[3], 4: working[4],
+        });
+
+        if (!result.ok) {
+          alert("Lỗi: " + (result.message || "Không lưu được"));
+          st?.classList.remove("hidden"); sl?.classList.add("hidden"); btn.disabled = false;
+          return;
+        }
+        // Reload so every component re-reads the new palette cleanly.
+        window.location.reload();
+      });
+    }
+
+    function initModal() {
+      working = currentPalette();
+      renderRows();
+      bind();
+    }
+
+    // ModalManager dispatches events on `window`, not `document` — listen on both so
+    // the rows render regardless of which target dispatches.
+    const onOpen = (e) => {
+      if (e.detail?.modalId === "priorityManagerModal") setTimeout(initModal, 30);
+    };
+    const onClose = (e) => {
+      if (e.detail?.modalId === "priorityManagerModal") closeActivePicker();
+    };
+    window.addEventListener("modalOpened", onOpen);
+    window.addEventListener("modalShown", onOpen);
+    document.addEventListener("modalOpened", onOpen);
+    document.addEventListener("modalShown", onOpen);
+    window.addEventListener("modalClosed", onClose);
+    document.addEventListener("modalClosed", onClose);
+
+    window.openPriorityManager = function () {
+      if (window.ModalManager?.showModalById) {
+        ModalManager.showModalById("priorityManagerModal");
+      }
+      // Directly init — don't rely solely on event bus (some open paths skip dispatch).
+      setTimeout(initModal, 30);
+    };
+  })();
+</script>

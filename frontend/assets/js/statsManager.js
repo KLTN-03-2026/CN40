@@ -55,8 +55,6 @@
     const pending = data.pending || 0;
     const percent = data.percent || 0;
 
-
-
     // Cập nhật số liệu tổng quan
     const statsTotal = document.getElementById("stats-total");
     const statsCompleted = document.getElementById("stats-completed");
@@ -106,11 +104,11 @@
       tickColor: dark ? "#64748b" : "#94a3b8",
       legendColor: dark ? "#cbd5e1" : "#475569",
       tooltipBg: "rgba(15,23,42,0.92)",
-      completed: dark ? "rgba(96,165,250,0.9)" : "rgba(37,99,235,0.85)",
-      completedHover: dark ? "#60a5fa" : "#2563eb",
+      completed: dark ? "rgba(248,113,113,0.9)" : "rgba(220,38,38,0.85)",
+      completedHover: dark ? "#f87171" : "#dc2626",
       pending: dark ? "rgba(51,65,85,0.7)" : "rgba(226,232,240,0.9)",
       pendingHover: dark ? "#334155" : "#cbd5e1",
-      donutCompleted: dark ? ["#60a5fa", "#34d399"] : ["#2563eb", "#10b981"],
+      donutCompleted: dark ? ["#f87171", "#34d399"] : ["#dc2626", "#10b981"],
       donutPending: dark ? "rgba(51,65,85,0.5)" : "rgba(226,232,240,0.8)",
       centerText: dark ? "#f1f5f9" : "#1e293b",
       centerSub: dark ? "#64748b" : "#94a3b8",
@@ -360,8 +358,6 @@
   }
 
   async function init() {
-
-
     initializeDateInputs();
     setupDateFilter();
     setupQuickTabs();
@@ -371,8 +367,6 @@
     if (statsView && !statsView.classList.contains("hidden")) {
       await handleLoadStats();
     }
-
-
   }
 
   // Export public methods
@@ -382,6 +376,4 @@
     renderStatsView,
     handleLoadStats,
   };
-
-
 })();

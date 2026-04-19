@@ -6,28 +6,17 @@ if (typeof InstallHook === "undefined") {
     },
 
     async init() {
-
-
       this.checkLibraries();
-
       this.addCalendarStyles();
-
-
     },
 
     checkLibraries() {
       if (typeof FullCalendar !== "undefined") {
         this.libraries.fullcalendar = true;
-
-      } else {
-        console.warn(" FullCalendar not loaded yet");
       }
 
       if (typeof Utils !== "undefined") {
         this.libraries.utils = true;
-
-      } else {
-        console.warn(" Utils not loaded yet");
       }
     },
 
@@ -57,7 +46,6 @@ if (typeof InstallHook === "undefined") {
         }
       `;
       document.head.appendChild(style);
-
     },
 
     async waitForLibrary(name, timeout = 5000) {
@@ -71,8 +59,6 @@ if (typeof InstallHook === "undefined") {
         this.checkLibraries();
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
-
-
     },
   };
 

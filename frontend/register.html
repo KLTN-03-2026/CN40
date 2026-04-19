@@ -3,115 +3,88 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Đăng ký — Schedule With AI</title>
+    <title>Đăng ký - Quản lý công việc</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-
-    <link rel="stylesheet" href="assets/css/newspaper-theme.css" />
+    <link rel="stylesheet" href="login.css" />
     <link rel="stylesheet" href="assets/css/login.css" />
   </head>
-  <body class="auth-page">
+  <body>
+    <div class="auth-container">
+      <div class="form-panel">
+        <div class="form-wrapper">
+          <h1 class="form-title">Đăng kí</h1>
 
-    <!-- Masthead -->
-    <div class="auth-masthead">
-      <div class="auth-masthead-rule-thick"></div>
-      <div class="auth-masthead-rule-thin"></div>
-      <h1 class="auth-masthead-title">Schedule With AI</h1>
-      <span class="auth-masthead-subtitle">Quản lý lịch trình thông minh</span>
-      <div class="auth-masthead-rule-thin"></div>
-      <div class="auth-masthead-rule-thick"></div>
-    </div>
+          <form id="registerForm" method="post">
+            <div class="input-group">
+              <input
+                type="text"
+                id="hoten"
+                name="hoten"
+                autocomplete="name"
+                placeholder="Họ và tên"
+              />
+            </div>
 
-    <!-- Form card -->
-    <div class="auth-card">
-      <h2 class="auth-card-title">Đăng ký</h2>
-      <span class="auth-card-tagline">Tạo tài khoản mới</span>
+            <div class="input-group">
+              <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                autocomplete="username"
+                placeholder="Tên đăng nhập"
+              />
+            </div>
 
-      <form id="registerForm" method="post" novalidate>
-        <div class="auth-field">
-          <label class="auth-label" for="hoten">Họ và tên</label>
-          <input
-            class="auth-input"
-            type="text"
-            id="hoten"
-            name="hoten"
-            autocomplete="name"
-            placeholder="nhập họ và tên..."
-          />
-        </div>
+            <div class="input-group">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                autocomplete="email"
+                placeholder="Email"
+              />
+            </div>
 
-        <div class="auth-field">
-          <label class="auth-label" for="username">Tên đăng nhập</label>
-          <input
-            class="auth-input"
-            type="text"
-            id="username"
-            name="username"
-            required
-            autocomplete="username"
-            placeholder="nhập tên đăng nhập..."
-          />
-        </div>
+            <div class="input-group">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                autocomplete="new-password"
+                placeholder="Mật khẩu"
+              />
+            </div>
 
-        <div class="auth-field">
-          <label class="auth-label" for="email">Email</label>
-          <input
-            class="auth-input"
-            type="email"
-            id="email"
-            name="email"
-            required
-            autocomplete="email"
-            placeholder="nhập địa chỉ email..."
-          />
-        </div>
+            <button type="submit" class="submit-btn">Đăng kí</button>
+          </form>
 
-        <div class="auth-field">
-          <label class="auth-label" for="password">Mật khẩu</label>
-          <input
-            class="auth-input"
-            type="password"
-            id="password"
-            name="password"
-            required
-            autocomplete="new-password"
-            placeholder="nhập mật khẩu..."
-          />
-          <!-- Password requirements -->
-          <div class="auth-pw-req" id="pw-requirements">
-            <ul>
-              <li id="req-length" class="invalid">Ít nhất 6 ký tự</li>
-              <li id="req-capital" class="invalid">Bắt đầu bằng chữ hoa</li>
-              <li id="req-number" class="invalid">Chứa ít nhất 1 số</li>
-              <li id="req-special" class="invalid">Chứa ký tự đặc biệt (@$!%*?&amp;)</li>
-            </ul>
+          <div class="mobile-link">
+            <p>
+              Đã có tài khoản?
+              <a href="/login.html">Đăng nhập ngay</a>
+            </p>
+          </div>
+
+          <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Đang đăng ký...</p>
           </div>
         </div>
-
-        <button type="submit" class="auth-submit">Đăng ký</button>
-      </form>
-
-      <hr class="auth-divider" />
-
-      <p class="auth-switch">
-        Đã có tài khoản?
-        <a href="/login.html">Đăng nhập ngay</a>
-      </p>
-
-      <div id="loading" class="auth-loading hidden">
-        <div class="auth-spinner"></div>
-        <p>Đang đăng ký...</p>
       </div>
-    </div>
 
-    <!-- Footer rule -->
-    <div class="auth-footer">
-      <div class="auth-masthead-rule-thin"></div>
+      <div class="welcome-panel welcome-panel-right">
+        <div class="welcome-content">
+          <h1 class="welcome-title">Hello, Welcome!</h1>
+          <a href="/login.html" class="switch-btn"> Đăng nhập </a>
+        </div>
+      </div>
     </div>
 
     <script src="assets/js/utils.js"></script>
@@ -121,53 +94,45 @@
       document.addEventListener("DOMContentLoaded", function () {
         const registerForm = document.getElementById("registerForm");
         const loading = document.getElementById("loading");
-        const pwInput = document.getElementById("password");
-        const pwReq = document.getElementById("pw-requirements");
-
-        // Live password validation display
-        pwInput.addEventListener("focus", () => pwReq.classList.add("visible"));
-        pwInput.addEventListener("blur", () => pwReq.classList.remove("visible"));
-        pwInput.addEventListener("input", function () {
-          const v = this.value;
-          toggle("req-length",  v.length >= 6);
-          toggle("req-capital", /^[A-Z]/.test(v));
-          toggle("req-number",  /\d/.test(v));
-          toggle("req-special", /[@$!%*?&]/.test(v));
-        });
-
-        function toggle(id, valid) {
-          const el = document.getElementById(id);
-          if (!el) return;
-          el.classList.toggle("valid", valid);
-          el.classList.toggle("invalid", !valid);
-        }
 
         registerForm.addEventListener("submit", async function (e) {
           e.preventDefault();
 
-          const username = document.getElementById("username").value.trim();
-          const email    = document.getElementById("email").value.trim();
+          const username = document.getElementById("username").value;
+          const email = document.getElementById("email").value;
           const password = document.getElementById("password").value;
-          const hoten    = document.getElementById("hoten").value.trim();
+          const hoten = document.getElementById("hoten").value;
 
           if (!username || !email || !password) {
             alert("Vui lòng nhập đầy đủ thông tin bắt buộc!");
             return;
           }
 
-          const isLengthValid  = password.length >= 6;
+          const isLengthValid = password.length >= 6;
           const isCapitalValid = /^[A-Z]/.test(password);
-          const isNumberValid  = /\d/.test(password);
+          const isNumberValid = /\d/.test(password);
           const isSpecialValid = /[@$!%*?&]/.test(password);
 
-          if (!isLengthValid || !isCapitalValid || !isNumberValid || !isSpecialValid) {
-            alert("Mật khẩu không hợp lệ. Vui lòng đáp ứng tất cả các yêu cầu.");
+          if (
+            !isLengthValid ||
+            !isCapitalValid ||
+            !isNumberValid ||
+            !isSpecialValid
+          ) {
+            alert(
+              "Mật khẩu không hợp lệ. Vui lòng đáp ứng tất cả các yêu cầu."
+            );
             return;
           }
 
           try {
             loading.classList.remove("hidden");
-            await AuthManager.register({ username, email, password, hoten });
+            await AuthManager.register({
+              username,
+              email,
+              password,
+              hoten,
+            });
           } catch (error) {
             alert("Đăng ký thất bại: " + error.message);
           } finally {

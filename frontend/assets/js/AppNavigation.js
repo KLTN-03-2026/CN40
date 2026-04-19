@@ -2,7 +2,6 @@
   "use strict";
 
   if (window.AppNavigation) {
-
     return;
   }
 
@@ -14,45 +13,31 @@
 
     init() {
       if (this.initialized) {
-
         return;
       }
-
-
 
       this.navButtons = document.querySelectorAll("[data-section]");
       this.sections = document.querySelectorAll(".section");
 
       if (this.navButtons.length === 0) {
-        console.error(" No navigation buttons found with [data-section]!");
         return;
       }
 
       if (this.sections.length === 0) {
-        console.error(" No sections found with .section class!");
         return;
       }
-
-
-
 
       this.bindEvents();
       this.ensureSingleActiveSection();
       this.initialized = true;
-
-
-
     },
 
     async cleanupCurrentSection() {
       if (!this.currentSection) return;
 
-
-
       const cleanupMap = {
         schedule: () => {
           // Don't destroy - keep calendar alive for instant re-entry
-
         },
         work: () => {
           if (window.WorkManager && WorkManager.cleanup) {
@@ -70,8 +55,6 @@
           }
         },
         ai: () => {
-
-
           const aiCalendar = document.getElementById("ai-calendar");
           if (aiCalendar && window.AIModule && AIModule.calendar) {
             if (AIModule.calendar) {
@@ -98,11 +81,9 @@
         if (section.classList.contains("active")) {
           if (activeFound) {
             section.classList.remove("active");
-
           } else {
             activeFound = true;
             this.currentSection = section.id.replace("-section", "");
-
           }
         }
       });
@@ -112,32 +93,23 @@
         if (scheduleSection) {
           scheduleSection.classList.add("active");
           this.currentSection = "schedule";
-
         }
       }
     },
 
     bindEvents() {
-
-
       this.navButtons.forEach((btn) => {
         btn.addEventListener("click", (e) => {
           e.preventDefault();
           this.handleNavigation(btn);
         });
-
       });
-
-
     },
 
     async handleNavigation(btn) {
       const targetSection = btn.dataset.section;
 
-
-
       if (targetSection === this.currentSection) {
-
         return;
       }
 
@@ -146,8 +118,6 @@
 
     async navigateToSection(sectionName) {
       try {
-
-
         const previousSection = this.currentSection;
 
         await this.cleanupCurrentSection();
@@ -165,11 +135,8 @@
           },
         });
         document.dispatchEvent(event);
-
-
-
       } catch (error) {
-        console.error(` Navigation to ${sectionName} failed:`, error);
+        console.error(`Navigation to ${sectionName} failed:`, error);
 
         const errorEvent = new CustomEvent("section-change-error", {
           detail: {
@@ -183,11 +150,8 @@
     },
 
     updateNavButtons(targetSection) {
-
-
       this.navButtons.forEach((btn) => {
-        btn.classList.remove("bg-gray-300", "text-gray-900", "bg-gray-200");
-        btn.classList.add("text-gray-600", "hover:bg-gray-100");
+        btn.classList.remove("is-active", "bg-gray-300", "text-gray-900", "bg-gray-200");
         btn.removeAttribute("aria-current");
       });
 
@@ -195,16 +159,12 @@
         `[data-section="${targetSection}"]`
       );
       if (targetBtn) {
-        targetBtn.classList.add("bg-gray-200", "text-gray-900");
-        targetBtn.classList.remove("text-gray-600", "hover:bg-gray-100");
+        targetBtn.classList.add("is-active");
         targetBtn.setAttribute("aria-current", "page");
-
       }
     },
 
     toggleSections(targetSection) {
-
-
       this.sections.forEach((section) => {
         section.classList.remove("active");
       });
@@ -214,9 +174,6 @@
       );
       if (targetSectionEl) {
         targetSectionEl.classList.add("active");
-
-      } else {
-        console.error(` Section not found: ${targetSection}-section`);
       }
     },
 
@@ -225,13 +182,11 @@
       const container = document.getElementById(containerId);
 
       if (!container) {
-        console.error(` Container not found: ${containerId}`);
         return;
       }
 
       // If section content already loaded, just update size
       if (container._sectionLoaded && container.children.length > 0) {
-
         if (sectionName === 'schedule' && window.CalendarModule?.calendar) {
           requestAnimationFrame(() => {
             window.CalendarModule.calendar.updateSize();
@@ -253,15 +208,9 @@
       }
       container._sectionLoaded = true;
 
-
-
       if (window.ComponentLoader && ComponentLoader.loadPageContent) {
-
         await ComponentLoader.loadPageContent(sectionName);
       } else {
-        console.error(
-          ` ComponentLoader not available or missing loadPageContent`
-        );
         return;
       }
 
@@ -279,21 +228,16 @@
 
       setTimeout(() => {
         if (sectionName === "schedule" && window.CalendarModule) {
-
           CalendarModule.refreshEvents && CalendarModule.refreshEvents();
           CalendarModule.refreshDragDrop && CalendarModule.refreshDragDrop();
         } else if (sectionName === "work") {
-
-
           const workEvent = new CustomEvent("work-tab-activated");
           document.dispatchEvent(workEvent);
 
           if (window.WorkManager) {
             if (!WorkManager.initialized && WorkManager.init) {
-
               WorkManager.init();
             } else if (WorkManager.loadTasks) {
-
               WorkManager.loadTasks();
             }
           }
@@ -305,7 +249,6 @@
             }, 800);
           }
         } else if (sectionName === "ai" && window.AIModule) {
-
           AIModule.refreshSuggestions && AIModule.refreshSuggestions();
 
           if (AIModule.restoreCalendar) {
@@ -317,8 +260,6 @@
       }, 200);
 
       window.scrollTo(0, 0);
-
-
     },
 
     async refreshCurrentSection() {
@@ -329,7 +270,4 @@
   };
 
   window.AppNavigation = AppNavigation;
-
-
-
 })();

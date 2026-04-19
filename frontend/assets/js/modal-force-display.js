@@ -2,21 +2,15 @@
   "use strict";
 
   function forceModalContentDisplay(modalId) {
-
-
     const modal = document.getElementById(modalId);
     if (!modal) {
-      console.error(` Modal ${modalId} not found`);
       return false;
     }
 
     const content = modal.querySelector(".modal-content");
     if (!content) {
-      console.error(` .modal-content not found in ${modalId}`);
       return false;
     }
-
-
 
     content.style.cssText = `
       display: flex !important;
@@ -26,10 +20,9 @@
       min-width: 600px !important;
       min-height: 400px !important;
       max-height: 90vh !important;
-      background: var(--np-bg-card, #faf7f2) !important;
-      border: 1.5px solid var(--np-border, #1a1a1a) !important;
-      border-radius: var(--np-radius, 2px) !important;
-      box-shadow: var(--np-shadow, 4px 4px 0 #1a1a1a) !important;
+      background: white !important;
+      border-radius: 12px !important;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
       overflow: hidden !important;
       position: relative !important;
       z-index: 10001 !important;
@@ -81,19 +74,11 @@
     void content.offsetHeight;
 
     setTimeout(() => {
-
-
       if (content.offsetWidth === 0 || content.offsetHeight === 0) {
-        console.error(" STILL 0x0! Last resort...");
-
         const parent = content.parentElement;
         const clone = content.cloneNode(true);
         clone.style.cssText = content.style.cssText;
         parent.replaceChild(clone, content);
-
-
-      } else {
-
       }
     }, 100);
 
@@ -102,8 +87,6 @@
 
   window.addEventListener("modalOpened", (e) => {
     if (e.detail?.modalId === "aiSuggestionModal") {
-
-
       setTimeout(() => forceModalContentDisplay("aiSuggestionModal"), 50);
       setTimeout(() => forceModalContentDisplay("aiSuggestionModal"), 200);
       setTimeout(() => forceModalContentDisplay("aiSuggestionModal"), 500);
@@ -112,7 +95,6 @@
 
   window.addEventListener("modalShown", (e) => {
     if (e.detail?.modalId === "aiSuggestionModal") {
-
       setTimeout(() => forceModalContentDisplay("aiSuggestionModal"), 50);
     }
   });
@@ -121,13 +103,10 @@
     return forceModalContentDisplay("aiSuggestionModal");
   };
 
-
-
   window.addEventListener("load", () => {
     setTimeout(() => {
       const modal = document.getElementById("aiSuggestionModal");
       if (modal && !modal.classList.contains("hidden")) {
-
         forceModalContentDisplay("aiSuggestionModal");
       }
     }, 1000);

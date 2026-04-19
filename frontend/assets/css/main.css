@@ -1,93 +1,168 @@
-/* ===== CSS VARIABLES (Light Theme) — Newspaper palette ===== */
-/* Legacy var names kept so existing CSS continues working.         */
-/* Newspaper semantic vars live in newspaper-theme.css             */
+/* ============================================================
+   Apple-inspired design system (per DESIGN.md)
+   - SF Pro Display (≥20px) / SF Pro Text (<20px) with optical sizing
+   - Binary surface rhythm: #000 ↔ #f5f5f7
+   - Single accent: Apple Blue #0071e3 for interactive only
+   - One soft diffused shadow, 980px pill radius for CTAs
+   ============================================================ */
+
+/* ===== DESIGN TOKENS ===== */
 :root {
-  /* --- Backgrounds --- */
-  --bg-app:          #f4efe6;   /* giấy ngà */
-  --bg-card:         #faf7f2;
-  --bg-card-alt:     #f0ebe1;
-  --bg-card-hover:   #ede7da;
-  --bg-input:        #f0ebe1;
-  --bg-sidebar:      #1a1a1a;   /* báo đen */
-  --bg-sidebar-hover:#2a2a2a;
-  --bg-sidebar-active: linear-gradient(135deg, #2a2a2a 0%, #333 100%);
-  --bg-badge:        #ede7da;
+  /* Apple core palette */
+  --apple-black: #000000;
+  --apple-near-black: #1d1d1f;
+  --apple-surface: #f5f5f7;
+  --apple-white: #ffffff;
+  --apple-blue: #0071e3;
+  --apple-link: #0066cc;
+  --apple-link-dark: #2997ff;
+  --apple-text-secondary: rgba(0, 0, 0, 0.8);
+  --apple-text-tertiary: rgba(0, 0, 0, 0.48);
+  --apple-btn-active: #ededf2;
+  --apple-btn-default: #fafafc;
+  --apple-nav-glass: rgba(0, 0, 0, 0.8);
+  --apple-overlay: rgba(210, 210, 215, 0.64);
 
-  /* --- Text --- */
-  --text-primary:    #1a1a1a;
-  --text-secondary:  #4a4030;
-  --text-muted:      #6b5f4a;
-  --text-sidebar:    #b0a898;
-  --text-sidebar-active: #f4efe6;
+  /* App-aliased tokens (backwards-compatible with existing consumers) */
+  --bg-app: var(--apple-surface);
+  --bg-card: var(--apple-white);
+  --bg-card-alt: var(--apple-surface);
+  --bg-card-hover: #ededf0;
+  --bg-input: var(--apple-white);
+  --bg-sidebar: var(--apple-near-black);
+  --bg-sidebar-hover: #2a2a2d;
+  --bg-sidebar-active: #28282a;
+  --bg-badge: var(--apple-surface);
+  --text-primary: var(--apple-near-black);
+  --text-secondary: var(--apple-text-secondary);
+  --text-muted: var(--apple-text-tertiary);
+  --text-sidebar: rgba(255, 255, 255, 0.72);
+  --text-sidebar-active: var(--apple-white);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.16);
 
-  /* --- Borders --- */
-  --border:          #c8b99a;
-  --border-hover:    #9a8a72;
+  /* Accent = Apple Blue (only chromatic color, reserved for interactive) */
+  --accent: var(--apple-blue);
+  --accent-hover: #0077ed;
+  --accent-light: rgba(0, 113, 227, 0.08);
+  --accent-gradient: linear-gradient(135deg, #0071e3, #0066cc);
 
-  /* --- Accent — đỏ báo --- */
-  --accent:          #8b0000;
-  --accent-hover:    #a31212;
-  --accent-light:    #f5e0e0;
-  --accent-gradient: linear-gradient(135deg, #8b0000, #a31212);
+  /* Semantic */
+  --success: #30d158;
+  --success-light: #d7f4e0;
+  --warning: #ff9f0a;
+  --warning-light: #fff1d6;
+  --danger: #ff3b30;
+  --danger-light: #ffe0de;
 
-  /* --- Semantic colours (unchanged) --- */
-  --success:       #10b981;
-  --success-light: #d1fae5;
-  --warning:       #f59e0b;
-  --warning-light: #fef3c7;
-  --danger:        #ef4444;
-  --danger-light:  #fee2e2;
+  /* Apple-style single diffused shadow + minor elevations */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px; /* Apple card shadow */
 
-  /* --- Shadows (flat/hard newspaper style) --- */
-  --shadow-xs: 1px 1px 0 var(--border);
-  --shadow-sm: 2px 2px 0 var(--border);
-  --shadow-md: 4px 4px 0 var(--border);
-  --shadow-lg: 6px 6px 0 var(--border);
+  /* Radius scale (DESIGN §5) */
+  --radius-xs: 5px;   /* Link tags, small chips */
+  --radius-sm: 8px;   /* Buttons, cards, images */
+  --radius: 8px;      /* Default alias */
+  --radius-md: 11px;  /* Search / filter */
+  --radius-lg: 12px;  /* Feature panels */
+  --radius-xl: 12px;  /* (capped at 12 per DESIGN — 980 is for pills only) */
+  --radius-pill: 980px;
+  --radius-circle: 50%;
 
-  /* --- Radius (nearly square) --- */
-  --radius-sm: 2px;
-  --radius:    2px;
-  --radius-lg: 4px;
-  --radius-xl: 4px;
+  /* Typography tracking (DESIGN §3) */
+  --track-hero: -0.28px;
+  --track-body: -0.374px;
+  --track-caption: -0.224px;
+  --track-micro: -0.12px;
+
+  /* Priority palette — independent axis, preserved from user customization. */
+  --prio-1: #14B8A6; /* Low — teal-500 */
+  --prio-2: #6366F1; /* Normal — indigo-500 */
+  --prio-3: #F59E0B; /* High — amber-500 */
+  --prio-4: #E11D48; /* Urgent — rose-600 */
 }
 
-/* ===== DARK THEME — Newspaper dark palette ===== */
+/* ===== DARK THEME ===== */
 body.dark {
-  --bg-app:          #1a1612;
-  --bg-card:         #221e19;
-  --bg-card-alt:     #2a2520;
-  --bg-card-hover:   #302b25;
-  --bg-input:        #2a2520;
-  --bg-badge:        #302b25;
-
-  --text-primary:    #e8e0d0;
-  --text-secondary:  #b8ad9a;
-  --text-muted:      #8a7f6a;
-
-  --border:          #4a4238;
-  --border-hover:    #6a5e4e;
-
-  --accent:          #c44a4a;
-  --accent-hover:    #d96060;
-  --accent-light:    #3a1a1a;
-
-  --shadow-xs: 1px 1px 0 var(--border);
-  --shadow-sm: 2px 2px 0 var(--border);
-  --shadow-md: 4px 4px 0 var(--border);
-  --shadow-lg: 6px 6px 0 var(--border);
+  --bg-app: #000000;
+  --bg-card: #1d1d1f;
+  --bg-card-alt: #272729;
+  --bg-card-hover: #2a2a2d;
+  --bg-input: #1d1d1f;
+  --bg-badge: #272729;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.88);
+  --text-muted: rgba(255, 255, 255, 0.56);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-hover: rgba(255, 255, 255, 0.24);
+  --accent: #0a84ff; /* iOS system blue on dark */
+  --accent-hover: #409cff;
+  --accent-light: rgba(10, 132, 255, 0.15);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: rgba(0, 0, 0, 0.5) 3px 5px 30px 0px;
 }
 
 /* ===== RESET ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* ===== TYPOGRAPHY — SF Pro stack, Apple body defaults ===== */
 body {
-  /* Font-family set by newspaper-theme.css (Merriweather). Fallback kept here. */
-  font-family: 'Merriweather', Georgia, serif;
+  /* SF Pro Text at body sizes (<20px). Mac / iOS use native SF. */
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: var(--track-body);
   overflow-x: hidden;
   background: var(--bg-app);
   color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background 0.3s ease, color 0.3s ease;
 }
+
+/* Headings use SF Pro Display at ≥20px per DESIGN §3. */
+h1, h2, h3, h4, h5, h6,
+.apple-display {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+h1 { font-size: 56px; line-height: 1.07; letter-spacing: -0.28px; }
+h2 { font-size: 40px; line-height: 1.10; }
+h3 { font-size: 28px; line-height: 1.14; font-weight: 400; letter-spacing: 0.196px; }
+h4 { font-size: 21px; line-height: 1.19; letter-spacing: 0.231px; }
+h5 { font-size: 19px; line-height: 1.21; }
+h6 { font-size: 17px; line-height: 1.24; font-weight: 600; }
+
+p, .apple-body {
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: var(--track-body);
+}
+small, .apple-caption {
+  font-size: 14px;
+  line-height: 1.29;
+  letter-spacing: var(--track-caption);
+}
+.apple-micro {
+  font-size: 12px;
+  line-height: 1.33;
+  letter-spacing: var(--track-micro);
+}
+
+a {
+  color: var(--apple-link);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+a:hover { text-decoration: underline; }
 
 /* ===== SECTIONS ===== */
 .section {
@@ -96,47 +171,111 @@ body {
   min-height: 100vh;
   background: var(--bg-app);
 }
+.section.active { display: block; }
 
-.section.active {
-  display: block;
+/* ===== APPLE BUTTONS (opt-in utility classes) ===== */
+.apple-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: var(--track-body);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  line-height: 1;
+  min-height: 36px;
+}
+.apple-btn:focus-visible {
+  outline: 2px solid var(--apple-blue);
+  outline-offset: 2px;
+}
+.apple-btn-primary {
+  background: var(--apple-blue);
+  color: #fff;
+}
+.apple-btn-primary:hover { background: var(--accent-hover); }
+.apple-btn-primary:active { transform: scale(0.98); }
+.apple-btn-dark {
+  background: var(--apple-near-black);
+  color: #fff;
+}
+.apple-btn-dark:hover { background: #2a2a2d; }
+.apple-btn-pill {
+  background: transparent;
+  color: var(--apple-link);
+  border: 1px solid var(--apple-link);
+  border-radius: var(--radius-pill);
+  padding: 6px 18px;
+  font-size: 14px;
+  letter-spacing: var(--track-caption);
+}
+.apple-btn-pill:hover {
+  background: var(--apple-link);
+  color: #fff;
+  text-decoration: none;
+}
+body.dark .apple-btn-pill {
+  color: var(--apple-link-dark);
+  border-color: var(--apple-link-dark);
+}
+body.dark .apple-btn-pill:hover { background: var(--apple-link-dark); color: #000; }
+
+.apple-btn-filter {
+  background: var(--apple-btn-default);
+  color: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  font-size: 14px;
+}
+.apple-btn-media {
+  background: var(--apple-overlay);
+  color: rgba(0, 0, 0, 0.48);
+  border-radius: var(--radius-circle);
+  width: 36px; height: 36px;
+  border: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
 }
 
-/* Schedule section needs flex layout so inner calendar-content flex row works.
-   Parent is flex-1 overflow-auto; we fill it and use flex so the inner
-   calendar-sidebar + calendar-grid row can size to full height. */
-#schedule-section.active {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  height: 100%;
-  overflow: hidden;
+/* ===== APPLE CARD ===== */
+.apple-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 0;
+  padding: 20px;
+}
+.apple-card-elevated {
+  box-shadow: var(--shadow-lg);
 }
 
-/* ===== SIDEBAR NAV ===== */
+/* ===== SIDEBAR NAV (dark) ===== */
 .nav-btn {
   position: relative;
   overflow: hidden;
-  transition: background 0.15s, border-left 0.15s;
-  border-radius: 2px;           /* newspaper: nearly square */
+  transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+  border-radius: 8px;
   font-weight: 500;
+  letter-spacing: var(--track-body);
 }
 
-/* Active state: accent red left border (newspaper style) */
-.nav-btn.bg-gray-200,
-.nav-btn[aria-current="page"] {
-  background: rgba(139,0,0,0.18) !important;
-  border-left: 3px solid var(--accent, #8b0000) !important;
-  color: var(--text-sidebar-active, #f4efe6) !important;
+.nav-btn.bg-gray-200 {
+  background: #2a2a2d !important;
+  border-left: 3px solid var(--apple-blue) !important;
+  padding-left: calc(1rem - 3px) !important;
+  color: #f5f5f7 !important;
 }
-
-.nav-btn.bg-gray-200 i,
-.nav-btn[aria-current="page"] i {
-  color: var(--accent, #8b0000) !important;
+.nav-btn.bg-gray-200 i {
+  color: var(--apple-blue) !important;
 }
-
-.nav-btn:hover:not(.bg-gray-200):not([aria-current="page"]) {
-  background: rgba(255,255,255,0.07) !important;
-  color: var(--text-sidebar-active, #f4efe6) !important;
+.nav-btn:hover:not(.bg-gray-200) {
+  background-color: #272729 !important;
+  color: #f5f5f7 !important;
 }
 
 /* ===== AVATAR ===== */
@@ -148,61 +287,19 @@ body {
   justify-content: center;
 }
 
-/* ===== NEWSPAPER BUTTON ===== */
-.np-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border: 1.5px solid var(--border, #c8b99a);
-  border-radius: 2px;
-  background: var(--bg-card, #faf7f2);
-  color: var(--text-primary, #1a1a1a);
-  font-family: 'Merriweather', Georgia, serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .04em;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
-}
-.np-button:hover {
-  background: var(--bg-card-hover, #ede7da);
-  border-color: var(--border-hover, #9a8a72);
-  box-shadow: var(--shadow-xs);
-}
-.np-button.np-button--primary {
-  background: var(--accent, #8b0000);
-  border-color: var(--accent, #8b0000);
-  color: #fff;
-}
-.np-button.np-button--primary:hover {
-  background: var(--accent-hover, #a31212);
-  border-color: var(--accent-hover, #a31212);
-}
-
-/* ===== SIDEBAR COLLAPSE TRANSITION ===== */
-/* Content area animates alongside sidebar */
-#main-app > .flex-1 {
-  transition: margin-left 0.22s cubic-bezier(0.4,0,0.2,1);
-}
-
 /* ===== SIDEBAR BOTTOM BUTTONS ===== */
 #settingsBtn, [data-logout] {
-  color: #94a3b8 !important;
-  transition: all 0.2s ease;
+  color: rgba(255, 255, 255, 0.72) !important;
+  transition: background 0.15s ease, color 0.15s ease;
   border-radius: 8px;
 }
-
 #settingsBtn:hover {
-  color: #f1f5f9 !important;
-  background-color: rgba(255,255,255,0.08) !important;
-  transform: translateX(2px);
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
 }
-
 [data-logout]:hover {
-  color: #f87171 !important;
-  background-color: rgba(248,113,113,0.1) !important;
-  transform: translateX(2px);
+  color: var(--danger) !important;
+  background-color: rgba(255, 59, 48, 0.1) !important;
 }
 
 /* ===== CATEGORY MODAL GUARD ===== */
@@ -214,16 +311,15 @@ body {
   z-index: 10050 !important;
   position: fixed !important;
   inset: 0 !important;
-  background: rgba(0,0,0,0.5) !important;
-  backdrop-filter: blur(2px) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: saturate(180%) blur(20px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(20px) !important;
 }
-
 #createCategoryModal.hidden {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
 }
-
 #createCategoryModal:not(.hidden) {
   display: flex !important;
   visibility: visible !important;
@@ -232,46 +328,28 @@ body {
   align-items: center !important;
   justify-content: center !important;
 }
-
 #category-container {
   display: block !important;
   visibility: visible !important;
 }
 
 /* ===== MAIN CONTENT DARK MODE ===== */
-body.dark #main-app > .flex-1 {
-  background: var(--bg-app);
-}
+body.dark #main-app > .flex-1 { background: var(--bg-app); }
+body.dark .section { background: var(--bg-app); }
 
-body.dark .section {
-  background: var(--bg-app);
-}
-
-/* Container overrides for dark mode - Tailwind class overrides */
+/* Tailwind class bridges — so existing pages pick up Apple palette automatically */
 body.dark .bg-gray-50,
 body.dark .bg-gray-100 {
   background-color: var(--bg-app) !important;
 }
-
-body.dark .bg-white {
-  background-color: var(--bg-card) !important;
-}
-
+body.dark .bg-white { background-color: var(--bg-card) !important; }
 body.dark .text-gray-800,
 body.dark .text-gray-900,
-body.dark .text-gray-700 {
-  color: var(--text-primary) !important;
-}
-
+body.dark .text-gray-700 { color: var(--text-primary) !important; }
 body.dark .text-gray-600,
-body.dark .text-gray-500 {
-  color: var(--text-secondary) !important;
-}
-
+body.dark .text-gray-500 { color: var(--text-secondary) !important; }
 body.dark .border-gray-200,
-body.dark .border-gray-300 {
-  border-color: var(--border) !important;
-}
+body.dark .border-gray-300 { border-color: var(--border) !important; }
 
 body.dark input,
 body.dark select,
@@ -280,15 +358,36 @@ body.dark textarea {
   color: var(--text-primary) !important;
   border-color: var(--border) !important;
 }
-
 body.dark input::placeholder,
-body.dark textarea::placeholder {
-  color: var(--text-muted) !important;
+body.dark textarea::placeholder { color: var(--text-muted) !important; }
+
+/* ===== FORMS — Apple-ish inputs ===== */
+input, select, textarea {
+  font-family: inherit;
+  font-size: 17px;
+  letter-spacing: var(--track-body);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--apple-blue);
+  box-shadow: 0 0 0 3px var(--accent-light);
 }
 
-/* FA loading rules removed — Font Awesome removed from project */
+/* ===== FA LOADING ===== */
+body:not(.fa-loaded) i[class*="fa-"],
+body:not(.fa-loaded) span[class*="fa-"] { opacity: 0; }
+body.fa-loaded i[class*="fa-"],
+body.fa-loaded span[class*="fa-"] {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
 
-/* ===== MODAL BASE ===== */
+/* ===== MODAL BASE — Apple glass backdrop ===== */
 .modal {
   position: fixed;
   inset: 0;
@@ -296,32 +395,41 @@ body.dark textarea::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+.modal.hidden { display: none !important; }
+
+/* Lift any inline .modal-content to Apple card elevation */
+.modal-content {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 0;
 }
 
-.modal.hidden { display: none !important; }
+/* ===== APPLE NAVIGATION GLASS (optional, opt-in) ===== */
+.apple-nav {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  height: 48px;
+  background: var(--apple-nav-glass);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+}
 
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-body.dark ::-webkit-scrollbar-thumb { background: #334155; }
-body.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-/* ===== NEWSPAPER MODAL BACKGROUNDS ===== */
-.modal {
-  background: rgba(0, 0, 0, 0.5) !important;
-}
-.modal .modal-content,
-.modal > div:first-child {
-  background: var(--np-bg-card, #faf7f2) !important;
-  border: 1.5px solid var(--np-border, #1a1a1a) !important;
-  border-radius: var(--np-radius, 2px) !important;
-  box-shadow: var(--np-shadow, 4px 4px 0 #1a1a1a) !important;
-  color: var(--np-text, #1a1a1a) !important;
-}
+::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.32); }
+body.dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+body.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.32); }
 
 /* ===== DARK MODE: MODAL CONTENT ===== */
 body.dark .modal-content,
@@ -330,44 +438,31 @@ body.dark #settingsModal .modal-content {
   background-color: var(--bg-card) !important;
   border-color: var(--border) !important;
 }
-
 body.dark .modal-content .border-b,
-body.dark .modal-content .border-t {
-  border-color: var(--border) !important;
-}
+body.dark .modal-content .border-t { border-color: var(--border) !important; }
 
 /* Priority badges in create-task modal and work section */
 body.dark .priority-badge,
-body.dark [class*="priority-"] {
-  filter: brightness(0.85);
-}
+body.dark [class*="priority-"] { filter: brightness(0.88); }
 
-/* Priority color chips (inline style bg-green/blue/yellow/red won't change,
-   but we override the specific Tailwind chip classes used) */
-body.dark .bg-green-100  { background-color: #14532d44 !important; }
-body.dark .bg-blue-100   { background-color: #1e3a5f44 !important; }
-body.dark .bg-yellow-100 { background-color: #78350f44 !important; }
-body.dark .bg-red-100    { background-color: #7f1d1d44 !important; }
-body.dark .text-green-700 { color: #4ade80 !important; }
-body.dark .text-blue-700  { color: #60a5fa !important; }
-body.dark .text-yellow-700 { color: #fbbf24 !important; }
-body.dark .text-red-700   { color: #f87171 !important; }
-body.dark .text-green-800 { color: #4ade80 !important; }
-body.dark .text-blue-800  { color: #93c5fd !important; }
-body.dark .text-yellow-800 { color: #fcd34d !important; }
-body.dark .text-red-800   { color: #fca5a5 !important; }
+/* Legacy Tailwind chip bridges (dark mode) */
+body.dark .bg-green-100  { background-color: rgba(48, 209, 88, 0.16) !important; }
+body.dark .bg-blue-100   { background-color: rgba(10, 132, 255, 0.16) !important; }
+body.dark .bg-yellow-100 { background-color: rgba(255, 159, 10, 0.16) !important; }
+body.dark .bg-red-100    { background-color: rgba(255, 59, 48, 0.16) !important; }
+body.dark .text-green-700, body.dark .text-green-800 { color: #30d158 !important; }
+body.dark .text-blue-700, body.dark .text-blue-800   { color: #0a84ff !important; }
+body.dark .text-yellow-700, body.dark .text-yellow-800 { color: #ff9f0a !important; }
+body.dark .text-red-700, body.dark .text-red-800     { color: #ff453a !important; }
 
-/* Settings modal user card gradient */
-body.dark .from-blue-50   { --tw-gradient-from: #1e3a5f !important; }
-body.dark .to-indigo-50   { --tw-gradient-to: #1e1b4b !important; }
-body.dark .border-blue-100 { border-color: #2d3f6a !important; }
+/* Settings modal user card gradient (dark) */
+body.dark .from-blue-50   { --tw-gradient-from: rgba(10, 132, 255, 0.12) !important; }
+body.dark .to-indigo-50   { --tw-gradient-to: rgba(94, 92, 230, 0.12) !important; }
+body.dark .border-blue-100 { border-color: rgba(10, 132, 255, 0.24) !important; }
 
-/* Settings modal menu items */
-body.dark #openProfileBtn:hover    { background: rgba(96,165,250,0.08) !important; }
-body.dark #openNotificationBtn:hover { background: rgba(34,211,238,0.08) !important; }
-body.dark #modalLogoutBtn:hover    { background: rgba(248,113,113,0.08) !important; }
-
-/* Settings modal theme row */
+body.dark #openProfileBtn:hover,
+body.dark #modalLogoutBtn:hover { background: rgba(255, 255, 255, 0.06) !important; }
+body.dark #openNotificationBtn:hover { background: rgba(10, 132, 255, 0.12) !important; }
 body.dark #settingsModal .rounded-lg[style*="f8fafc"] {
   background: var(--bg-card-alt) !important;
 }
@@ -375,16 +470,14 @@ body.dark #settingsModal .rounded-lg[style*="f8fafc"] {
 /* Task sidebar items dark mode */
 body.dark .task-item {
   background: var(--bg-card) !important;
-  /* only override non-left borders; left border keeps inline priority color */
   border-top-color: var(--border) !important;
   border-right-color: var(--border) !important;
   border-bottom-color: var(--border) !important;
   color: var(--text-primary) !important;
 }
-
 body.dark .task-item:hover {
   background: var(--bg-card-hover) !important;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.25) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 body.dark .task-item .font-medium { color: var(--text-primary) !important; }
 body.dark .task-item .text-sm,
@@ -395,18 +488,34 @@ body.dark .task-item .px-2.py-1 {
   color: var(--text-secondary) !important;
   border-color: var(--border) !important;
 }
-body.dark .task-item .drag-handle { color: var(--border-hover) !important; }
-body.dark #calendar-sidebar { background: var(--bg-card) !important; border-right-color: var(--border) !important; }
-body.dark #calendar-sidebar .p-3 { background: var(--bg-card) !important; border-bottom-color: var(--border) !important; }
+body.dark .task-item .fa-grip-vertical {
+  color: var(--border-hover) !important;
+  background: var(--bg-card-alt) !important;
+}
+body.dark #calendar-sidebar {
+  background: var(--bg-card) !important;
+  border-right-color: var(--border) !important;
+}
+body.dark #calendar-sidebar .p-3 {
+  background: var(--bg-card) !important;
+  border-bottom-color: var(--border) !important;
+}
 body.dark #mini-cal-container { background: var(--bg-card) !important; }
 body.dark #calendar-sidebar .mini-cal-day { color: var(--text-primary) !important; }
-body.dark #calendar-sidebar .mini-cal-day:hover { background: var(--bg-card-hover) !important; color: var(--accent) !important; }
-body.dark #calendar-sidebar #mini-prev, body.dark #calendar-sidebar #mini-next { color: var(--text-muted) !important; }
-body.dark #calendar-sidebar #mini-prev:hover, body.dark #calendar-sidebar #mini-next:hover { background: var(--bg-card-hover) !important; color: var(--text-primary) !important; }
+body.dark #calendar-sidebar .mini-cal-day:hover {
+  background: var(--bg-card-hover) !important;
+  color: var(--text-primary) !important;
+}
+body.dark #calendar-sidebar #mini-prev,
+body.dark #calendar-sidebar #mini-next { color: var(--text-muted) !important; }
+body.dark #calendar-sidebar #mini-prev:hover,
+body.dark #calendar-sidebar #mini-next:hover {
+  background: var(--bg-card-hover) !important;
+  color: var(--text-primary) !important;
+}
 body.dark #task-list { background: transparent; }
 
 /* ===== PREVENT UNWANTED HOVER TRANSFORMS ON ICON BUTTONS ===== */
-/* Close buttons, icon-only btns should not rotate or move on hover */
 #closeSettingsModal,
 [id*="close"][id*="Modal"],
 [id*="Close"][id*="Modal"] {
@@ -414,72 +523,51 @@ body.dark #task-list { background: transparent; }
 }
 #closeSettingsModal:hover,
 [id*="close"][id*="Modal"]:hover,
-[id*="Close"][id*="Modal"]:hover {
-  transform: none !important;
-}
+[id*="Close"][id*="Modal"]:hover { transform: none !important; }
 
 /* ===== SWEETALERT2 Z-INDEX FIX ===== */
-/* SweetAlert2 default z-index (~1060) is below our modals (10000) */
 .swal2-container { z-index: 99998 !important; }
 .swal2-popup { z-index: 99999 !important; }
 
-/* ===== COMPACT NEWSPAPER TOAST ===== */
-/* Stack lives bottom-right; newest item prepended so it appears on top */
-#np-toast-container {
+/* ===== TOAST ===== */
+.toast-container {
   position: fixed;
-  bottom: 16px;
-  right: 16px;
+  top: 0.75rem;
+  right: 0.75rem;
   z-index: 99999;
   display: flex;
-  /* newest prepended in DOM; column-reverse makes it appear on top visually */
-  flex-direction: column-reverse;
-  gap: 6px;
+  flex-direction: column;
+  gap: 4px;
   pointer-events: none;
 }
-
-.np-toast {
-  /* sizing */
-  min-width: 200px;
-  max-width: 280px;
-  padding: 8px 12px;
-  /* newspaper card */
-  background: var(--np-bg, #f4efe6);
-  border: 1px solid var(--np-border, #1a1a1a);
-  box-shadow: 3px 3px 0 var(--np-border, #1a1a1a);
-  border-radius: 2px;
-  /* left accent bar */
-  border-left: 3px solid var(--toast-bar, #4a6fa5);
-  /* typography */
-  font-family: var(--np-font-body, 'Merriweather', serif);
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--np-text, #1a1a1a);
-  word-break: break-word;
-  /* interaction */
+.toast-container > div {
+  font-size: 13px !important;
+  padding: 8px 14px !important;
+  border-radius: var(--radius-sm) !important;
+  max-width: 320px;
   pointer-events: auto;
-  cursor: pointer;
-  user-select: none;
-  /* slide-in from right, start invisible */
-  opacity: 0;
-  transform: translateX(24px);
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  box-shadow: var(--shadow-md) !important;
+  letter-spacing: var(--track-caption);
 }
 
-/* visible state — triggered by JS class add */
-.np-toast--visible {
-  opacity: 1;
-  transform: translateX(0);
-}
+/* ============================================================
+   Global Tailwind-class bridges — pull existing markup into the
+   Apple palette without rewriting every HTML file.
+   ============================================================ */
 
-/* slide-out to right + fade */
-.np-toast--out {
-  opacity: 0;
-  transform: translateX(28px);
-  transition: opacity 0.28s ease, transform 0.28s ease;
+/* Primary CTA reds → Apple Blue */
+.bg-red-600, .bg-red-700, .bg-blue-600, .bg-blue-700 {
+  background-color: var(--apple-blue) !important;
 }
+.hover\:bg-red-700:hover, .hover\:bg-red-800:hover,
+.hover\:bg-blue-700:hover, .hover\:bg-blue-800:hover {
+  background-color: var(--accent-hover) !important;
+}
+.text-red-600, .text-red-700 { color: var(--apple-blue); }
+.ring-red-500, .focus\:ring-red-500:focus { --tw-ring-color: var(--apple-blue) !important; }
+.border-red-500, .focus\:border-red-500:focus { border-color: var(--apple-blue) !important; }
 
-/* Dark-mode override — CSS vars handle bg/border, just ensure text is light */
-body.dark .np-toast {
-  background: var(--np-bg-card, #221e19);
-  color: var(--np-text, #e8e0d0);
+/* Subtle card lift — apply to any .bg-white or .shadow element */
+.shadow, .shadow-md, .shadow-lg {
+  box-shadow: var(--shadow-lg) !important;
 }

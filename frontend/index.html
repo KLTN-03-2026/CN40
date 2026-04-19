@@ -6,13 +6,11 @@
       box-sizing: border-box !important;
     }
 
-    /* Sidebar always 240px expanded */
     #sidebar-container {
       position: fixed !important;
       left: 0 !important;
       top: 0 !important;
-      width: 240px !important;
-      min-width: 240px !important;
+      width: 256px !important;
       height: 100vh !important;
       overflow: hidden !important;
       z-index: 999 !important;
@@ -25,28 +23,28 @@
       top: 0 !important;
       margin-left: 0 !important;
       box-sizing: border-box !important;
-      width: 100% !important;
+      width: 256px !important;
       height: 100vh !important;
     }
   </style>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Schedule With AI</title>
+    <title>Quản lý công việc</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Fonts: preconnect + non-blocking stylesheet (replaces @import in newspaper-theme.css) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Inter:wght@400;500&display=swap"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
     />
 
-    <!-- Font Awesome removed: icons replaced with text/unicode throughout -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-    <link rel="stylesheet" href="assets/css/newspaper-theme.css" />
     <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="assets/css/calendar.css" />
     <link rel="stylesheet" href="assets/css/ai-calendar.css" />
@@ -56,12 +54,15 @@
     <link rel="stylesheet" href="assets/css/salary.css" />
 
     <style>
-      /* body font-family handled by newspaper-theme.css */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+      }
 
       #auth-loading {
         position: fixed;
         inset: 0;
-        background: #f4efe6;
+        background: white;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -69,12 +70,12 @@
       }
 
       .loading-spinner {
-        border: 3px solid #c8b99a;
-        border-top: 3px solid #8b0000;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #dc2626;
         border-radius: 50%;
-        width: 36px;
-        height: 36px;
-        animation: spin 0.8s linear infinite;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
       }
 
       @keyframes spin {
@@ -89,6 +90,17 @@
 
       #main-app.ready {
         display: block;
+      }
+
+      body:not(.fa-loaded) i[class*="fa-"],
+      body:not(.fa-loaded) span[class*="fa-"] {
+        opacity: 0;
+      }
+
+      body.fa-loaded i[class*="fa-"],
+      body.fa-loaded span[class*="fa-"] {
+        opacity: 1;
+        transition: opacity 0.2s ease-in-out;
       }
 
       #calendar {
@@ -114,56 +126,45 @@
   <body>
     <script>
       (function forceSidebarEarly() {
-        // Sidebar always 240px expanded
-        var style = document.createElement("style");
+        const style = document.createElement("style");
         style.innerHTML = `
           #sidebar-container {
             display: block !important;
             position: fixed !important;
             left: 0 !important;
             top: 0 !important;
-            width: 240px !important;
-            min-width: 240px !important;
+            width: 256px !important;
+            min-width: 256px !important;
             height: 100vh !important;
             z-index: 999 !important;
             visibility: visible !important;
             opacity: 1 !important;
           }
-          #main-app > .flex-1 { margin-left: 240px !important; }
+          #sidebar-container.hidden,
+          #sidebar-container.hidden * {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          }
         `;
         document.head.appendChild(style);
+        console.log(" Sidebar force styles injected at page start");
       })();
     </script>
 
     <div id="auth-loading">
       <div class="text-center">
         <div class="loading-spinner mx-auto"></div>
-        <p class="mt-4" style="font-family:'Merriweather',Georgia,serif;font-size:0.85rem;color:#6b5f4a;font-style:italic">Đang kiểm tra đăng nhập...</p>
+        <p class="mt-4 text-gray-600">Đang kiểm tra đăng nhập...</p>
       </div>
     </div>
 
     <div id="main-app" class="flex min-h-screen">
       <div id="sidebar-container"></div>
 
-      <div class="flex-1 flex flex-col" style="margin-left: 240px;">
-        <!-- Newspaper Masthead -->
-        <header id="np-masthead" aria-label="Masthead">
-          <div class="np-masthead-rules">
-            <div class="np-masthead-rule-thick"></div>
-            <div class="np-masthead-rule-thin"></div>
-          </div>
-          <div class="np-masthead-inner">
-            <h1 class="np-masthead-title">Schedule With AI</h1>
-            <time class="np-masthead-date" id="np-masthead-date"></time>
-          </div>
-          <div class="np-masthead-bottom-rules">
-            <div class="np-masthead-rule-thin"></div>
-            <div class="np-masthead-rule-thick"></div>
-          </div>
-        </header>
-
-        <div class="flex-1 overflow-auto" id="sections-wrapper" style="display:flex;flex-direction:column;">
-          <main id="schedule-section" class="section active" style="flex:1;min-height:0;"></main>
+      <div class="flex-1 flex flex-col" style="margin-left: 256px">
+        <div class="flex-1 overflow-auto">
+          <main id="schedule-section" class="section active"></main>
           <main id="work-section" class="section"></main>
           <main id="ai-section" class="section"></main>
           <main id="salary-section" class="section"></main>
@@ -176,6 +177,7 @@
     <div id="settingsModal" class="modal hidden"></div>
 
     <script src="assets/js/theme.js"></script>
+    <script src="assets/js/priority-theme.js"></script>
     <script src="assets/js/utils.js"></script>
 
     <script src="assets/js/modalManager.js"></script>
@@ -188,10 +190,10 @@
     <script src="assets/js/workManager.js"></script>
     <script src="assets/js/ai-suggestion-handler.js"></script>
     <script src="assets/js/aiModule.js"></script>
-    <script src="assets/js/salary-manager.js"></script>
+    <script src="assets/js/salaryManager.js"></script>
     <script src="assets/js/statsManager.js"></script>
     <script src="assets/js/tabManager.js"></script>
-    <!-- profile.js removed: profileManager.js is the full implementation -->
+    <script src="assets/js/profile.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
 
@@ -200,6 +202,7 @@
     <div id="createCategoryModal" class="modal hidden"></div>
     <div id="profileModal" class="modal hidden"></div>
     <div id="notificationModal" class="modal hidden"></div>
+    <div id="priorityManagerModal" class="modal hidden"></div>
 
     <script src="assets/js/profileManager.js"></script>
     <script src="assets/js/notificationManager.js"></script>
@@ -208,39 +211,59 @@
 
     <script src="assets/js/app.js"></script>
 
+    <script src="assets/js/ai-modal-test-helper.js"></script>
+
+    <script src="assets/js/ai-modal-css-verify.js"></script>
+
+    <script src="assets/js/ai-modal-quick-test.js"></script>
+
     <script src="assets/js/modal-force-display.js"></script>
     <script src="assets/js/modal-content-loader.js"></script>
 
     <script src="assets/js/modal-absolute-fix.js"></script>
 
     <script>
-      // Masthead date
-      (function setMastheadDate() {
-        const el = document.getElementById('np-masthead-date');
-        if (!el) return;
-        const now = new Date();
-        const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        el.textContent = now.toLocaleDateString('vi-VN', opts);
-        el.setAttribute('datetime', now.toISOString().split('T')[0]);
-      })();
-
-      // np-swal helper: attach newspaper classes to every Swal.fire call
-      (function patchSwal() {
-        function waitForSwal() {
-          if (window.Swal) {
-            const origFire = Swal.fire.bind(Swal);
-            Swal.fire = function(opts, ...rest) {
-              if (opts && typeof opts === 'object') {
-                opts.customClass = Object.assign({ popup: 'np-swal' }, opts.customClass || {});
-              }
-              return origFire(opts, ...rest);
-            };
-          } else {
-            setTimeout(waitForSwal, 200);
-          }
+      window.debugSidebar = function () {
+        const container = document.getElementById("sidebar-container");
+        console.log("=== SIDEBAR DEBUG ===");
+        console.log("Container exists:", !!container);
+        console.log("Container HTML length:", container?.innerHTML.length);
+        console.log("Container children count:", container?.children.length);
+        console.log(
+          "Container innerHTML preview:",
+          container?.innerHTML.substring(0, 150)
+        );
+        const aside = container?.querySelector("aside");
+        console.log("Aside element:", !!aside);
+        if (aside) {
+          const styles = window.getComputedStyle(aside);
+          console.log("Aside computed display:", styles.display);
+          console.log("Aside computed visibility:", styles.visibility);
+          console.log("Aside computed opacity:", styles.opacity);
+          console.log(
+            "Aside nav children:",
+            aside.querySelectorAll("nav button").length
+          );
         }
-        waitForSwal();
-      })();
+      };
+
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          console.log("\n=== AUTO DEBUG AFTER LOAD ===");
+          window.debugSidebar();
+          const container = document.getElementById("sidebar-container");
+          const containerStyles = window.getComputedStyle(container);
+          console.log("\n=== CONTAINER COMPUTED STYLES ===");
+          console.log("Container display:", containerStyles.display);
+          console.log("Container position:", containerStyles.position);
+          console.log("Container left:", containerStyles.left);
+          console.log("Container width:", containerStyles.width);
+          console.log("Container z-index:", containerStyles.zIndex);
+          console.log("Container visibility:", containerStyles.visibility);
+          console.log("Container opacity:", containerStyles.opacity);
+          console.log("Container background:", containerStyles.background);
+        }, 2000);
+      });
     </script>
 
     <script>
@@ -253,23 +276,58 @@
           const payload = JSON.parse(atob(token.split(".")[1]));
           if (payload.exp * 1000 < Date.now()) throw new Error("Token expired");
 
-          // Show app immediately (Font Awesome removed)
-          document.getElementById("auth-loading")?.remove();
-          document.getElementById("main-app")?.classList.add("ready");
+          //  Wait for Font Awesome
+          function waitForFA(callback, maxWait = 3000) {
+            const start = Date.now();
 
-          function startApp() {
-            if (window.App?.init) {
-              App.init();
-            } else {
-              setTimeout(startApp, 100);
+            function check() {
+              const test = document.createElement("i");
+              test.className = "fas fa-check";
+              test.style.cssText = "position:absolute;left:-9999px;";
+              document.body.appendChild(test);
+
+              const style = window.getComputedStyle(test, ":before");
+              const loaded =
+                style.content &&
+                style.content !== "none" &&
+                style.content !== '""';
+
+              document.body.removeChild(test);
+
+              if (loaded) {
+                console.log(" Font Awesome ready");
+                document.body.classList.add("fa-loaded");
+                callback();
+              } else if (Date.now() - start < maxWait) {
+                setTimeout(check, 50);
+              } else {
+                console.warn(" FA timeout, continuing...");
+                document.body.classList.add("fa-loaded");
+                callback();
+              }
             }
+
+            check();
           }
 
-          if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", startApp);
-          } else {
-            startApp();
-          }
+          waitForFA(() => {
+            document.getElementById("auth-loading")?.remove();
+            document.getElementById("main-app")?.classList.add("ready");
+
+            function startApp() {
+              if (window.App?.init) {
+                App.init();
+              } else {
+                setTimeout(startApp, 100);
+              }
+            }
+
+            if (document.readyState === "loading") {
+              document.addEventListener("DOMContentLoaded", startApp);
+            } else {
+              startApp();
+            }
+          });
         } catch (err) {
           console.error("Auth error:", err);
           localStorage.clear();

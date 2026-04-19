@@ -11,29 +11,6 @@ const PRIORITY_COLORS = {
   4: "#F87171",
 };
 
-// ---------------------------------------------------------------------------
-// task_instances table availability flag
-// Printed once at server start; routes fall back to LichTrinh when missing.
-// ---------------------------------------------------------------------------
-let _instancesTableMissingWarned = false;
-
-function isInstancesTableMissing(error) {
-  if (!error) return false;
-  return (
-    error.code === "PGRST205" ||
-    (error.message && error.message.includes("task_instances"))
-  );
-}
-
-function warnInstancesTableMissing() {
-  if (!_instancesTableMissingWarned) {
-    _instancesTableMissingWarned = true;
-    console.warn(
-      "[instances] table missing — using LichTrinh fallback; run migrations/001_add_task_instances.sql"
-    );
-  }
-}
-
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];
@@ -51,145 +28,6 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// ---------------------------------------------------------------------------
-// GET /api/calendar/instances
-// New endpoint backed by task_instances table.
-// Query params: start? (ISO), end? (ISO)
-// Returns FullCalendar-compatible event objects.
-// ---------------------------------------------------------------------------
-router.get("/instances", authenticateToken, async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { start, end } = req.query;
-
-    // Default to ±30 days when no range given
-    const rangeStart = start
-      ? new Date(start).toISOString()
-      : new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
-    const rangeEnd = end
-      ? new Date(end).toISOString()
-      : new Date(Date.now() + 90 * 24 * 3600 * 1000).toISOString();
-
-    const { data: instances, error } = await supabase
-      .from("task_instances")
-      .select("*")
-      .eq("user_id", userId)
-      .gte("start_at", rangeStart)
-      .lte("start_at", rangeEnd)
-      .order("start_at", { ascending: true });
-
-    // ---- Graceful fallback: task_instances table not yet migrated ----
-    if (isInstancesTableMissing(error)) {
-      warnInstancesTableMissing();
-
-      // Fall back to LichTrinh — return same event shape so frontend is unaffected
-      const { data: legacy, error: legErr } = await supabase
-        .from("LichTrinh")
-        .select("MaLichTrinh, TieuDe, GioBatDau, GioKetThuc, GhiChu, DaHoanThanh, AI_DeXuat, MaCongViec, CongViec(TieuDe, MucDoUuTien, MoTa, CoThoiGianCoDinh, MaLoai)")
-        .eq("UserID", userId)
-        .gte("GioBatDau", rangeStart)
-        .lte("GioBatDau", rangeEnd)
-        .order("GioBatDau", { ascending: true });
-
-      if (legErr) {
-        return res.status(500).json({ success: false, message: legErr.message });
-      }
-
-      const fallbackEvents = (legacy || []).map((r) => {
-        const task = r.CongViec || {};
-        const priorityColor = task.MucDoUuTien
-          ? PRIORITY_COLORS[task.MucDoUuTien] || "#60A5FA"
-          : "#60A5FA";
-        return {
-          id: `lt_${r.MaLichTrinh}`,
-          instanceId: `lt_${r.MaLichTrinh}`,
-          task_id: r.MaCongViec || null,
-          title: task.TieuDe || r.TieuDe || "Untitled",
-          start: r.GioBatDau,
-          end: r.GioKetThuc,
-          backgroundColor: priorityColor,
-          borderColor: priorityColor,
-          textColor: "#FFFFFF",
-          status: r.DaHoanThanh ? "completed" : "scheduled",
-          is_fixed: task.CoThoiGianCoDinh || false,
-          is_ai_suggested: r.AI_DeXuat || false,
-          extendedProps: {
-            instanceId: `lt_${r.MaLichTrinh}`,
-            taskId: r.MaCongViec || null,
-            note: r.GhiChu || "",
-            completed: r.DaHoanThanh || false,
-            cancelled: false,
-            aiSuggested: r.AI_DeXuat || false,
-            priority: task.MucDoUuTien || null,
-            description: task.MoTa || "",
-            isFixed: task.CoThoiGianCoDinh || false,
-            category: task.MaLoai || null,
-          },
-        };
-      });
-
-      return res.json({ success: true, data: fallbackEvents, _fallback: "lichTrinh" });
-    }
-
-    if (error) {
-      console.error("Lỗi lấy task_instances:", error);
-      return res.status(500).json({ success: false, message: error.message });
-    }
-
-    // Batch-fetch linked tasks to avoid N+1
-    const taskIds = [...new Set((instances || []).map((i) => i.task_id).filter(Boolean))];
-    let taskMap = {};
-
-    if (taskIds.length > 0) {
-      const { data: tasks } = await supabase
-        .from("CongViec")
-        .select("MaCongViec, TieuDe, MoTa, MucDoUuTien, MaLoai, CoThoiGianCoDinh")
-        .in("MaCongViec", taskIds)
-        .eq("UserID", userId);
-
-      (tasks || []).forEach((t) => { taskMap[t.MaCongViec] = t; });
-    }
-
-    const events = (instances || []).map((inst) => {
-      const task = inst.task_id ? taskMap[inst.task_id] : null;
-      const priorityColor = task?.MucDoUuTien
-        ? PRIORITY_COLORS[task.MucDoUuTien] || "#60A5FA"
-        : "#60A5FA";
-      return {
-        id: inst.id,
-        instanceId: inst.id,
-        task_id: inst.task_id || null,
-        title: inst.title || task?.TieuDe || "Untitled",
-        start: inst.start_at,
-        end: inst.end_at,
-        backgroundColor: priorityColor,
-        borderColor: priorityColor,
-        textColor: "#FFFFFF",
-        status: inst.status,
-        is_fixed: task?.CoThoiGianCoDinh || false,
-        is_ai_suggested: inst.is_ai_suggested,
-        extendedProps: {
-          instanceId: inst.id,
-          taskId: inst.task_id || null,
-          note: inst.note || "",
-          completed: inst.status === "completed",
-          cancelled: inst.status === "cancelled",
-          aiSuggested: inst.is_ai_suggested,
-          priority: task?.MucDoUuTien || null,
-          description: task?.MoTa || "",
-          isFixed: task?.CoThoiGianCoDinh || false,
-          category: task?.MaLoai || null,
-        },
-      };
-    });
-
-    res.json({ success: true, data: events });
-  } catch (err) {
-    console.error("Lỗi lấy instances:", err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
 // GET /api/calendar/events
 router.get("/events", authenticateToken, async (req, res) => {
   try {
@@ -198,7 +36,7 @@ router.get("/events", authenticateToken, async (req, res) => {
 
     const { data: records, error } = await supabase
       .from("LichTrinh")
-      .select("*, CongViec(TieuDe, MucDoUuTien)")
+      .select("*, CongViec(TieuDe, MucDoUuTien, MauSac)")
       .or(`UserID.eq.${userId}`)
       .gte("GioBatDau", thirtyDaysAgo)
       .order("GioBatDau", { ascending: false });
@@ -222,7 +60,7 @@ router.get("/events", authenticateToken, async (req, res) => {
           GioBatDau: ev.GioBatDau,
           GioKetThuc: ev.GioKetThuc,
           GhiChu: ev.GhiChu,
-          MauSac: priorityColor,
+          MauSac: ev.CongViec?.MauSac || priorityColor,
           DaHoanThanh: ev.DaHoanThanh,
           MucDoUuTien: ev.CongViec?.MucDoUuTien,
           AI_DeXuat: ev.AI_DeXuat || 0,
@@ -363,7 +201,16 @@ router.post("/events", authenticateToken, async (req, res) => {
     const userId = req.userId;
     const d = req.body;
 
-    if (!d.TieuDe || !d.GioBatDau) {
+    // Accept both Vietnamese (legacy) and English field names for consistency with PUT.
+    const title = d.TieuDe ?? d.title;
+    const start = d.GioBatDau ?? d.start;
+    const end = d.GioKetThuc ?? d.end;
+    const note = d.GhiChu ?? d.note;
+    const completed = d.DaHoanThanh ?? d.completed;
+    const aiSuggested = d.AI_DeXuat ?? d.aiSuggested;
+    const taskId = d.MaCongViec ?? d.taskId;
+
+    if (!title || !start) {
       return res.status(400).json({
         success: false,
         message: "Thiếu thông tin bắt buộc",
@@ -374,13 +221,13 @@ router.post("/events", authenticateToken, async (req, res) => {
       .from("LichTrinh")
       .insert({
         UserID: userId,
-        MaCongViec: d.MaCongViec || null,
-        TieuDe: d.TieuDe,
-        GioBatDau: new Date(d.GioBatDau).toISOString(),
-        GioKetThuc: d.GioKetThuc ? new Date(d.GioKetThuc).toISOString() : null,
-        DaHoanThanh: d.DaHoanThanh || false,
-        GhiChu: d.GhiChu || null,
-        AI_DeXuat: d.AI_DeXuat || false,
+        MaCongViec: taskId || null,
+        TieuDe: title,
+        GioBatDau: new Date(start).toISOString(),
+        GioKetThuc: end ? new Date(end).toISOString() : null,
+        DaHoanThanh: completed || false,
+        GhiChu: note || null,
+        AI_DeXuat: aiSuggested || false,
         NgayTao: new Date().toISOString(),
       })
       .select("MaLichTrinh")
@@ -395,12 +242,12 @@ router.post("/events", authenticateToken, async (req, res) => {
       });
     }
 
-    // Cập nhật trạng thái công việc nếu có MaCongViec
-    if (d.MaCongViec) {
+    // Cập nhật trạng thái công việc nếu có taskId
+    if (taskId) {
       await supabase
         .from("CongViec")
         .update({ TrangThaiThucHien: 1 })
-        .eq("MaCongViec", d.MaCongViec)
+        .eq("MaCongViec", taskId)
         .eq("UserID", userId);
     }
 
@@ -425,11 +272,18 @@ router.put("/events/:id", authenticateToken, async (req, res) => {
     const d = req.body;
     const updateData = {};
 
-    if (d.title !== undefined) updateData.TieuDe = d.title;
-    if (d.note !== undefined) updateData.GhiChu = d.note;
-    if (d.start !== undefined) updateData.GioBatDau = new Date(d.start).toISOString();
-    if (d.end !== undefined) updateData.GioKetThuc = d.end ? new Date(d.end).toISOString() : null;
-    if (d.completed !== undefined) updateData.DaHoanThanh = d.completed ? true : false;
+    // Accept both Vietnamese (legacy) and English field names.
+    const title = d.TieuDe ?? d.title;
+    const note = d.GhiChu ?? d.note;
+    const start = d.GioBatDau ?? d.start;
+    const end = d.GioKetThuc ?? d.end;
+    const completed = d.DaHoanThanh ?? d.completed;
+
+    if (title !== undefined) updateData.TieuDe = title;
+    if (note !== undefined) updateData.GhiChu = note;
+    if (start !== undefined) updateData.GioBatDau = new Date(start).toISOString();
+    if (end !== undefined) updateData.GioKetThuc = end ? new Date(end).toISOString() : null;
+    if (completed !== undefined) updateData.DaHoanThanh = completed ? true : false;
 
     if (Object.keys(updateData).length === 0) {
       return res

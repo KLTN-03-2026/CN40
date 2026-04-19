@@ -5,67 +5,167 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quản lý công việc</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome removed -->
-    <link rel="stylesheet" href="/frontend/assets/css/newspaper-theme.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <link rel="stylesheet" href="/frontend/assets/css/work.css" />
   </head>
-  <body>
-    <div class="wk-page">
+  <body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
       <!-- Page Header -->
-      <div class="wk-header">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
         <div>
-          <h1 class="np-h2 wk-title">Công việc</h1>
-          <p class="np-label wk-subtitle">Quản lý và theo dõi tất cả công việc của bạn</p>
+          <div class="flex items-center gap-3 mb-1">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#dc2626,#4f46e5)">
+              <i class="fas fa-tasks text-white text-base"></i>
+            </div>
+            <h1 class="text-2xl font-bold" style="color:#1e293b">Quản lý công việc</h1>
+          </div>
+          <p class="text-sm ml-13" style="color:#64748b;padding-left:52px">Quản lý và theo dõi tất cả công việc của bạn</p>
         </div>
-        <button id="create-task-btn" class="np-button np-button--primary">
-          &#43; Tạo công việc mới
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            id="priority-manager-btn"
+            type="button"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm border transition-all active:scale-95"
+            style="border-color:#e2e8f0;background:#fff;color:#374151"
+            onmouseover="this.style.background='#f8fafc';this.style.borderColor='#cbd5e1'"
+            onmouseout="this.style.background='#fff';this.style.borderColor='#e2e8f0'"
+            onclick="window.__openPriorityManager && window.__openPriorityManager()"
+            title="Tuỳ chỉnh màu độ ưu tiên"
+          >
+            <i class="fas fa-palette text-xs"></i>
+            Độ ưu tiên
+          </button>
+          <button
+            id="create-task-btn"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white text-sm shadow-lg transition-all active:scale-95"
+            style="background:linear-gradient(135deg,#dc2626,#4f46e5);box-shadow:0 4px 15px rgba(220,38,38,0.35)"
+            onmouseover="this.style.boxShadow='0 6px 20px rgba(220,38,38,0.5)'"
+            onmouseout="this.style.boxShadow='0 4px 15px rgba(220,38,38,0.35)'"
+          >
+            <i class="fas fa-plus text-xs"></i>
+            Tạo công việc mới
+          </button>
+        </div>
       </div>
 
       <!-- Search & Filter Bar -->
-      <div class="wk-filter-bar">
-        <div class="wk-search-wrap">
-          <span class="wk-search-icon" aria-hidden="true"></span>
-          <input
-            type="text"
-            id="task-search"
-            placeholder="Tìm kiếm theo tiêu đề, mô tả..."
-            class="np-input wk-search-input"
-          />
-        </div>
-        <div class="wk-filter-selects">
-          <select id="status-filter" class="np-input wk-select">
-            <option value="all">Tất cả trạng thái</option>
-            <option value="pending">Đang chờ</option>
-            <option value="completed">Hoàn thành</option>
-          </select>
-          <select id="priority-filter" class="np-input wk-select">
-            <option value="all">Tất cả ưu tiên</option>
-            <option value="low">Thấp</option>
-            <option value="medium">Trung bình</option>
-            <option value="high">Cao</option>
-          </select>
+      <div class="bg-white rounded-2xl shadow-sm border mb-6 p-4" style="border-color:#e2e8f0">
+        <div class="flex flex-col md:flex-row gap-3">
+          <div class="flex-1 relative">
+            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <input
+              type="text"
+              id="task-search"
+              placeholder="Tìm kiếm theo tiêu đề, mô tả..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              style="border-color:#e2e8f0;background:#f8fafc"
+            />
+          </div>
+          <div class="flex gap-3 flex-wrap">
+            <select
+              id="status-filter"
+              class="px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              style="border-color:#e2e8f0;background:#f8fafc;color:#374151"
+            >
+              <option value="all">Tất cả trạng thái</option>
+              <option value="pending">Đang chờ</option>
+              <option value="completed">Hoàn thành</option>
+            </select>
+            <select
+              id="priority-filter"
+              class="px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              style="border-color:#e2e8f0;background:#f8fafc;color:#374151"
+            >
+              <option value="all">Tất cả ưu tiên</option>
+              <option value="1">Thấp</option>
+              <option value="2">Trung bình</option>
+              <option value="3">Cao</option>
+              <option value="4">Rất cao</option>
+            </select>
+            <select
+              id="category-filter"
+              class="px-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              style="border-color:#e2e8f0;background:#f8fafc;color:#374151"
+            >
+              <option value="all">Tất cả danh mục</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <!-- Priority Legend — compact inline chips -->
-      <div class="wk-legend">
-        <span class="np-label wk-legend-label">Mức ưu tiên:</span>
-        <span class="np-chip wk-chip-priority wk-chip-low">Thấp</span>
-        <span class="np-chip wk-chip-priority wk-chip-medium">Trung bình</span>
-        <span class="np-chip wk-chip-priority wk-chip-high">Cao</span>
-        <span class="np-chip wk-chip-priority wk-chip-urgent">Khẩn cấp</span>
+      <!-- Priority color legend (reads CSS vars so it reflects user customization) -->
+      <div class="priority-legend flex items-center gap-3 px-4 py-2 rounded-lg border mb-6" style="border-color:#e2e8f0;background:#fafbfc">
+        <span style="font-size:10px;color:#94a3b8;font-weight:600;letter-spacing:0.5px">Ưu tiên:</span>
+        <span class="flex items-center gap-1"><span style="width:8px;height:8px;border-radius:50%;background:var(--prio-1);display:inline-block"></span><span style="font-size:10px;color:#64748b">Thấp</span></span>
+        <span class="flex items-center gap-1"><span style="width:8px;height:8px;border-radius:50%;background:var(--prio-2);display:inline-block"></span><span style="font-size:10px;color:#64748b">Trung bình</span></span>
+        <span class="flex items-center gap-1"><span style="width:8px;height:8px;border-radius:50%;background:var(--prio-3);display:inline-block"></span><span style="font-size:10px;color:#64748b">Cao</span></span>
+        <span class="flex items-center gap-1"><span style="width:8px;height:8px;border-radius:50%;background:var(--prio-4);display:inline-block"></span><span style="font-size:10px;color:#64748b">Rất cao</span></span>
       </div>
 
-      <!-- Main Task List Container -->
-      <div id="work-items-container" class="wk-container">
-        <div class="wk-loading hidden" id="loading-indicator">
-          <div class="wk-spinner"></div>
-          <p>Đang tải công việc...</p>
+      <!-- Bulk action bar — visible when ≥1 task is selected. -->
+      <div
+        id="bulk-action-bar"
+        class="hidden mb-4 items-center justify-between px-4 py-3 rounded-xl border"
+        style="border-color:#e2e8f0;background:linear-gradient(135deg,#fef2f2 0%,#eff6ff 100%);display:none"
+      >
+        <div class="flex items-center gap-2 text-sm" style="color:#1e293b">
+          <i class="fas fa-check-square" style="color:#dc2626"></i>
+          <span>Đã chọn <span id="bulk-selected-count" class="font-bold">0</span> công việc</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            id="bulk-complete-btn"
+            class="hidden flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+            style="background:#10b981"
+            onmouseover="this.style.background='#059669'"
+            onmouseout="this.style.background='#10b981'"
+          >
+            <i class="fas fa-check"></i> Hoàn thành
+          </button>
+          <button
+            id="bulk-restore-btn"
+            class="hidden flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+            style="background:#f59e0b"
+            onmouseover="this.style.background='#d97706'"
+            onmouseout="this.style.background='#f59e0b'"
+          >
+            <i class="fas fa-undo"></i> Khôi phục
+          </button>
+          <button
+            id="bulk-delete-btn"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+            style="background:#dc2626"
+            onmouseover="this.style.background='#b91c1c'"
+            onmouseout="this.style.background='#dc2626'"
+          >
+            <i class="fas fa-trash"></i> Xoá
+          </button>
+          <button
+            id="bulk-clear-btn"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold border"
+            style="border-color:#e2e8f0;color:#64748b;background:#fff"
+          >
+            Bỏ chọn
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Table Container -->
+      <div id="work-items-container" class="min-w-full">
+        <div class="text-center py-12 hidden" id="loading-indicator">
+          <div
+            class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"
+          ></div>
+          <p class="text-gray-600 font-medium">Đang tải công việc...</p>
         </div>
 
         <div class="empty-state hidden" id="empty-state-indicator">
-          <div class="empty-state-icon" aria-hidden="true">&#9635;</div>
+          <div class="empty-state-icon">
+            <i class="fas fa-inbox"></i>
+          </div>
           <h2 class="empty-state-title">Bắt đầu quản lý công việc của bạn</h2>
           <p class="empty-state-description">
             Chào mừng! Hãy tạo công việc đầu tiên để bắt đầu hành trình quản lý
@@ -74,48 +174,62 @@
           </p>
           <div class="empty-state-features">
             <div class="feature-item">
-              <span aria-hidden="true"></span>
+              <i class="fas fa-brain"></i>
               <span>AI thông minh lên lịch</span>
             </div>
             <div class="feature-item">
-              <span aria-hidden="true"></span>
+              <i class="fas fa-chart-line"></i>
               <span>Theo dõi tiến độ</span>
             </div>
             <div class="feature-item">
-              <span aria-hidden="true"></span>
+              <i class="fas fa-clock"></i>
               <span>Quản lý thời gian</span>
             </div>
           </div>
           <button
-            class="np-button np-button--primary"
+            class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-medium shadow-md transition-all hover:shadow-lg active:scale-95"
             onclick="if(window.ModalManager) window.ModalManager.showCreateTaskModal();"
           >
-            &#43; Tạo công việc đầu tiên
+            <i class="fas fa-plus"></i>
+            Tạo công việc đầu tiên
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Bulk Action Bar (sticky bottom, hidden by default) -->
-    <div id="bulk-action-bar" class="wk-bulk-bar hidden">
-      <span id="bulk-count" class="wk-bulk-count">0 đã chọn</span>
-      <div class="wk-bulk-actions">
-        <button id="bulk-complete-btn" class="np-button np-button--primary wk-bulk-btn">
-          Hoàn thành
-        </button>
-        <button id="bulk-delete-btn" class="np-button wk-bulk-btn wk-bulk-delete">
-          Xoá
-        </button>
-      </div>
-    </div>
-
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const createBtn = document.getElementById("create-task-btn");
-        if (createBtn) {
-          createBtn.addEventListener("click", function () {
-            if (window.ModalManager) {
-              window.ModalManager.showCreateTaskModal();
+      // work.html loads dynamically via componentLoader — DOMContentLoaded may have already fired.
+      // Run init inline so it executes when the script is injected, not tied to a past event.
+      (function initWorkPage() {
+        // Event delegation on document — buttons live in dynamic content and may re-render.
+        if (!document._workPageDelegated) {
+          document._workPageDelegated = true;
+          document.addEventListener("click", (ev) => {
+            const createBtn = ev.target.closest && ev.target.closest("#create-task-btn");
+            if (createBtn) {
+              ev.preventDefault();
+              if (window.ModalManager) window.ModalManager.showCreateTaskModal();
+              return;
+            }
+            const prioBtn = ev.target.closest && ev.target.closest("#priority-manager-btn");
+            if (prioBtn) {
+              ev.preventDefault();
+              const show = () => {
+                if (window.openPriorityManager) window.openPriorityManager();
+                else if (window.ModalManager) window.ModalManager.showModalById("priorityManagerModal");
+              };
+              const modal = document.getElementById("priorityManagerModal");
+              // If componentLoader hasn't filled the container yet, load it on-demand.
+              if (modal && modal.children.length === 0 && window.ComponentLoader?.loadComponent) {
+                window.ComponentLoader.loadComponent(
+                  "priorityManagerModal",
+                  "components/modals/priority-manager-modal.html",
+                  { executeScripts: true }
+                ).then(() => setTimeout(show, 80));
+              } else {
+                show();
+              }
+              return;
             }
           });
         }
@@ -127,7 +241,7 @@
             window.WorkManager.loadTasks();
           }
         }, 300);
-      });
+      })();
     </script>
   </body>
 </html>

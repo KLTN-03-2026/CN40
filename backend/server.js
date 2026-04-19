@@ -9,14 +9,13 @@ const { authenticateToken } = require("./middleware/auth");
 // Routes
 const authRoutes = require("./routes/auth");
 const tasksRoutes = require("./routes/tasks");
-const taskInstancesRoutes = require("./routes/task-instances");
 const calendarRoutes = require("./routes/calendar");
 const aiRoutes = require("./routes/ai");
 const categoriesRoutes = require("./routes/categories");
 const salaryRoutes = require("./routes/salary");
 const statisticsRoutes = require("./routes/statistics");
 const usersRoutes = require("./routes/users");
-const notificationRoutes = require("./routes/notification.routes");
+const eventSubtasksRoutes = require("./routes/event-subtasks");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -64,14 +63,13 @@ app.use(express.static(path.join(__dirname, "../frontend")));
 // ===========================
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", authenticateToken, tasksRoutes);
-app.use("/api/task-instances", authenticateToken, taskInstancesRoutes);
 app.use("/api/calendar", authenticateToken, calendarRoutes);
 app.use("/api/ai", authenticateToken, aiRoutes);
 app.use("/api/categories", authenticateToken, categoriesRoutes);
 app.use("/api/salary", authenticateToken, salaryRoutes);
 app.use("/api/statistics", authenticateToken, statisticsRoutes);
 app.use("/api/users", authenticateToken, usersRoutes);
-app.use("/api/notifications", notificationRoutes);
+app.use("/api/event-subtasks", eventSubtasksRoutes);
 
 // API cũ vẫn dùng (nếu có)
 app.get("/api/work/tasks", authenticateToken, (req, res) =>

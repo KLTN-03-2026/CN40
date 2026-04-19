@@ -8,34 +8,7 @@ if (!token) {
   process.exit(1);
 }
 
-// Suppress verbose telegram polling errors BEFORE creating bot
-// node-telegram-bot-api logs full response objects to stderr — override console.error temporarily
-const _origConsoleError = console.error;
-const _telegramErrorFilter = (...args) => {
-  const msg = args[0];
-  if (typeof msg === "string" && (msg.includes("Polling error") || msg.includes("ETELEGRAM"))) return;
-  if (msg && typeof msg === "object" && msg.code === "ETELEGRAM") return;
-  _origConsoleError.apply(console, args);
-};
-
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
-
-// Intercept polling_error to show clean 1-line message
-let _telegramConflictWarned = false;
-bot.on("polling_error", (err) => {
-  if (err.code === "ETELEGRAM" && err.message?.includes("409")) {
-    if (!_telegramConflictWarned) {
-      _telegramConflictWarned = true;
-      _origConsoleError("[Telegram] Bot conflict — stop the other server instance first.");
-    }
-  } else {
-    _origConsoleError("[Telegram] Polling error:", err.message || err);
-  }
-});
-
-// Apply the filter to suppress library-level verbose dumps
-console.error = _telegramErrorFilter;
-
 const pendingConnections = new Map();
 
 // /start

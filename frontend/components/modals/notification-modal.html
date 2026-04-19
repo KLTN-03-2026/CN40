@@ -1,6 +1,6 @@
 <div id="notificationModal" class="modal hidden">
   <div
-    class="modal-content rounded-2xl shadow-2xl w-full max-w-2xl mx-4 my-8 transform transition-all"
+    class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 my-8 transform transition-all"
   >
     <div
       class="flex justify-between items-center p-6 border-b border-gray-200 bg-gradient-to-r from-cyan-50 to-teal-50"
@@ -9,6 +9,7 @@
         <div
           class="w-10 h-10 rounded-lg bg-cyan-500 flex items-center justify-center text-white"
         >
+          <i class="fas fa-bell"></i>
         </div>
         <div>
           <h3 class="text-xl font-semibold text-gray-800">Thông Báo</h3>
@@ -21,7 +22,7 @@
         id="closeNotificationModal"
         class="text-gray-500 hover:text-gray-700 text-2xl transition-colors"
       >
-        &#x2715;
+        <i class="fas fa-times"></i>
       </button>
     </div>
 
@@ -51,6 +52,7 @@
         <h5
           class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
         >
+          <i class="fas fa-link text-cyan-500"></i>
           Kết Nối Telegram
         </h5>
 
@@ -123,6 +125,7 @@
             id="connectTelegramBtn"
             class="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
           >
+            <i class="fas fa-paper-plane"></i>
             Kết Nối Telegram
           </button>
           <p class="text-xs text-gray-500 mt-2 text-center">
@@ -135,6 +138,7 @@
         <h5
           class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
         >
+          <i class="fas fa-sliders-h text-cyan-500"></i>
           Cài Đặt Thông Báo
         </h5>
 
@@ -143,7 +147,7 @@
             class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition"
           >
             <div class="flex items-center gap-3">
-              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <i class="fas fa-bell text-cyan-500 text-lg"></i>
               <div>
                 <p class="font-medium text-gray-800">Thông báo công việc</p>
                 <p class="text-sm text-gray-500">
@@ -169,7 +173,7 @@
             class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition bg-gray-50"
           >
             <div class="flex items-center gap-3 flex-1">
-              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <i class="fas fa-clock text-cyan-500 text-lg"></i>
               <div class="flex-1">
                 <p class="font-medium text-gray-800">
                   Thời gian nhắc nhở công việc
@@ -191,7 +195,7 @@
             class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition"
           >
             <div class="flex items-center gap-3">
-              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <i class="fas fa-calendar-check text-cyan-500 text-lg"></i>
               <div>
                 <p class="font-medium text-gray-800">Nhắc nhở sự kiện</p>
                 <p class="text-sm text-gray-500">
@@ -217,7 +221,7 @@
             class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition bg-gray-50"
           >
             <div class="flex items-center gap-3 flex-1">
-              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <i class="fas fa-sun text-cyan-500 text-lg"></i>
               <div class="flex-1">
                 <p class="font-medium text-gray-800">Lịch trình hằng ngày</p>
                 <p class="text-sm text-gray-500">
@@ -237,7 +241,7 @@
             class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition"
           >
             <div class="flex items-center gap-3">
-              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <i class="fas fa-lightbulb text-cyan-500 text-lg"></i>
               <div>
                 <p class="font-medium text-gray-800">Gợi ý từ AI</p>
                 <p class="text-sm text-gray-500">
@@ -263,7 +267,7 @@
             class="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition bg-gray-50"
           >
             <div class="flex items-center gap-3 flex-1">
-              <span style="font-size:1.1rem" aria-hidden="true"></span>
+              <i class="fas fa-moon text-cyan-500 text-lg"></i>
               <div class="flex-1">
                 <p class="font-medium text-gray-800">Tổng kết hàng ngày</p>
                 <p class="text-sm text-gray-500">
@@ -288,14 +292,14 @@
         id="cancelNotificationBtn"
         class="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
       >
-        Hủy
+        <i class="fas fa-times mr-2"></i>Hủy
       </button>
       <button
         type="button"
         id="saveNotificationSettingsBtn"
         class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-medium hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
       >
-        Lưu Cài Đặt
+        <i class="fas fa-check mr-1"></i>Lưu Cài Đặt
       </button>
     </div>
   </div>

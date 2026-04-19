@@ -2,7 +2,7 @@
   display: none;
   width: 100%;
   min-height: 100vh;
-  background: var(--np-bg, #f4efe6);
+  background: #f9fafb;
 }
 
 #ai-section.active {
@@ -15,14 +15,10 @@
   max-width: none !important;
   height: 100% !important;
   min-height: 600px !important;
-  background: var(--np-bg, #f4efe6) !important;
-  border-radius: 0;
+  background: white !important;
+  border-radius: 12px;
   overflow: hidden;
 }
-
-/* Dark mode overrides for AI calendar */
-body.dark #ai-section { background: var(--np-bg, #1a1612); }
-body.dark #ai-calendar { background: var(--np-bg, #1a1612) !important; }
 
 #ai-calendar .fc {
   height: 100% !important;
@@ -128,7 +124,10 @@ body.dark #ai-calendar { background: var(--np-bg, #1a1612) !important; }
   z-index: 10001 !important;
 }
 
-/* .fa-robot removed — Font Awesome removed from project */
+#aiEventDetailModal .fa-robot {
+  color: #8b5cf6;
+  font-size: 20px;
+}
 
 @keyframes slideInUp {
   from {
@@ -239,42 +238,26 @@ body.dark #ai-calendar { background: var(--np-bg, #1a1612) !important; }
 .task-item {
   display: flex;
   align-items: center;
-  padding: 8px 10px;
-  border: 1px solid var(--np-border-muted, #c8b99a);
-  border-radius: var(--np-radius, 2px);
-  margin-bottom: 6px;
+  padding: 12px 15px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 10px;
   cursor: pointer;
-  transition: background 0.12s, border-color 0.12s;
-  background: var(--np-bg-card, #faf7f2);
-  color: var(--np-text, #1a1a1a);
+  transition: all 0.3s ease;
+  background: white;
 }
 
 .task-item:hover {
-  border-color: var(--np-border, #1a1a1a);
-  background: var(--np-bg, #f4efe6);
-  transform: none;
-  box-shadow: none;
+  border-color: #d1d5db;
+  background: #f9fafb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .task-item.selected {
-  border-color: var(--np-accent, #8b0000);
-  background: color-mix(in srgb, var(--np-bg-card, #faf7f2) 85%, var(--np-accent, #8b0000) 15%);
-  border-width: 1.5px;
-}
-
-/* Dark mode task items in AI modal */
-body.dark .task-item {
-  background: var(--np-bg-card, #221e19);
-  border-color: var(--np-border-muted, #3a3028);
-  color: var(--np-text, #e8e0d0);
-}
-body.dark .task-item:hover {
-  background: var(--np-bg, #1a1612);
-  border-color: var(--np-border, #4a4238);
-}
-body.dark .task-item.selected {
-  border-color: var(--np-accent, #c44a4a);
-  background: color-mix(in srgb, var(--np-bg-card, #221e19) 80%, var(--np-accent, #c44a4a) 20%);
+  border-color: #3b82f6;
+  background: #eff6ff;
+  border-width: 2px;
 }
 
 .task-selection-indicator {
@@ -282,85 +265,58 @@ body.dark .task-item.selected {
 }
 
 .selection-checkbox {
-  width: 18px;
-  height: 18px;
-  border-radius: var(--np-radius, 2px);
-  border: 1.5px solid var(--np-border-muted, #c8b99a);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.15s, background 0.15s;
-  flex-shrink: 0;
+  transition: all 0.2s;
 }
 
 .task-item.selected .selection-checkbox {
-  border-color: var(--np-accent, #8b0000);
-  background: var(--np-accent, #8b0000);
-  color: #fff;
+  border-color: #3b82f6;
+  background: #3b82f6;
+  color: white;
 }
 
 .selection-checkbox i {
-  font-size: 10px;
+  font-size: 12px;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity 0.2s;
 }
 
 .task-item.selected .selection-checkbox i {
   opacity: 1;
 }
 
-/* Unicode checkmark fallback for selection */
-.selection-checkbox::after {
-  content: '';
-  display: none;
-}
-.task-item.selected .selection-checkbox::after {
-  content: '✓';
-  display: block;
-  font-size: 10px;
-  color: #fff;
-  line-height: 1;
-}
-
 .task-content {
   flex: 1;
-  min-width: 0;
 }
 
 .task-title {
-  font-family: var(--np-font-body, 'Merriweather', serif);
-  font-weight: 400;
-  font-size: 0.875rem;
-  margin-bottom: 3px;
-  color: var(--np-text, #1a1a1a);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 5px;
+  color: #1f2937;
 }
 
 .task-details {
   display: flex;
-  gap: 10px;
-  font-size: 0.72rem;
-  color: var(--np-text-muted, #6b5f4a);
-  font-family: var(--np-font-ui, 'Inter', sans-serif);
-  margin-bottom: 2px;
+  gap: 15px;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 4px;
 }
 
 .task-time-preference {
-  font-size: 0.7rem;
-  color: var(--np-text-muted, #6b5f4a);
-  font-family: var(--np-font-ui, 'Inter', sans-serif);
+  font-size: 12px;
+  color: #9ca3af;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
-
-/* Dark mode task content */
-body.dark .task-title { color: var(--np-text, #e8e0d0); }
-body.dark .task-details,
-body.dark .task-time-preference { color: var(--np-text-muted, #8a7f6a); }
-body.dark .selection-checkbox { border-color: var(--np-border-muted, #3a3028); }
 
 .task-color {
   width: 20px;
@@ -379,16 +335,22 @@ body.dark .selection-checkbox { border-color: var(--np-border-muted, #3a3028); }
   font-weight: 600;
 }
 
-/* Priority chips — newspaper palette (no pure blue) */
-.priority-1 { background: rgba(138,154,91,0.15); color: #5a6e2a; border: 1px solid #8a9a5b; }
-.priority-2 { background: rgba(74,111,165,0.12); color: #2a4a72; border: 1px solid #4a6fa5; }
-.priority-3 { background: rgba(201,123,60,0.12); color: #8a4a10; border: 1px solid #c97b3c; }
-.priority-4 { background: rgba(168,50,50,0.12);  color: #8b0000; border: 1px solid #a83232; }
-
-body.dark .priority-1 { background: rgba(138,154,91,0.18); color: #a8c070; border-color: #8a9a5b; }
-body.dark .priority-2 { background: rgba(74,111,165,0.18); color: #7090c0; border-color: #4a6fa5; }
-body.dark .priority-3 { background: rgba(201,123,60,0.18); color: #d89a5a; border-color: #c97b3c; }
-body.dark .priority-4 { background: rgba(168,50,50,0.18);  color: #cc5555; border-color: #a83232; }
+.priority-1 {
+  background: #d1fae5;
+  color: #065f46;
+}
+.priority-2 {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.priority-3 {
+  background: #fef3c7;
+  color: #92400e;
+}
+.priority-4 {
+  background: #fee2e2;
+  color: #991b1b;
+}
 
 .task-duration {
   display: inline-flex;

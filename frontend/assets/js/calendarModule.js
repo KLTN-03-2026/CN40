@@ -2,7 +2,6 @@
   "use strict";
 
   if (window.CalendarModule) {
-    console.warn("CalendarModule already exists → destroying old instance");
     window.CalendarModule.destroy?.();
   }
 
@@ -17,8 +16,6 @@
     async init() {
       if (this.isInitialized && this.calendar) this.destroy();
 
-
-
       try {
         await this._initInternal();
         this.isInitialized = true;
@@ -27,138 +24,59 @@
           this.setupDropZone();
           this.setupTaskDragListeners();
         }, 1000);
-
-
       } catch (err) {
         console.error("Calendar initialization failed:", err);
         this.showError(err);
       }
     },
 
+    /**
+     * Set up ONE FullCalendar.Draggable on the task-list container using event
+     * delegation. Previously we attached a per-item Draggable via a MutationObserver
+     * which accumulated instances on every reload (innerHTML rebuild → new elements →
+     * new Draggables, old ones never destroyed) → drag lag after a few drops.
+     * FC.Draggable with itemSelector handles added/removed children automatically.
+     */
     setupTaskDragListeners() {
-
-
       this.initializeExternalDraggable();
-
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.addedNodes.length) {
-            mutation.addedNodes.forEach((node) => {
-              if (node.nodeType === 1) {
-                if (node.classList && node.classList.contains("task-item")) {
-                  this.makeTaskDraggable(node);
-                }
-                const taskItems = node.querySelectorAll
-                  ? node.querySelectorAll(".task-item")
-                  : [];
-
-                taskItems.forEach((item) => {
-                  this.makeTaskDraggable(item);
-                });
-              }
-            });
-          }
-        });
-      });
-      const taskList = document.getElementById("task-list");
-      if (taskList) {
-        observer.observe(taskList, {
-          childList: true,
-          subtree: true,
-        });
-      }
-
-
     },
 
     initializeExternalDraggable() {
-
-
       const taskList = document.getElementById("task-list");
-      if (!taskList) {
-        console.warn(" task-list container not found");
-        return;
+      if (!taskList) return;
+      if (typeof FullCalendar === "undefined" || !FullCalendar.Draggable) return;
+
+      // Idempotent: destroy any prior instance before re-creating.
+      if (this.draggableInstance) {
+        try { this.draggableInstance.destroy(); } catch (_) {}
+        this.draggableInstance = null;
       }
 
-      const taskItems = taskList.querySelectorAll(".task-item");
-
-
-      taskItems.forEach((item) => {
-        this.makeTaskDraggable(item);
-      });
-    },
-
-    makeTaskDraggable(element) {
-      if (element.hasAttribute("data-draggable-init")) return;
-      const taskId = element.dataset.taskId;
-      const title = element.dataset.taskTitle || element.textContent.trim();
-      const priority = parseInt(element.dataset.taskPriority) || 2;
-      const description = element.dataset.taskDescription || "";
-      const color = this.getPriorityColor(priority);
-
-      if (!taskId) {
-        console.warn(" Task element missing taskId");
-        return;
-      }
-      try {
-        if (typeof FullCalendar !== "undefined" && FullCalendar.Draggable) {
-          const draggable = new FullCalendar.Draggable(element, {
-            eventData: {
-              id: `drag-${taskId}`,
-              title: title,
-              backgroundColor: color,
-              borderColor: color,
-
-              extendedProps: {
-                taskId: taskId,
-                priority: priority,
-                description: description,
-                isFromDrag: true,
-              },
+      const self = this;
+      this.draggableInstance = new FullCalendar.Draggable(taskList, {
+        itemSelector: ".task-item",
+        eventData: (eventEl) => {
+          const taskId = eventEl.dataset.taskId;
+          const title =
+            eventEl.dataset.taskTitle ||
+            eventEl.querySelector(".task-item-title")?.textContent?.trim() ||
+            "Công việc";
+          const priority = parseInt(eventEl.dataset.taskPriority, 10) || 2;
+          const description = eventEl.dataset.taskDescription || "";
+          const color = self.getPriorityColor(priority);
+          return {
+            id: `drag-${taskId}`,
+            title,
+            backgroundColor: color,
+            borderColor: color,
+            extendedProps: {
+              taskId,
+              priority,
+              description,
+              isFromDrag: true,
             },
-          });
-
-          element.setAttribute("data-draggable-init", "true");
-
-        } else {
-          this.bindHTML5DragEvents(element);
-        }
-      } catch (err) {
-        console.warn(
-          " Error creating FullCalendar.Draggable, using HTML5 fallback:",
-          err
-        );
-        this.bindHTML5DragEvents(element);
-      }
-    },
-
-    bindHTML5DragEvents(element) {
-      if (element.hasAttribute("data-html5-drag-bound")) return;
-
-      element.setAttribute("draggable", "true");
-      element.setAttribute("data-html5-drag-bound", "true");
-
-      element.addEventListener("dragstart", (e) => {
-        const taskId = element.dataset.taskId;
-        const title = element.dataset.taskTitle || element.textContent.trim();
-        const color = element.dataset.taskColor || "#3B82F6";
-        const priority = parseInt(element.dataset.taskPriority) || 2;
-
-        e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData("text/plain", taskId);
-        e.dataTransfer.setData("taskId", taskId);
-        e.dataTransfer.setData(
-          "application/json",
-          JSON.stringify({ taskId, title, color, priority })
-        );
-
-        element.classList.add("dragging");
-
-      });
-
-      element.addEventListener("dragend", () => {
-        element.classList.remove("dragging");
-
+          };
+        },
       });
     },
     async _initInternal() {
@@ -175,27 +93,30 @@
         this.initializeNavbarEvents();
       }, 200);
 
-      // Phase 05: refresh calendar when full create-task modal creates a fixed task
-      document.addEventListener("calendar:reload", () => {
-        setTimeout(() => this._reloadCalendarEvents(), 400);
-      });
-      document.addEventListener("taskCreated", (e) => {
-        if (e.detail?.task?.is_fixed) {
-          setTimeout(() => this._reloadCalendarEvents(), 600);
-        }
-      });
+      // Defensive re-mount: first render sometimes misses extendedProps.subtasks
+      // (FC copies events on init before batch-fetch mutations propagate visually).
+      // Re-adding events triggers eventDidMount with fresh data, guaranteeing subtask chips appear.
+      setTimeout(() => this.refreshEventsInPlace().catch(() => {}), 400);
     },
 
-    // Re-fetch all events and refresh the FullCalendar instance
-    async _reloadCalendarEvents() {
+    /** Force re-render of all events — used to guarantee subtask chips show after init. */
+    async refreshEventsInPlace() {
       if (!this.calendar) return;
+      let fresh;
       try {
-        const events = await this.loadEvents();
-        this.calendar.removeAllEvents();
-        events.forEach(ev => this.calendar.addEvent(ev));
-      } catch (err) {
-        console.warn("calendar reload failed:", err);
+        fresh = await this.loadEvents();
+      } catch (_) {
+        return; // API blip — keep current events instead of wiping to empty.
       }
+      // Defensive: if load returned empty but we currently have events, treat as a
+      // silent failure (loadEvents catches errors and returns []). Wiping would make
+      // the just-dragged event appear to vanish.
+      const existing = this.calendar.getEvents();
+      if (!Array.isArray(fresh) || (existing.length > 0 && fresh.length === 0)) {
+        return;
+      }
+      this.calendar.removeAllEvents();
+      fresh.forEach((e) => this.calendar.addEvent(e));
     },
     waitForElement(id, timeout = 8000) {
       return new Promise((resolve) => {
@@ -252,7 +173,7 @@
             <div class="text-6xl mb-4">Lỗi</div>
             <h3 class="text-2xl font-bold text-red-700 mb-3">Không tải được lịch</h3>
             <p class="text-gray-600 mb-6">${error.message || error}</p>
-            <button onclick="location.reload()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <button onclick="location.reload()" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
               Tải lại trang
             </button>
           </div>
@@ -262,62 +183,116 @@
 
     async loadEvents() {
       if (!Utils?.makeRequest) {
-        console.warn("Utils.makeRequest không tồn tại → trả về mảng rỗng");
         return [];
       }
 
       try {
-        // Load calendar events from backend (uses LichTrinh)
-        const now = new Date();
-        const rangeStart = new Date(now.getTime() - 30 * 24 * 3600 * 1000).toISOString();
-        const rangeEnd = new Date(now.getTime() + 90 * 24 * 3600 * 1000).toISOString();
-        const res = await Utils.makeRequest(
-          `/api/calendar/instances?start=${encodeURIComponent(rangeStart)}&end=${encodeURIComponent(rangeEnd)}`,
-          "GET"
-        );
+        const res = await Utils.makeRequest("/api/calendar/events", "GET");
         if (!res.success || !Array.isArray(res.data)) {
-          console.warn("Invalid response from /api/calendar/instances");
           return [];
         }
 
+        const aiEvents = res.data.filter(
+          (ev) =>
+            ev.AI_DeXuat === 1 || ev.AI_DeXuat === "1" || ev.AI_DeXuat === true
+        );
+
         const normalEvents = res.data
+          .filter((ev) => {
+            const isAI =
+              ev.AI_DeXuat === 1 ||
+              ev.AI_DeXuat === "1" ||
+              ev.AI_DeXuat === true;
+            return !isAI;
+          })
           .map((ev) => {
-            const priority = ev.extendedProps?.priority || 2;
-            const completed = ev.extendedProps?.completed || false;
-            const color = ev.backgroundColor || this.getPriorityColor(priority);
+            // Always derive from priority so user-customized palette applies uniformly
+            // across every event (old records with stale MauSac won't drift off-palette).
+            const color = this.getPriorityColor(ev.MucDoUuTien);
 
-            const startTime = new Date(ev.start || new Date().toISOString());
-            const endTime = ev.end
-              ? new Date(ev.end)
-              : new Date(startTime.getTime() + 60 * 60 * 1000);
+            const completed =
+              ev.DaHoanThanh === true ||
+              ev.DaHoanThanh === 1 ||
+              ev.DaHoanThanh === "1" ||
+              ev.extendedProps?.completed === true ||
+              false;
 
-            // All events from LichTrinh are editable (no fixed concept without migration)
+            // Tính toán start và end time
+            const startTime = new Date(
+              ev.start || ev.GioBatDau || new Date().toISOString()
+            );
+            let endTime = null;
+
+            if (ev.end || ev.GioKetThuc) {
+              endTime = new Date(ev.end || ev.GioKetThuc);
+            } else {
+              // Nếu không có end time, mặc định là start + 1 giờ
+              endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+            }
+
             return {
-              id: ev.id,
-              title: ev.title || "Không tiêu đề",
+              id: ev.id || ev.MaLichTrinh || 0,
+              title: ev.title || ev.TieuDe || "Không tiêu đề",
               start: startTime,
               end: endTime,
               backgroundColor: color,
               borderColor: color,
-              allDay: false,
-              editable: !completed,
-              startEditable: !completed,
-              durationEditable: !completed,
+              allDay: ev.allDay || false,
               extendedProps: {
-                instanceId: ev.extendedProps?.instanceId || ev.id,
-                note: ev.extendedProps?.note || "",
+                note: ev.GhiChu || ev.extendedProps?.note || "",
                 completed: completed,
-                taskId: ev.extendedProps?.taskId || null,
-                isFromDrag: false,
-                isAIEvent: ev.extendedProps?.aiSuggested || false,
-                priority: priority,
-                isFixed: false,
+                taskId: ev.MaCongViec || ev.extendedProps?.taskId || null,
+                isFromDrag: ev.isFromDrag || false,
+                isAIEvent: false,
+                priority: ev.MucDoUuTien || 2,
                 originalColor: color,
               },
             };
           });
 
-
+        // Batch-attach subtasks. Ownership is time-slot based:
+        // a minitask with [start_at, end_at] belongs to whatever event fully covers
+        // that absolute window. When the parent event is dragged elsewhere, the
+        // minitask detaches visually (its slot no longer sits inside that event)
+        // and re-attaches to any event that now covers the slot. Untimed
+        // minitasks fall back to their original event_id.
+        try {
+          const subRes = await Utils.makeRequest(`/api/event-subtasks?t=${Date.now()}`, "GET");
+          if (subRes?.success && Array.isArray(subRes.data)) {
+            const timedSubs = [];
+            const untimedByEvent = new Map();
+            for (const s of subRes.data) {
+              if (s.start_at && s.end_at) {
+                timedSubs.push(s);
+              } else {
+                const k = String(s.event_id);
+                if (!untimedByEvent.has(k)) untimedByEvent.set(k, []);
+                untimedByEvent.get(k).push(s);
+              }
+            }
+            for (const ev of normalEvents) {
+              const evS = new Date(ev.start).getTime();
+              const evE = new Date(ev.end).getTime();
+              const subs = [];
+              if (Number.isFinite(evS) && Number.isFinite(evE)) {
+                for (const s of timedSubs) {
+                  const sS = new Date(s.start_at).getTime();
+                  const sE = new Date(s.end_at).getTime();
+                  // Must fit fully inside this event's window (same day/hour scope).
+                  if (Number.isFinite(sS) && Number.isFinite(sE) && sS >= evS && sE <= evE) {
+                    subs.push(s);
+                  }
+                }
+              }
+              const fallback = untimedByEvent.get(String(ev.id)) || [];
+              subs.push(...fallback);
+              ev.extendedProps.subtasks = subs;
+              ev.extendedProps.subtaskCount = subs.length;
+            }
+          }
+        } catch (_) {
+          // Subtask fetch optional — silent on failure (e.g. migration 003 not run yet).
+        }
 
         return normalEvents;
       } catch (err) {
@@ -327,14 +302,59 @@
     },
 
     getPriorityColor(priority) {
-      // Phase 04: Newspaper palette
-      const colors = {
-        1: "#8a9a5b", // low – olive green
-        2: "#4a6fa5", // medium – ink blue
-        3: "#c97b3c", // high – burnt sienna
-        4: "#a83232", // urgent – press red
+      return window.PriorityTheme ? PriorityTheme.getColor(priority) : "#3B82F6";
+    },
+
+    /**
+     * Read the user-customized working-hour window from localStorage.
+     * Returns "HH:MM:SS" strings safe to pass to FullCalendar's slotMin/MaxTime.
+     */
+    getWorkingHours() {
+      const DEFAULTS = { start: "07:00:00", end: "22:00:00" };
+      try {
+        const raw = localStorage.getItem("cal_working_hours_v1");
+        if (!raw) return DEFAULTS;
+        const p = JSON.parse(raw);
+        const toHMS = (v) => {
+          if (typeof v !== "string") return null;
+          // Accept "H", "HH", "HH:MM", "HH:MM:SS"; normalize to HH:MM:SS.
+          const m = /^(\d{1,2})(?::(\d{1,2}))?(?::(\d{1,2}))?$/.exec(v.trim());
+          if (!m) return null;
+          const hh = Math.min(24, Math.max(0, parseInt(m[1], 10)));
+          const mm = Math.min(59, Math.max(0, parseInt(m[2] || "0", 10)));
+          const ss = Math.min(59, Math.max(0, parseInt(m[3] || "0", 10)));
+          return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+        };
+        const start = toHMS(p.start) || DEFAULTS.start;
+        const end = toHMS(p.end) || DEFAULTS.end;
+        // Guard: end must exceed start.
+        return start >= end ? DEFAULTS : { start, end };
+      } catch (_) {
+        return DEFAULTS;
+      }
+    },
+
+    /** Persist new working hours and live-apply to the mounted calendar. */
+    setWorkingHours(start, end) {
+      const toHMS = (v) => {
+        const m = /^(\d{1,2})(?::(\d{1,2}))?$/.exec(String(v).trim());
+        if (!m) return null;
+        const hh = Math.min(24, Math.max(0, parseInt(m[1], 10)));
+        const mm = Math.min(59, Math.max(0, parseInt(m[2] || "0", 10)));
+        return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:00`;
       };
-      return colors[priority] || "#4a6fa5";
+      const s = toHMS(start), e = toHMS(end);
+      if (!s || !e || s >= e) {
+        Utils?.showToast?.("Giờ bắt đầu phải nhỏ hơn giờ kết thúc", "error");
+        return false;
+      }
+      localStorage.setItem("cal_working_hours_v1", JSON.stringify({ start: s, end: e }));
+      if (this.calendar) {
+        this.calendar.setOption("slotMinTime", s);
+        this.calendar.setOption("slotMaxTime", e);
+        this.calendar.scrollToTime(s);
+      }
+      return true;
     },
 
     renderCalendar(events) {
@@ -362,15 +382,16 @@
         nowIndicator: true,
         events: events,
 
-        // Phase 04: Remove all-day slot entirely
-        allDaySlot: false,
-
         dropAccept: ".task-item, [draggable='true'], [data-task-id]",
 
-        slotMinTime: "00:00:00",
-        slotMaxTime: "24:00:00",
+        // Drop the all-day row — this app only schedules timed tasks.
+        allDaySlot: false,
+
+        // Working hours are user-customizable via #cal-hours-btn (persisted in localStorage).
+        slotMinTime: this.getWorkingHours().start,
+        slotMaxTime: this.getWorkingHours().end,
         slotDuration: "00:30:00",
-        scrollTime: "07:00:00",
+        scrollTime: this.getWorkingHours().start,
 
         buttonText: {
           today: "Hôm nay",
@@ -379,6 +400,7 @@
           day: "Ngày",
           list: "Danh sách",
         },
+        allDayText: "Cả ngày",
         moreLinkText: (n) => `+ ${n} thêm`,
         noEventsText: "Không có sự kiện",
 
@@ -387,29 +409,33 @@
         },
 
         eventDrop: async (info) => {
-          // Phase 04: Block drag on fixed events
-          if (info.event.extendedProps?.isFixed) {
-            Utils.showToast?.("Sự kiện cố định không thể di chuyển", "warning");
-            info.revert();
-            return;
-          }
-          await this._handleInstanceUpdate(info);
+          await this._handleEventUpdate(info);
         },
 
         eventResize: async (info) => {
-          // Phase 04: Block resize on fixed events
-          if (info.event.extendedProps?.isFixed) {
-            Utils.showToast?.("Sự kiện cố định không thể thay đổi thời gian", "warning");
-            info.revert();
-            return;
-          }
-          await this._handleInstanceUpdate(info);
+          await this._handleEventUpdate(info);
         },
 
         select: (info) => {
-          // Phase 04: Wire drag-to-create with exact times
-          this._handleDateSelect(info.start, info.end);
+          this._showQuickCreateModal(info.start, info.end, info.allDay);
           this.calendar.unselect();
+        },
+
+        // Drag-to-delete: dropping an event onto the task-list sidebar removes it.
+        // Visual feedback toggles via body.calendar-dragging class.
+        eventDragStart: () => {
+          document.body.classList.add("calendar-dragging");
+        },
+        eventDragStop: (info) => {
+          document.body.classList.remove("calendar-dragging");
+          const sidebar = document.getElementById("calendar-sidebar");
+          if (!sidebar) return;
+          const r = sidebar.getBoundingClientRect();
+          const x = info.jsEvent?.clientX;
+          const y = info.jsEvent?.clientY;
+          if (typeof x !== "number" || typeof y !== "number") return;
+          const inside = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+          if (inside) this._dragDeleteEvent(info.event);
         },
 
         eventClick: (info) => {
@@ -427,54 +453,69 @@
           el.setAttribute("data-eventid", info.event.id);
 
           const priority = info.event.extendedProps.priority || 2;
-          const isFixed = info.event.extendedProps.isFixed || false;
-
-          // Phase 04: Newspaper priority classes
-          if (priority === 1) el.classList.add("event-priority-low");
-          else if (priority === 2) el.classList.add("event-priority-medium");
-          else if (priority === 3) el.classList.add("event-priority-high");
-          else if (priority === 4) el.classList.add("event-priority-urgent");
-
+          if (priority === 1) {
+            el.classList.add("event-priority-low");
+          } else if (priority === 3) {
+            el.classList.add("event-priority-medium");
+          } else if (priority === 4) {
+            el.classList.add("event-priority-high");
+          }
           if (info.event.extendedProps.aiSuggested) {
             el.classList.add("event-ai-suggested");
           }
 
-          // Phase 04: Fixed event visual indicator
-          if (isFixed) {
-            el.classList.add("event-fixed");
-            const fixedBadge = document.createElement("span");
-            fixedBadge.className = "event-fixed-badge";
-            fixedBadge.textContent = "cố định";
-            el.appendChild(fixedBadge);
-          }
-
-          // Apply completed CSS
+          // Apply completed CSS class on mount. Let the stylesheet own the
+          // visual treatment — using inline `background` shorthand wipes the
+          // priority-color tint set by FullCalendar. See calendar.css
+          // `.fc-event.event-completed` (uses background-image overlay).
           if (info.event.extendedProps.completed) {
             el.classList.add("event-completed");
-            el.style.opacity = "0.6";
-            el.style.textDecoration = "line-through";
-            el.style.filter = "grayscale(50%)";
-
-            const titleEl = el.querySelector(".fc-event-title");
-            if (titleEl) {
-              titleEl.style.textDecoration = "line-through";
-              titleEl.style.textDecorationThickness = "2px";
-            }
-
-            const timeEl = el.querySelector(".fc-event-time");
-            if (timeEl) timeEl.style.opacity = "0.6";
           }
 
-          // Show note as small text inside event
-          const note = info.event.extendedProps.note;
-          if (note) {
+          // Show note under title if exists
+          const noteText = info.event.extendedProps.note;
+          if (noteText) {
             const noteEl = document.createElement("div");
-            noteEl.className = "fc-event-note";
-            noteEl.textContent = note;
-            noteEl.style.cssText = "font-size:10px;font-style:italic;opacity:0.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;font-family:var(--np-font-ui,'Inter',sans-serif);color:var(--np-text-muted,#6b5f4a);";
-            // Append after title
-            const mainFrame = el.querySelector(".fc-event-main") || el.querySelector(".fc-event-title-container") || el;
-            mainFrame.appendChild(noteEl);
+            noteEl.style.cssText = "font-size:9px;opacity:0.8;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:relative;z-index:2;margin-top:1px;";
+            noteEl.textContent = noteText;
+            const titleEl = el.querySelector(".fc-event-title") || el.querySelector(".fc-event-main");
+            if (titleEl) titleEl.appendChild(noteEl);
+          }
+
+          // Subtask overlay — unified chip style, anchored to bottom of event.
+          // Single size/position for all subtasks so the parent title + time stay visible.
+          const subtasks = info.event.extendedProps.subtasks || [];
+          if (subtasks.length > 0) {
+            if (getComputedStyle(el).position === "static") el.style.position = "relative";
+
+            const stack = document.createElement("div");
+            stack.className = "fc-event-subtask-stack";
+            stack.style.cssText = "position:absolute;left:4px;right:4px;bottom:4px;display:flex;flex-direction:column;gap:3px;z-index:4;pointer-events:none;";
+
+            const MAX = 3;
+            subtasks.slice(0, MAX).forEach((s) => {
+              const chip = document.createElement("div");
+              chip.style.cssText = `font-size:10px;line-height:1.3;padding:3px 6px;border-radius:4px;background:rgba(255,255,255,0.94);color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,0.12);${s.is_done ? "text-decoration:line-through;color:#64748b;" : ""}`;
+              let timeLabel = "";
+              if (s.start_at && s.end_at) {
+                const fmt = (iso) => {
+                  const d = new Date(iso);
+                  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+                };
+                timeLabel = `${fmt(s.start_at)}–${fmt(s.end_at)} `;
+              }
+              chip.textContent = `${s.is_done ? "✓ " : "• "}${timeLabel}${s.title}`;
+              chip.title = `${s.title}${timeLabel ? "\n" + timeLabel.trim() : ""}${s.note ? "\n" + s.note : ""}`;
+              stack.appendChild(chip);
+            });
+            if (subtasks.length > MAX) {
+              const more = document.createElement("div");
+              more.style.cssText = "font-size:10px;padding:2px 6px;color:#fff;font-weight:700;background:rgba(0,0,0,0.25);border-radius:4px;";
+              more.textContent = `+${subtasks.length - MAX} minitask nữa`;
+              stack.appendChild(more);
+            }
+            el.appendChild(stack);
+            el.style.overflow = "visible";
           }
 
           // Tooltip
@@ -488,7 +529,7 @@
               hour: "2-digit",
               minute: "2-digit",
             }) || "";
-          el.title = `${info.event.title}\n${start} - ${end}${note ? "\n" + note : ""}`;
+          el.title = `${info.event.title}${noteText ? "\n" + noteText : ""}\n${start} - ${end}`;
         },
         views: {
           dayGridMonth: { dayMaxEventRows: 4 },
@@ -503,8 +544,6 @@
       this.initMiniCalendar();
 
       this.setupDropZone();
-
-
     },
 
     hasTimeConflict(newEvent, excludeTempEvents = true) {
@@ -521,9 +560,6 @@
         const e2 = ev.end || new Date(s2.getTime() + 3600000);
 
         if (s1 < e2 && e1 > s2) {
-
-
-
           return true;
         }
       }
@@ -544,99 +580,91 @@
     async _handleEventReceive(info) {
       try {
         const draggedEl = info.draggedEl;
-        let taskId, title, color, priority, duration;
+        let taskId, title, color, priority, duration, hasFixedTime, fixedStart, fixedEnd;
 
         if (draggedEl) {
           taskId = draggedEl.dataset.taskId;
           title = draggedEl.dataset.taskTitle || "Công việc";
+          color = draggedEl.dataset.taskColor || "#3B82F6";
           priority = parseInt(draggedEl.dataset.taskPriority) || 2;
           duration = parseInt(draggedEl.dataset.taskDuration) || 60;
-          color = this.getPriorityColor(priority);
+          hasFixedTime = draggedEl.dataset.hasFixedTime === "true";
+          fixedStart = draggedEl.dataset.fixedStart || "";
+          fixedEnd = draggedEl.dataset.fixedEnd || "";
         } else {
           taskId = info.jsEvent?.dataTransfer?.getData("text/plain");
           const jsonData = info.jsEvent?.dataTransfer?.getData("application/json");
           if (jsonData) {
             const data = JSON.parse(jsonData);
             title = data.title || "Công việc";
+            color = data.color || "#3B82F6";
             priority = data.priority || 2;
             duration = data.duration || 60;
+            hasFixedTime = data.hasFixedTime || false;
+            fixedStart = data.fixedStart || "";
+            fixedEnd = data.fixedEnd || "";
           } else {
             duration = 60;
-            priority = 2;
           }
-          color = this.getPriorityColor(priority);
         }
 
+        // Priority is the single source of truth — ensures dropped task matches existing events.
+        color = this.getPriorityColor(priority);
+
         if (!taskId) {
-          console.error("No taskId found in drag data");
           info.event.remove();
           Utils.showToast?.("Lỗi: Không tìm thấy ID công việc", "error");
           return;
+        }
+
+        // If task has fixed time, show choice dialog
+        if (hasFixedTime && fixedStart) {
+          const useFixed = await this._showFixedTimeChoice(title, fixedStart, fixedEnd);
+          if (useFixed) {
+            // Use fixed time instead of drop position
+            const fStart = new Date(fixedStart);
+            const fEnd = fixedEnd ? new Date(fixedEnd) : new Date(fStart.getTime() + duration * 60 * 1000);
+            info.event.setStart(fStart);
+            info.event.setEnd(fEnd);
+
+            await this.saveDroppedEvent(taskId, title, color, fStart, fEnd, priority, duration);
+            return;
+          }
         }
 
         const start = info.event.start;
         const end = new Date(start.getTime() + duration * 60 * 1000);
         info.event.setEnd(end);
 
-        // Phase 04: Check if task is fixed → show options popup
-        await this._handleTaskDrop(taskId, title, color, start, end, priority, duration, info.event);
+        const existingEvents = this.calendar.getEvents();
+        const hasConflict = existingEvents.some((existingEvent) => {
+          if (existingEvent.id === info.event.id) return false;
+          if (existingEvent.id?.startsWith("temp-")) return false;
+
+          const s1 = start;
+          const e1 = end;
+          const s2 = existingEvent.start;
+          const e2 = existingEvent.end || new Date(s2.getTime() + duration * 60 * 1000);
+
+          return s1 < e2 && e1 > s2;
+        });
+
+        if (hasConflict) {
+          Utils.showToast?.("Thời gian này đã có sự kiện khác!", "error");
+          info.event.remove();
+          return;
+        }
+
+        await this.saveDroppedEvent(taskId, title, color, start, end, priority, duration);
       } catch (err) {
-        console.error("Event receive error:", err);
+        console.error(" Event receive error:", err);
         info.event.remove();
         Utils.showToast?.("Lỗi kéo thả công việc", "error");
       }
     },
 
-    // Handle task drop — remove temp event from eventReceive then save to LichTrinh
-    async _handleTaskDrop(taskId, title, color, start, end, priority, duration, calEvent) {
-      try {
-        // Remove the temp event created by FullCalendar's eventReceive
-        if (calEvent) calEvent.remove();
-        await this.saveTaskInstance(taskId, title, color, start, end, priority);
-      } catch (err) {
-        console.error("Error in _handleTaskDrop:", err);
-        if (calEvent) calEvent.remove();
-        Utils.showToast?.("Lỗi xử lý kéo thả", "error");
-      }
-    },
-
-    // Phase 04: Small inline popup for fixed task drop choice
-    _showFixedTaskDropPopup(task, dropInfo, onChoice, onCancel) {
-      document.getElementById("np-fixed-drop-popup")?.remove();
-
-      const html = `
-      <div id="np-fixed-drop-popup" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[9999]">
-        <div class="bg-white border-2 border-gray-800 shadow-[4px_4px_0_#1a1a1a] rounded-sm max-w-sm w-full mx-4 p-5">
-          <p class="font-bold text-gray-900 mb-1" style="font-family:'Playfair Display',serif">Xếp lịch công việc cố định</p>
-          <p class="text-sm text-gray-600 mb-4">"${task.TieuDe || "Công việc"}" có lịch cố định. Chọn cách xếp:</p>
-          <div class="flex flex-col gap-2">
-            <button id="np-drop-custom" class="py-2 px-4 border-2 border-gray-800 text-sm font-semibold text-gray-800 hover:bg-gray-800 hover:text-white transition-colors">
-              Xếp lịch tuỳ chọn (dùng thời điểm kéo thả)
-            </button>
-            <button id="np-drop-fixed" class="py-2 px-4 bg-gray-800 text-sm font-semibold text-white hover:bg-gray-900 transition-colors">
-              Xếp theo lịch cố định
-            </button>
-            <button id="np-drop-cancel" class="py-1 text-xs text-gray-400 hover:text-gray-600">Huỷ</button>
-          </div>
-        </div>
-      </div>`;
-
-      document.body.insertAdjacentHTML("beforeend", html);
-
-      const close = () => document.getElementById("np-fixed-drop-popup")?.remove();
-
-      document.getElementById("np-drop-custom").onclick = () => { close(); onChoice(false); };
-      document.getElementById("np-drop-fixed").onclick  = () => { close(); onChoice(true); };
-      document.getElementById("np-drop-cancel").onclick = () => { close(); onCancel(); };
-      document.getElementById("np-fixed-drop-popup").addEventListener("click", (e) => {
-        if (e.target.id === "np-fixed-drop-popup") { close(); onCancel(); }
-      });
-    },
-
     async _handleEventUpdate(info) {
       try {
-
-
         const eventId = info.event.id;
         if (!eventId) {
           throw new Error("Event không có ID");
@@ -657,14 +685,11 @@
           eventId.toString().startsWith("temp-") ||
           eventId.toString().startsWith("drag-")
         ) {
-
-
           return;
         }
 
         const eventIdNum = parseInt(eventId, 10);
         if (isNaN(eventIdNum)) {
-          console.warn(` Event ID ${eventId} không hợp lệ, chỉ cập nhật local`);
           return;
         }
 
@@ -683,8 +708,6 @@
           end: newEnd.toISOString(),
         };
 
-
-
         const result = await Utils.makeRequest(
           `/api/calendar/events/${eventIdNum}`,
           "PUT",
@@ -696,7 +719,6 @@
         }
 
         Utils.showToast?.("Đã cập nhật thời gian sự kiện", "success");
-
         const eventElement = document.querySelector(
           `[data-event-id="${eventId}"]`
         );
@@ -707,6 +729,11 @@
           }, 1500);
         }
 
+        // Minitask ownership is time-slot based: after the event moves, any
+        // minitask whose absolute [start_at,end_at] now falls outside this
+        // event should detach, and minitasks whose slot is now inside this
+        // (or any other) event should attach. Rebuild from fresh data.
+        this.refreshEventsInPlace().catch(() => {});
 
       } catch (error) {
         console.error(" Error in eventUpdate:", error);
@@ -729,11 +756,8 @@
     },
 
     setupDropZone() {
-
-
       const calendarEl = document.getElementById("calendar");
       if (!calendarEl) {
-        console.error(" Calendar element not found");
         return;
       }
 
@@ -766,8 +790,8 @@
       const style = document.createElement("style");
       style.textContent = `
     .drop-zone-active {
-      background-color: rgba(59, 130, 246, 0.1) !important;
-      border: 2px dashed #3b82f6 !important;
+      background-color: rgba(239, 68, 68, 0.1) !important;
+      border: 2px dashed #ef4444 !important;
     }
     .task-item.dragging {
       opacity: 0.7;
@@ -791,18 +815,13 @@
             e.clientY <= calendarRect.bottom;
 
           if (isOverCalendar) {
-
             e.preventDefault();
             this.handleDrop(e);
           }
         };
 
         document.addEventListener("drop", this._docDropListener);
-      } catch (e) {
-        console.warn("Could not attach document-level drop listener:", e);
-      }
-
-
+      } catch (e) {}
     },
 
     handleDragOver(e) {
@@ -826,7 +845,6 @@
 
     async handleDrop(e) {
       if (this._handlingDrop) {
-
         return;
       }
       this._handlingDrop = true;
@@ -839,8 +857,6 @@
           calendarEl.classList.remove("drop-zone-active");
         }
 
-
-
         let taskId = e.dataTransfer.getData("text/plain");
         let taskData = {};
 
@@ -848,9 +864,7 @@
         if (jsonData) {
           try {
             taskData = JSON.parse(jsonData);
-          } catch (err) {
-            console.warn("Could not parse JSON drag data:", err);
-          }
+          } catch (err) {}
         }
 
         if (!taskId) {
@@ -858,8 +872,6 @@
         }
 
         if (!taskId) {
-          console.error("❌ No task ID found in drop data");
-
           return;
         }
 
@@ -867,8 +879,6 @@
         const color = taskData.color || "#3B82F6";
         const durationMinutes = taskData.duration || 60;
         const priority = taskData.priority || 2;
-
-
 
         const calendar = this.calendar;
 
@@ -894,12 +904,7 @@
           dropDate.setMinutes(0);
           dropDate.setSeconds(0);
           dropDate.setMilliseconds(0);
-        } catch (err) {
-          console.warn(
-            "Could not calculate drop position, using current time:",
-            err
-          );
-        }
+        } catch (err) {}
 
         // ✅ TẠO endDate NGAY TỪ ĐẦU
         const startDate = dropDate;
@@ -924,8 +929,6 @@
             priority: priority,
           },
         };
-
-
 
         const existingEvents = calendar.getEvents();
         const hasConflict = existingEvents.some((existingEvent) => {
@@ -958,72 +961,172 @@
           durationMinutes
         );
       } catch (error) {
-        console.error("❌ Drop error:", error);
+        console.error("Drop error:", error);
         Utils.showToast?.("Lỗi khi kéo thả công việc", "error");
       } finally {
         this._handlingDrop = false;
       }
     },
 
-    // Save task to calendar via LichTrinh
-    async saveTaskInstance(taskId, title, color, start, end, priority = 2) {
+    async saveDroppedEvent(
+      taskId,
+      title,
+      color,
+      start,
+      end,
+      priority = 2,
+      duration = 60
+    ) {
       try {
-        const res = await Utils.makeRequest('/api/calendar/events', 'POST', {
+        // Color is derived from priority at render time — no need to persist MauSac.
+        const eventData = {
           MaCongViec: parseInt(taskId),
           TieuDe: title,
           GioBatDau: start.toISOString(),
           GioKetThuc: end.toISOString(),
-          GhiChu: '',
-          AI_DeXuat: false,
-        });
+          MucDoUuTien: priority,
+          AI_DeXuat: 0,
+        };
+
+        const res = await Utils.makeRequest(
+          "/api/calendar/events",
+          "POST",
+          eventData
+        );
 
         if (res.success) {
-          const newEventId = res.eventId || `evt-${Date.now()}`;
+          const newEventId =
+            res.eventId || res.data?.MaLichTrinh || res.data?.id;
 
-          // Remove any temp placeholder before adding real event
-          this.calendar.getEvents()
-            .filter((e) => e.id?.startsWith('temp-') || e.id?.startsWith('drag-'))
-            .forEach((e) => e.remove());
+          const events = this.calendar.getEvents();
+          let tempEvent = events.find((e) => e.id === `drag-${taskId}`);
 
-          this.calendar.addEvent({
-            id: newEventId,
-            title: title,
-            start: start,
-            end: end,
-            backgroundColor: color,
-            borderColor: color,
-            allDay: false,
-            editable: true,
-            extendedProps: {
-              instanceId: newEventId,
-              taskId: parseInt(taskId),
-              priority: priority,
-              completed: false,
-              isFromDrag: true,
-            },
+          if (!tempEvent) {
+            tempEvent = events.find(
+              (e) => e.id?.startsWith(`temp-`) || e.id?.startsWith(`drag-`)
+            );
+          }
+
+          if (tempEvent) {
+            // ✅ SỬ DỤNG setStart/setEnd THAY VÌ setProp
+            tempEvent.setProp("id", newEventId);
+            tempEvent.setStart(start);
+            tempEvent.setEnd(end);
+            tempEvent.setProp("backgroundColor", color);
+            tempEvent.setProp("borderColor", color);
+            tempEvent.setExtendedProp("taskId", taskId);
+            tempEvent.setExtendedProp("isFromDrag", true);
+            tempEvent.setExtendedProp("priority", priority);
+            tempEvent.setExtendedProp("completed", false);
+
+            tempEvent.setProp("editable", true);
+            tempEvent.setProp("durationEditable", true);
+            tempEvent.setProp("startEditable", true);
+
+          }
+
+          await Utils.makeRequest(`/api/tasks/${taskId}`, "PUT", {
+            TrangThaiThucHien: 1,
           });
 
           Utils.showToast?.("Đã lên lịch thành công!", "success");
+
+          if (window.loadUserTasks) {
+            window.loadUserTasks(true);
+          }
+
           this.triggerSidebarRefresh();
         } else {
           throw new Error(res.message || "Lỗi thêm vào lịch");
         }
       } catch (error) {
-        console.error("Error saving task instance:", error);
-        this.calendar?.getEvents()
-          .filter((e) => e.id?.startsWith("temp-") || e.id?.startsWith("drag-"))
-          .forEach((e) => e.remove());
+        console.error("Error saving dropped event:", error);
+
+        const events = this.calendar.getEvents();
+        const tempEvent = events.find((e) => e.id?.startsWith(`temp-`));
+        if (tempEvent) {
+          tempEvent.remove();
+        }
+
         Utils.showToast?.(error.message || "Lỗi khi lưu sự kiện", "error");
       }
     },
 
-    // Legacy alias kept for handleDrop compatibility
-    async saveDroppedEvent(taskId, title, color, start, end, priority = 2, duration = 60) {
-      return this.saveTaskInstance(taskId, title, color, start, end, priority);
+    _showInlineNewCategory(reloadCallback) {
+      const existing = document.getElementById("inlineNewCatPopup");
+      if (existing) { existing.remove(); return; }
+      const popup = document.createElement("div");
+      popup.id = "inlineNewCatPopup";
+      popup.className = "fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[10001]";
+      popup.innerHTML = `
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-xs mx-4 p-5 space-y-3">
+          <h4 class="font-bold text-sm text-gray-800">Tạo danh mục mới</h4>
+          <input type="text" id="newCatName" placeholder="Tên danh mục *" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
+          <input type="text" id="newCatDesc" placeholder="Mô tả (không bắt buộc)" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
+          <div class="flex gap-2">
+            <button id="cancelNewCat" class="flex-1 py-2 border border-gray-200 rounded-lg text-gray-600 text-sm font-medium hover:bg-gray-50">Hủy</button>
+            <button id="saveNewCat" class="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold">Tạo</button>
+          </div>
+        </div>`;
+      document.body.appendChild(popup);
+      popup.addEventListener("click", (e) => { if (e.target === popup) popup.remove(); });
+      document.getElementById("cancelNewCat").onclick = () => popup.remove();
+      document.getElementById("saveNewCat").onclick = async () => {
+        const name = document.getElementById("newCatName").value.trim();
+        if (!name) { document.getElementById("newCatName").style.borderColor = "#ef4444"; return; }
+        const desc = document.getElementById("newCatDesc").value.trim();
+        try {
+          const res = await Utils.makeRequest("/api/categories", "POST", { TenLoai: name, MoTa: desc });
+          if (res.success) {
+            Utils.showToast?.("Đã tạo danh mục", "success");
+            popup.remove();
+            if (reloadCallback) reloadCallback();
+          } else { Utils.showToast?.(res.message || "Lỗi", "error"); }
+        } catch (err) { Utils.showToast?.("Lỗi tạo danh mục", "error"); }
+      };
+      document.getElementById("newCatName").focus();
+    },
+
+    _showFixedTimeChoice(title, fixedStart, fixedEnd) {
+      return new Promise((resolve) => {
+        const fStart = new Date(fixedStart);
+        const startLabel = fStart.toLocaleString("vi-VN", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" });
+        const html = `
+        <div id="fixedTimeChoiceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
+            <div class="bg-gradient-to-r from-slate-700 to-slate-800 px-5 py-3">
+              <h3 class="text-white font-bold text-sm">Xếp lịch: ${title}</h3>
+            </div>
+            <div class="p-5 space-y-3">
+              <p class="text-xs text-gray-500">Công việc này có thời gian cố định: <strong>${startLabel}</strong></p>
+              <button id="useFixedTimeBtn" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm transition">
+                Xếp theo lịch cố định
+              </button>
+              <button id="useCustomTimeBtn" class="w-full py-2.5 border-2 border-gray-200 rounded-xl text-gray-600 font-medium text-sm hover:bg-gray-50 transition">
+                Xếp lịch tuỳ chọn
+              </button>
+            </div>
+          </div>
+        </div>`;
+        document.body.insertAdjacentHTML("beforeend", html);
+        document.getElementById("useFixedTimeBtn").onclick = () => {
+          document.getElementById("fixedTimeChoiceModal")?.remove();
+          resolve(true);
+        };
+        document.getElementById("useCustomTimeBtn").onclick = () => {
+          document.getElementById("fixedTimeChoiceModal")?.remove();
+          resolve(false);
+        };
+        document.getElementById("fixedTimeChoiceModal").addEventListener("click", (e) => {
+          if (e.target.id === "fixedTimeChoiceModal") {
+            document.getElementById("fixedTimeChoiceModal")?.remove();
+            resolve(false);
+          }
+        });
+      });
     },
 
     triggerSidebarRefresh() {
-
 
       document.dispatchEvent(
         new CustomEvent("task-scheduled", {
@@ -1042,13 +1145,10 @@
         setTimeout(() => {
           localStorage.removeItem("__calendar_refresh");
         }, 100);
-      } catch (e) {
-
-      }
+      } catch (e) {}
     },
 
     linkWorkTasksToCalendar() {
-
 
       const workTasks = document.querySelectorAll(
         "#work-items-container .work-item"
@@ -1079,194 +1179,94 @@
     },
 
     // ==========================================================
-    // Phase 04/05: Drag-to-create date select handler
-    // Stores prefill in window.__pendingTaskPrefill & dispatches event.
-    // Opens full create-task modal (Phase 05) with prefilled times.
-    // ==========================================================
-    _handleDateSelect(start, end) {
-      // Always use simple quick-create modal from calendar
-      this._showQuickCreateModal(start, end, false);
-    },
-
-    // Update event time on drag/resize via LichTrinh
-    async _handleInstanceUpdate(info) {
-      try {
-        const event = info.event;
-        const eventId = event.extendedProps?.instanceId || event.id;
-
-        if (!eventId) {
-          throw new Error("Sự kiện không có ID");
-        }
-
-        // Skip temp events (not yet persisted)
-        if (String(eventId).startsWith("temp-") || String(eventId).startsWith("drag-") || String(eventId).startsWith("evt-")) {
-          return;
-        }
-
-        const newStart = event.start;
-        const newEnd = event.end || new Date(newStart.getTime() + 60 * 60 * 1000);
-
-        // Extract numeric ID from "lt_123" format used by LichTrinh fallback
-        const numericId = String(eventId).startsWith("lt_") ? eventId.slice(3) : eventId;
-
-        Utils.showToast?.("Đang cập nhật thời gian...", "info");
-
-        const result = await Utils.makeRequest(
-          `/api/calendar/events/${numericId}`,
-          "PUT",
-          {
-            start: newStart.toISOString(),
-            end: newEnd.toISOString(),
-          }
-        );
-
-        if (!result.success) {
-          throw new Error(result.message || "Cập nhật thất bại");
-        }
-
-        Utils.showToast?.("Đã cập nhật thời gian", "success");
-      } catch (error) {
-        console.error("Error updating event:", error);
-        Utils.showToast?.(error.message || "Lỗi cập nhật", "error");
-        info.revert();
-      }
-    },
-
-    // ==========================================================
-    // QUICK CREATE MODAL — newspaper-themed, simple task creation
+    // QUICK CREATE MODAL - Kéo thả trên lịch để tạo công việc
     // ==========================================================
     _showQuickCreateModal(start, end, allDay) {
       const startISO = start instanceof Date ? start.toISOString() : start;
       const endISO = end instanceof Date ? end.toISOString() : end;
-      const startLabel = start instanceof Date
-        ? start.toLocaleString("vi-VN", { weekday:"short", day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })
-        : startISO;
-      const endLabel = end instanceof Date
-        ? end.toLocaleTimeString("vi-VN", { hour:"2-digit", minute:"2-digit" })
-        : "";
+      const startDate = new Date(startISO);
+      const endDate = new Date(endISO);
+      const initialDurationMin = Math.max(15, Math.round((endDate - startDate) / 60000) || 60);
+
+      const fmtDate = (d) => d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+      const fmtTime = (d) => d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+      const sameDay = startDate.toDateString() === endDate.toDateString();
+      const initialTimeLabel = sameDay
+        ? `${fmtDate(startDate)} · ${fmtTime(startDate)} – ${fmtTime(endDate)}`
+        : `${fmtDate(startDate)} ${fmtTime(startDate)} → ${fmtDate(endDate)} ${fmtTime(endDate)}`;
 
       document.getElementById("quickCreateModal")?.remove();
 
-      const html = `
-      <div id="quickCreateModal" class="fixed inset-0 flex items-center justify-center z-[9999]"
-           style="background:rgba(0,0,0,0.5)">
-        <div style="background:var(--np-bg-card,#faf7f2);border:1.5px solid var(--np-border,#1a1a1a);
-                    border-radius:var(--np-radius,2px);box-shadow:var(--np-shadow,4px 4px 0 #1a1a1a);
-                    width:100%;max-width:420px;margin:0 1rem;">
-
-          <!-- Header -->
-          <div style="padding:0.75rem 1rem;border-bottom:2px solid var(--np-border,#1a1a1a);
-                      display:flex;justify-content:space-between;align-items:center;">
-            <h3 style="font-family:var(--np-font-heading,'Playfair Display',serif);font-size:1.1rem;
-                       font-weight:700;color:var(--np-text,#1a1a1a);margin:0;">Tạo công việc</h3>
-            <button id="closeQuickCreate" style="background:none;border:none;cursor:pointer;
-                    font-size:1.2rem;color:var(--np-text-muted,#6b5f4a)">&times;</button>
+      // Priority options — rendered dynamically from PriorityTheme so user colors apply.
+      const priorityLabels = { 1: "Thấp", 2: "Trung bình", 3: "Cao", 4: "Rất cao" };
+      const priorityColor = (p) => this.getPriorityColor(p);
+      const priorityOptsHtml = [1, 2, 3, 4].map((p) => `
+        <label class="cursor-pointer">
+          <input type="radio" name="qc-priority" value="${p}" class="hidden"${p === 2 ? " checked" : ""} />
+          <div class="priority-opt rounded-xl py-2 text-center text-xs font-semibold border-2 transition-all"
+            data-p="${p}"
+            style="background:${priorityColor(p)}11;color:${priorityColor(p)};border-color:${p === 2 ? priorityColor(p) : "transparent"}">
+            ${priorityLabels[p]}
           </div>
+        </label>
+      `).join("");
 
-          <!-- Body -->
-          <div style="padding:1rem;display:flex;flex-direction:column;gap:0.75rem;">
-            <!-- Time info -->
-            <div style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.75rem;
-                        color:var(--np-text-muted,#6b5f4a);letter-spacing:0.05em;
-                        padding:0.4rem 0;border-bottom:1px solid var(--np-border-muted,#c8b99a);">
-              ${startLabel}${endLabel ? ' — ' + endLabel : ''}
+      const html = `
+      <div id="quickCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+          <div class="bg-gradient-to-r from-red-600 to-indigo-600 px-6 py-4 flex justify-between items-center">
+            <h3 class="text-white font-bold text-lg flex items-center gap-2">
+              <i class="fas fa-plus-circle"></i> Tạo công việc mới
+            </h3>
+            <button id="closeQuickCreate" class="text-white/70 hover:text-white text-xl">&times;</button>
+          </div>
+          <div class="px-6 py-5 space-y-4">
+            <div id="qc-time-display" class="bg-red-50 rounded-lg px-4 py-2 text-sm text-red-700 flex items-center gap-2">
+              <i class="fas fa-clock"></i> <span id="qc-time-label">${initialTimeLabel}</span>
             </div>
 
-            <!-- Title -->
-            <input type="text" id="qc-title" placeholder="Tên công việc *"
-              style="font-family:var(--np-font-body,'Merriweather',serif);font-size:0.9rem;
-                     padding:0.5rem 0.25rem;border:none;border-bottom:1.5px solid var(--np-border-muted,#c8b99a);
-                     background:transparent;color:var(--np-text,#1a1a1a);outline:none;width:100%;" />
-
-            <!-- Note -->
-            <textarea id="qc-note" placeholder="Ghi chú" rows="2"
-              style="font-family:var(--np-font-body,'Merriweather',serif);font-size:0.85rem;
-                     padding:0.4rem 0.25rem;border:none;border-bottom:1.5px solid var(--np-border-muted,#c8b99a);
-                     background:transparent;color:var(--np-text,#1a1a1a);outline:none;width:100%;resize:none;"></textarea>
-
-            <!-- Priority -->
             <div>
-              <span style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.65rem;
-                           font-weight:500;letter-spacing:0.1em;text-transform:uppercase;
-                           color:var(--np-text-muted,#6b5f4a);">Ưu tiên</span>
-              <div style="display:flex;gap:0.4rem;margin-top:0.3rem;" id="qc-priority-group">
-                <label style="flex:1;cursor:pointer">
-                  <input type="radio" name="qc-priority" value="1" style="display:none" />
-                  <div class="priority-opt" style="text-align:center;padding:0.3rem;font-size:0.7rem;
-                       font-weight:500;border:1px solid #8a9a5b;color:#8a9a5b;border-radius:2px;">Thấp</div>
-                </label>
-                <label style="flex:1;cursor:pointer">
-                  <input type="radio" name="qc-priority" value="2" style="display:none" checked />
-                  <div class="priority-opt" style="text-align:center;padding:0.3rem;font-size:0.7rem;
-                       font-weight:500;border:2px solid #4a6fa5;color:#4a6fa5;background:rgba(74,111,165,0.08);border-radius:2px;">TB</div>
-                </label>
-                <label style="flex:1;cursor:pointer">
-                  <input type="radio" name="qc-priority" value="3" style="display:none" />
-                  <div class="priority-opt" style="text-align:center;padding:0.3rem;font-size:0.7rem;
-                       font-weight:500;border:1px solid #c97b3c;color:#c97b3c;border-radius:2px;">Cao</div>
-                </label>
-                <label style="flex:1;cursor:pointer">
-                  <input type="radio" name="qc-priority" value="4" style="display:none" />
-                  <div class="priority-opt" style="text-align:center;padding:0.3rem;font-size:0.7rem;
-                       font-weight:500;border:1px solid #a83232;color:#a83232;border-radius:2px;">Khẩn</div>
-                </label>
+              <input type="text" id="qc-title" placeholder="Tên công việc *"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:outline-none text-gray-800 font-medium" />
+            </div>
+
+            <div>
+              <textarea id="qc-note" placeholder="Ghi chú (không bắt buộc)" rows="2"
+                class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:outline-none text-gray-700 resize-none"></textarea>
+            </div>
+
+            <div>
+              <p class="text-sm font-semibold text-gray-600 mb-2">Độ ưu tiên</p>
+              <div class="grid grid-cols-4 gap-2" id="qc-priority-group">
+                ${priorityOptsHtml}
               </div>
             </div>
 
-            <!-- Duration -->
-            <div style="display:flex;align-items:center;gap:0.5rem;">
-              <span style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.65rem;
-                           font-weight:500;letter-spacing:0.1em;text-transform:uppercase;
-                           color:var(--np-text-muted,#6b5f4a);flex-shrink:0;">Thời gian</span>
-              <input type="range" id="qc-duration" value="60" min="15" max="480" step="15"
-                style="flex:1;accent-color:var(--np-accent,#8b0000);" />
-              <span id="qc-duration-label" style="font-family:var(--np-font-ui,'Inter',sans-serif);
-                    font-size:0.75rem;font-weight:600;color:var(--np-accent,#8b0000);min-width:50px;
-                    text-align:right;">60 phút</span>
-            </div>
-
-            <!-- Fixed time toggle -->
             <div>
-              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-                <input type="checkbox" id="qc-fixed" style="accent-color:var(--np-accent,#8b0000);" />
-                <span style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.75rem;
-                             color:var(--np-text,#1a1a1a);">Thời gian cố định</span>
+              <label class="text-sm font-semibold text-gray-600 mb-2 block flex items-center gap-1">
+                <i class="fas fa-tag text-purple-400 text-xs"></i> Loại công việc
               </label>
-              <div id="qc-fixed-times" style="display:none;margin-top:0.4rem;gap:0.5rem;align-items:center;">
-                <input type="time" id="qc-fixed-start" style="font-size:0.8rem;padding:0.25rem;
-                       border:1px solid var(--np-border-muted,#c8b99a);background:transparent;
-                       color:var(--np-text,#1a1a1a);border-radius:2px;" />
-                <span style="color:var(--np-text-muted,#6b5f4a);font-size:0.8rem;">—</span>
-                <input type="time" id="qc-fixed-end" style="font-size:0.8rem;padding:0.25rem;
-                       border:1px solid var(--np-border-muted,#c8b99a);background:transparent;
-                       color:var(--np-text,#1a1a1a);border-radius:2px;" />
-              </div>
-            </div>
-
-            <!-- Category -->
-            <div>
-              <span style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.65rem;
-                           font-weight:500;letter-spacing:0.1em;text-transform:uppercase;
-                           color:var(--np-text-muted,#6b5f4a);">Danh mục</span>
-              <div id="qc-category-chips" style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.3rem;min-height:24px;">
-                <span style="font-size:0.7rem;color:var(--np-text-muted,#6b5f4a);font-style:italic;">Đang tải...</span>
+              <div id="qc-category-chips" class="flex flex-wrap gap-2 min-h-[36px]">
+                <span class="text-xs text-gray-400 italic">Đang tải...</span>
               </div>
               <input type="hidden" id="qc-category" value="" />
             </div>
-          </div>
 
-          <!-- Footer -->
-          <div style="padding:0.75rem 1rem;border-top:1px solid var(--np-border-muted,#c8b99a);
-                      display:flex;gap:0.5rem;">
-            <button id="closeQuickCreate2" style="flex:1;padding:0.5rem;border:1.5px solid var(--np-border,#1a1a1a);
-                    background:transparent;color:var(--np-text,#1a1a1a);cursor:pointer;border-radius:2px;
-                    font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.8rem;font-weight:500;
-                    letter-spacing:0.05em;text-transform:uppercase;">Hủy</button>
-            <button id="saveQuickCreate" style="flex:1;padding:0.5rem;border:1.5px solid var(--np-accent,#8b0000);
-                    background:var(--np-accent,#8b0000);color:#fff;cursor:pointer;border-radius:2px;
-                    font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.8rem;font-weight:500;
-                    letter-spacing:0.05em;text-transform:uppercase;box-shadow:var(--np-shadow-sm,2px 2px 0 #1a1a1a);">
-              Tạo công việc
+            <div>
+              <label class="text-sm font-semibold text-gray-600 mb-1 block flex items-center gap-1">
+                <i class="fas fa-clock text-red-400 text-xs"></i> Thời gian ước tính
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="range" id="qc-duration" value="60" min="15" max="480" step="15"
+                  class="flex-1 accent-red-500" />
+                <span id="qc-duration-label" class="text-sm font-bold text-red-600 w-16 text-right">60 phút</span>
+              </div>
+            </div>
+          </div>
+          <div class="px-6 pb-5 flex gap-3">
+            <button id="closeQuickCreate2" class="flex-1 py-3 border-2 border-gray-200 rounded-xl text-gray-600 font-medium hover:bg-gray-50 transition">Hủy</button>
+            <button id="saveQuickCreate" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition flex items-center justify-center gap-2">
+              <i class="fas fa-plus"></i> Tạo công việc
             </button>
           </div>
         </div>
@@ -1274,81 +1274,93 @@
 
       document.body.insertAdjacentHTML("beforeend", html);
 
-      // Fixed time toggle
-      const fixedCb = document.getElementById("qc-fixed");
-      const fixedTimes = document.getElementById("qc-fixed-times");
-      if (fixedCb && fixedTimes) {
-        fixedCb.addEventListener("change", () => {
-          fixedTimes.style.display = fixedCb.checked ? "flex" : "none";
-        });
-      }
+      // Initial duration slider value (uses the selection length, clamped to slider range).
+      const durSliderInit = document.getElementById("qc-duration");
+      if (durSliderInit) durSliderInit.value = String(Math.min(480, initialDurationMin));
+      const durLabelInit = document.getElementById("qc-duration-label");
+      if (durLabelInit) durLabelInit.textContent = (durSliderInit?.value || "60") + " phút";
 
-      // Priority selector — newspaper colors
-      const priorityColors = { "1":"#8a9a5b","2":"#4a6fa5","3":"#c97b3c","4":"#a83232" };
-      document.querySelectorAll("#qc-priority-group input[type=radio]").forEach(radio => {
+      // Priority selector — uses PriorityTheme so colors follow user customization.
+      document.querySelectorAll("#qc-priority-group input[type=radio]").forEach((radio) => {
         radio.addEventListener("change", () => {
-          document.querySelectorAll("#qc-priority-group .priority-opt").forEach(opt => {
-            opt.style.borderWidth = "1px";
-            opt.style.background = "transparent";
+          document.querySelectorAll("#qc-priority-group .priority-opt").forEach((opt) => {
+            opt.style.borderColor = "transparent";
           });
-          const opt = radio.closest("label").querySelector(".priority-opt");
-          const c = priorityColors[radio.value] || "#4a6fa5";
-          opt.style.borderWidth = "2px";
-          opt.style.borderColor = c;
-          opt.style.background = c + "14";
+          const hex = priorityColor(parseInt(radio.value, 10));
+          radio.closest("label").querySelector(".priority-opt").style.borderColor = hex;
         });
       });
 
-      // Load categories as chips
-      Utils.makeRequest("/api/categories", "GET").then(res => {
-        const chips = document.getElementById("qc-category-chips");
-        const hidden = document.getElementById("qc-category");
-        if (!chips || !res.success || !res.data?.length) {
-          if (chips) chips.innerHTML = '<span class="text-xs text-gray-400 italic">Không có danh mục</span>';
-          return;
-        }
-        chips.innerHTML = "";
-        res.data.forEach((c, i) => {
-          const id = c.MaLoai || c.id;
-          const name = c.TenLoai || c.name || "Không tên";
-          const chip = document.createElement("button");
-          chip.type = "button";
-          chip.dataset.catId = id;
-          chip.style.cssText = "padding:0.15rem 0.5rem;font-size:0.7rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;border:1px solid var(--np-border-muted,#c8b99a);border-radius:2px;background:transparent;color:var(--np-text-muted,#6b5f4a);cursor:pointer;font-family:var(--np-font-ui,'Inter',sans-serif);transition:all 0.12s;";
-          chip.textContent = name;
-          chip.onclick = () => {
-            chips.querySelectorAll("button").forEach(b => {
-              b.style.background = "transparent";
-              b.style.borderColor = "var(--np-border-muted,#c8b99a)";
-              b.style.color = "var(--np-text-muted,#6b5f4a)";
-            });
-            if (hidden.value === String(id)) {
-              hidden.value = "";
-            } else {
-              hidden.value = id;
-              chip.style.background = "var(--np-accent,#8b0000)";
-              chip.style.borderColor = "var(--np-accent,#8b0000)";
-              chip.style.color = "#fff";
-            }
-          };
-          chips.appendChild(chip);
+      // Load categories as chips + add new category button
+      const loadQcCategories = () => {
+        Utils.makeRequest("/api/categories", "GET").then(res => {
+          const chips = document.getElementById("qc-category-chips");
+          const hidden = document.getElementById("qc-category");
+          if (!chips) return;
+          chips.innerHTML = "";
+          const cats = (res.success && res.data?.length) ? res.data : [];
+          const colorsList = ["bg-purple-100 text-purple-700","bg-red-100 text-red-700","bg-green-100 text-green-700","bg-amber-100 text-amber-700","bg-pink-100 text-pink-700","bg-cyan-100 text-cyan-700"];
+          cats.forEach((c, i) => {
+            const id = c.MaLoai || c.id;
+            const name = c.TenLoai || c.name || "Không tên";
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.dataset.catId = id;
+            chip.className = `px-3 py-1 rounded-full text-xs font-semibold border-2 border-transparent transition-all ${colorsList[i % colorsList.length]}`;
+            chip.textContent = name;
+            chip.onclick = () => {
+              chips.querySelectorAll("button:not(.new-cat-btn)").forEach(b => b.classList.remove("ring-2","ring-offset-1","ring-red-500","scale-105"));
+              if (hidden.value === String(id)) { hidden.value = ""; }
+              else { hidden.value = id; chip.classList.add("ring-2","ring-offset-1","ring-red-500","scale-105"); }
+            };
+            chips.appendChild(chip);
+          });
+          // Add "new category" button
+          const newCatBtn = document.createElement("button");
+          newCatBtn.type = "button";
+          newCatBtn.className = "new-cat-btn px-3 py-1 rounded-full text-xs font-semibold border-2 border-dashed border-gray-300 text-gray-400 hover:border-red-400 hover:text-red-500 transition-all";
+          newCatBtn.textContent = "+ Mới";
+          newCatBtn.onclick = () => this._showInlineNewCategory(loadQcCategories);
+          chips.appendChild(newCatBtn);
+        }).catch(() => {
+          const chips = document.getElementById("qc-category-chips");
+          if (chips) chips.innerHTML = '<span class="text-xs text-gray-400 italic">Không tải được</span>';
         });
-      }).catch(() => {
-        const chips = document.getElementById("qc-category-chips");
-        if (chips) chips.innerHTML = '<span class="text-xs text-gray-400 italic">Không tải được danh mục</span>';
-      });
+      };
+      loadQcCategories();
 
-      // Duration slider
+      // Duration slider — also updates the displayed end time so user sees what they're committing to.
       const durSlider = document.getElementById("qc-duration");
       const durLabel = document.getElementById("qc-duration-label");
+      const timeLabelEl = document.getElementById("qc-time-label");
+      const refreshTimeLabel = () => {
+        const mins = parseInt(durSlider?.value || String(initialDurationMin), 10);
+        const newEnd = new Date(startDate.getTime() + mins * 60000);
+        const same = startDate.toDateString() === newEnd.toDateString();
+        if (timeLabelEl) {
+          timeLabelEl.textContent = same
+            ? `${fmtDate(startDate)} · ${fmtTime(startDate)} – ${fmtTime(newEnd)}`
+            : `${fmtDate(startDate)} ${fmtTime(startDate)} → ${fmtDate(newEnd)} ${fmtTime(newEnd)}`;
+        }
+      };
       if (durSlider && durLabel) {
-        durSlider.addEventListener("input", () => { durLabel.textContent = durSlider.value + " phút"; });
+        durSlider.addEventListener("input", () => {
+          durLabel.textContent = durSlider.value + " phút";
+          refreshTimeLabel();
+        });
       }
 
-      const close = () => document.getElementById("quickCreateModal")?.remove();
+      const close = () => {
+        document.removeEventListener("keydown", escHandler);
+        document.getElementById("quickCreateModal")?.remove();
+      };
+      const escHandler = (e) => { if (e.key === "Escape") close(); };
+      document.addEventListener("keydown", escHandler);
       document.getElementById("closeQuickCreate").onclick = close;
       document.getElementById("closeQuickCreate2").onclick = close;
-      document.getElementById("quickCreateModal").addEventListener("click", e => { if (e.target.id === "quickCreateModal") close(); });
+      document.getElementById("quickCreateModal").addEventListener("click", (e) => {
+        if (e.target.id === "quickCreateModal") close();
+      });
 
       document.getElementById("qc-title").focus();
 
@@ -1367,51 +1379,30 @@
 
         const btn = document.getElementById("saveQuickCreate");
         btn.disabled = true;
-        btn.innerHTML = '... Đang tạo...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo...';
 
         try {
-          // Build task data with optional fixed time
-          const isFixed = document.getElementById("qc-fixed")?.checked || false;
-          const taskData = {
+          // 1. Tạo công việc mới
+          const taskRes = await Utils.makeRequest("/api/tasks", "POST", {
             TieuDe: title,
             MoTa: note,
             MucDoUuTien: priority,
             ThoiGianUocTinh: duration,
             ...(categoryId ? { MaLoai: categoryId } : {}),
             TrangThaiThucHien: 1,
-          };
-          if (isFixed) {
-            taskData.CoThoiGianCoDinh = true;
-            const fixedStart = document.getElementById("qc-fixed-start")?.value;
-            const fixedEnd = document.getElementById("qc-fixed-end")?.value;
-            if (fixedStart) {
-              const d = new Date(startISO);
-              const [h, m] = fixedStart.split(":");
-              d.setHours(parseInt(h), parseInt(m), 0, 0);
-              taskData.GioBatDauCoDinh = d.toISOString();
-            }
-            if (fixedEnd) {
-              const d = new Date(startISO);
-              const [h, m] = fixedEnd.split(":");
-              d.setHours(parseInt(h), parseInt(m), 0, 0);
-              taskData.GioKetThucCoDinh = d.toISOString();
-            }
-          }
-
-          const taskRes = await Utils.makeRequest("/api/tasks", "POST", taskData);
+          });
           if (!taskRes.success) throw new Error(taskRes.message || "Lỗi tạo công việc");
 
           const taskId = taskRes.data?.MaCongViec || taskRes.data?.id || taskRes.taskId;
 
-          // 2. Tạo lịch trình
-          const startDate = new Date(startISO);
-          const endDate = new Date(endISO);
+          // 2. Tạo lịch trình — end time honors the duration user set in the modal.
+          const startDateForSave = new Date(startISO);
+          const endDateForSave = new Date(startDateForSave.getTime() + duration * 60000);
           const eventRes = await Utils.makeRequest("/api/calendar/events", "POST", {
             MaCongViec: taskId,
             TieuDe: title,
-            GioBatDau: startDate.toISOString(),
-            GioKetThuc: endDate.toISOString(),
-            MauSac: color,
+            GioBatDau: startDateForSave.toISOString(),
+            GioKetThuc: endDateForSave.toISOString(),
             MucDoUuTien: priority,
             GhiChu: note,
             AI_DeXuat: 0,
@@ -1424,8 +1415,8 @@
           this.calendar.addEvent({
             id: newEventId,
             title,
-            start: startDate,
-            end: endDate,
+            start: startDateForSave,
+            end: endDateForSave,
             backgroundColor: color,
             borderColor: color,
             extendedProps: { note, completed: false, taskId, priority },
@@ -1436,7 +1427,7 @@
           this.triggerSidebarRefresh();
         } catch (err) {
           btn.disabled = false;
-          btn.innerHTML = 'Tạo công việc';
+          btn.innerHTML = '<i class="fas fa-plus"></i> Tạo công việc';
           Utils.showToast?.(err.message || "Lỗi tạo công việc", "error");
         }
       };
@@ -1458,98 +1449,109 @@
         ? event.start.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
         : "";
 
-      const priorityColors = { 1:"#34d399", 2:"#60a5fa", 3:"#fbbf24", 4:"#f87171" };
       const priorityTexts = { 1:"Thấp", 2:"Trung bình", 3:"Cao", 4:"Rất cao" };
       const pri = p.priority || 2;
-      const dotColor = priorityColors[pri] || "#60a5fa";
+      const dotColor = window.PriorityTheme ? PriorityTheme.getColor(pri) : "#3B82F6";
 
       const canComplete = !isFuture || p.completed;
       const completeDisabledAttr = canComplete ? "" : "disabled";
       const completeTitle = isFuture ? "Chưa đến thời gian làm việc" : "";
 
-      const endTimeStr = event.end ? event.end.toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}) : "";
-      const npPriorityColors = { 1:"#8a9a5b", 2:"#4a6fa5", 3:"#c97b3c", 4:"#a83232" };
-      const npPriColor = npPriorityColors[pri] || "#4a6fa5";
-
       const modalHtml = `
-    <div class="fixed inset-0 flex items-center justify-center z-[9998]" id="eventDetailModal"
-         style="background:rgba(0,0,0,0.5)">
-      <div style="background:var(--np-bg-card,#faf7f2);border:1.5px solid var(--np-border,#1a1a1a);
-                  border-radius:var(--np-radius,2px);box-shadow:var(--np-shadow,4px 4px 0 #1a1a1a);
-                  width:100%;max-width:420px;margin:0 1rem;max-height:90vh;overflow-y:auto;">
-
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9998]" id="eventDetailModal">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <!-- Header -->
-        <div style="padding:0.75rem 1rem;border-bottom:2px solid var(--np-border,#1a1a1a);
-                    display:flex;justify-content:space-between;align-items:center;">
-          <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-            <span style="width:10px;height:10px;border-radius:50%;background:${npPriColor};flex-shrink:0;"></span>
-            <h3 style="font-family:var(--np-font-heading,'Playfair Display',serif);font-size:1.1rem;
-                       font-weight:700;color:var(--np-text,#1a1a1a);margin:0;overflow:hidden;
-                       text-overflow:ellipsis;white-space:nowrap;">${event.title}</h3>
+        <div class="bg-gradient-to-r from-slate-700 to-slate-800 px-6 py-4 rounded-t-2xl flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:${dotColor}"></span>
+            <h3 class="text-white font-bold text-lg leading-tight truncate">${event.title}</h3>
           </div>
-          <button id="closeEventDetail" style="background:none;border:none;cursor:pointer;
-                  font-size:1.2rem;color:var(--np-text-muted,#6b5f4a);flex-shrink:0;">&times;</button>
+          <button id="closeEventDetail" class="text-white/60 hover:text-white text-2xl leading-none flex-shrink-0">&times;</button>
         </div>
 
-        <!-- Body -->
-        <div style="padding:1rem;display:flex;flex-direction:column;gap:0.75rem;">
-          <!-- Time info -->
-          <div style="padding:0.5rem 0;border-bottom:1px solid var(--np-border-muted,#c8b99a);">
-            <div style="font-family:var(--np-font-body,'Merriweather',serif);font-size:0.85rem;
-                        color:var(--np-text,#1a1a1a);font-weight:600;">${dateStr}</div>
-            <div style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.8rem;
-                        color:var(--np-text-muted,#6b5f4a);margin-top:2px;">${timeStr} — ${endTimeStr}</div>
+        <div class="p-6 space-y-4">
+          <!-- Thông tin thời gian -->
+          <div class="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
+            <div class="flex items-center gap-2 text-gray-700">
+              <i class="fas fa-calendar-alt text-red-500 w-4"></i>
+              <span class="font-medium">${dateStr}</span>
+              <span class="text-gray-400">|</span>
+              <span>${timeStr} — ${event.end ? event.end.toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}) : ""}</span>
+            </div>
+            ${p.note ? `<div class="flex items-start gap-2 text-gray-600"><i class="fas fa-sticky-note text-amber-400 w-4 mt-0.5"></i><span>${p.note}</span></div>` : ""}
+            <div class="flex items-center gap-2">
+              <i class="fas fa-flag w-4" style="color:${dotColor}"></i>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:${dotColor}22;color:${dotColor}">${priorityTexts[pri]}</span>
+            </div>
           </div>
 
-          <!-- Priority -->
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.7rem;
-                         font-weight:500;letter-spacing:0.08em;text-transform:uppercase;
-                         color:var(--np-text-muted,#6b5f4a);">Ưu tiên:</span>
-            <span style="font-size:0.75rem;font-weight:600;padding:0.15rem 0.5rem;
-                         border:1px solid ${npPriColor};color:${npPriColor};border-radius:2px;">
-              ${priorityTexts[pri]}</span>
+          <!-- Ghi chú -->
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-gray-500" for="eventNoteInput">Ghi chú</label>
+            <textarea id="eventNoteInput" rows="2"
+              class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+              placeholder="Thêm ghi chú...">${p.note || ""}</textarea>
           </div>
 
-          <!-- Note -->
-          <div>
-            <label style="font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.65rem;
-                          font-weight:500;letter-spacing:0.1em;text-transform:uppercase;
-                          color:var(--np-text-muted,#6b5f4a);display:block;margin-bottom:0.25rem;">Ghi chú</label>
-            <textarea id="eventNoteInput" rows="2" placeholder="Thêm ghi chú..."
-              style="width:100%;padding:0.4rem 0.25rem;border:none;
-                     border-bottom:1.5px solid var(--np-border-muted,#c8b99a);
-                     background:transparent;color:var(--np-text,#1a1a1a);
-                     font-family:var(--np-font-body,'Merriweather',serif);font-size:0.85rem;
-                     outline:none;resize:none;">${p.note || ""}</textarea>
+          <!-- Đánh dấu hoàn thành -->
+          <div class="rounded-xl border-2 p-4 ${p.completed ? "border-green-200 bg-green-50" : isFuture ? "border-gray-200 bg-gray-50 opacity-60" : "border-red-100 bg-red-50"}">
+            <label class="flex items-center gap-3 ${canComplete ? "cursor-pointer" : "cursor-not-allowed"}">
+              <input type="checkbox" id="eventCompletedCheckbox"
+                     class="h-5 w-5 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                     ${p.completed ? "checked" : ""} ${completeDisabledAttr}
+                     title="${completeTitle}" />
+              <div>
+                <p class="font-semibold text-gray-800">${p.completed ? "Đã hoàn thành" : "Đánh dấu hoàn thành"}</p>
+                ${isFuture && !p.completed ? '<p class="text-xs text-gray-500 mt-0.5">Chưa đến thời gian làm việc</p>' : ""}
+              </div>
+            </label>
           </div>
 
-          <!-- Complete toggle -->
-          <label style="display:flex;align-items:center;gap:8px;cursor:${canComplete ? "pointer" : "not-allowed"};
-                        padding:0.5rem;border:1px solid var(--np-border-muted,#c8b99a);border-radius:2px;
-                        background:${p.completed ? "rgba(138,154,91,0.1)" : "transparent"};">
-            <input type="checkbox" id="eventCompletedCheckbox"
-                   style="accent-color:var(--np-accent,#8b0000);width:16px;height:16px;"
-                   ${p.completed ? "checked" : ""} ${completeDisabledAttr} title="${completeTitle}" />
-            <span style="font-family:var(--np-font-body,'Merriweather',serif);font-size:0.85rem;
-                         font-weight:600;color:var(--np-text,#1a1a1a);">
-              ${p.completed ? "Đã hoàn thành" : "Đánh dấu hoàn thành"}</span>
-          </label>
-        </div>
+          <!-- Subtasks (minitask) section — stacked cards -->
+          <div class="rounded-xl border p-3" style="border-color:#e2e8f0">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2 text-sm font-semibold" style="color:#1e293b">
+                <i class="fas fa-layer-group" style="color:${dotColor}"></i>
+                Minitask
+                <span id="subtaskCountBadge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style="background:${dotColor}22;color:${dotColor}">0</span>
+              </div>
+              <button id="toggleAddSubtaskBtn" class="text-xs font-semibold px-2 py-1 rounded-lg" style="color:${dotColor};background:${dotColor}11">
+                <i class="fas fa-plus mr-1"></i>Thêm
+              </button>
+            </div>
+            <div id="subtaskList" class="space-y-2">
+              <div class="text-xs italic" style="color:#94a3b8">Đang tải...</div>
+            </div>
 
-        <!-- Footer -->
-        <div style="padding:0.75rem 1rem;border-top:1px solid var(--np-border-muted,#c8b99a);
-                    display:flex;gap:0.5rem;">
-          <button id="saveEventStatus" style="flex:1;padding:0.5rem;
-                  border:1.5px solid var(--np-accent,#8b0000);background:var(--np-accent,#8b0000);
-                  color:#fff;cursor:pointer;border-radius:2px;font-family:var(--np-font-ui,'Inter',sans-serif);
-                  font-size:0.8rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;
-                  box-shadow:var(--np-shadow-sm,2px 2px 0 #1a1a1a);">Lưu</button>
-          <button id="deleteEventBtn" style="padding:0.5rem 1rem;
-                  border:1.5px solid var(--np-accent,#8b0000);background:transparent;
-                  color:var(--np-accent,#8b0000);cursor:pointer;border-radius:2px;
-                  font-family:var(--np-font-ui,'Inter',sans-serif);font-size:0.8rem;font-weight:500;
-                  letter-spacing:0.05em;text-transform:uppercase;">Xóa</button>
+            <!-- Inline add form (hidden by default) -->
+            <div id="addSubtaskForm" class="hidden mt-3 rounded-lg p-3" style="background:#f8fafc;border:1px dashed #cbd5e1">
+              <input type="text" id="subtaskTitleInput" placeholder="Tên minitask *" class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-red-500" style="border-color:#e2e8f0;background:#fff" />
+              <div class="grid grid-cols-2 gap-2 mt-2">
+                <input type="time" step="60" id="subtaskStartInput" class="px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-red-500" style="border-color:#e2e8f0;background:#fff" />
+                <input type="time" step="60" id="subtaskEndInput" class="px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-red-500" style="border-color:#e2e8f0;background:#fff" />
+              </div>
+              <p class="text-[10px] mt-1" style="color:#94a3b8">
+                <i class="fas fa-info-circle mr-1"></i>Giờ và phút. Phải nằm trong thời gian task chính.
+              </p>
+              <textarea id="subtaskNoteInput" rows="2" placeholder="Ghi chú (không bắt buộc)" class="w-full mt-2 px-3 py-2 rounded-lg border text-xs resize-none focus:outline-none focus:ring-2 focus:ring-red-500" style="border-color:#e2e8f0;background:#fff"></textarea>
+              <div class="flex justify-end gap-2 mt-2">
+                <button id="cancelAddSubtaskBtn" class="px-3 py-1.5 text-xs font-semibold rounded-lg" style="background:#f1f5f9;color:#64748b">Huỷ</button>
+                <button id="saveAddSubtaskBtn" class="px-3 py-1.5 text-xs font-semibold text-white rounded-lg" style="background:${dotColor}">Thêm</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-3 pt-2">
+            <button id="saveEventStatus"
+                    class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition flex items-center justify-center gap-2">
+              <i class="fas fa-save"></i> Lưu
+            </button>
+            <button id="deleteEventBtn"
+                    class="py-2.5 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-semibold border border-red-200 transition flex items-center gap-2">
+              <i class="fas fa-trash"></i> Xóa
+            </button>
+          </div>
         </div>
       </div>
     </div>`;
@@ -1577,45 +1579,269 @@
         const confirmed = confirm(`Xóa sự kiện "${event.title}"?\nThao tác này không thể hoàn tác.`);
         if (confirmed) this._deleteEvent(event);
       };
+
+      // Subtasks — load + bind UI. Skip when event has no persisted id (temp-...).
+      const eventIdForSubtasks = parseInt(event.id, 10);
+      if (Number.isFinite(eventIdForSubtasks)) {
+        this._bindSubtaskUi(eventIdForSubtasks, event);
+      } else {
+        const list = document.getElementById("subtaskList");
+        if (list) list.innerHTML = `<div class="text-xs italic" style="color:#94a3b8">Sự kiện chưa được lưu — lưu trước rồi mới thêm minitask.</div>`;
+        document.getElementById("toggleAddSubtaskBtn")?.setAttribute("disabled", "true");
+      }
+    },
+
+    // ---------------------------------------------------------
+    // Subtask UI
+    // ---------------------------------------------------------
+
+    async _loadSubtasks(eventId) {
+      try {
+        // Cache-bust: without `t` param, browser 304s and returns a stale empty list.
+        const r = await Utils.makeRequest(`/api/event-subtasks?event_id=${eventId}&t=${Date.now()}`, "GET");
+        return r?.success ? (r.data || []) : [];
+      } catch (_) {
+        return [];
+      }
+    },
+
+    _renderSubtaskList(items, eventId, event) {
+      const list = document.getElementById("subtaskList");
+      const badge = document.getElementById("subtaskCountBadge");
+      if (!list) return;
+      if (badge) badge.textContent = items.length;
+
+      if (items.length === 0) {
+        list.innerHTML = `<div class="text-xs italic" style="color:#94a3b8">Chưa có minitask.</div>`;
+        return;
+      }
+
+      const fmtHM = (iso) => {
+        if (!iso) return "";
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return "";
+        return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+      };
+
+      list.innerHTML = items.map((s) => {
+        const timeStr = (s.start_at || s.end_at)
+          ? `${fmtHM(s.start_at) || "--:--"} – ${fmtHM(s.end_at) || "--:--"}`
+          : "";
+        return `
+          <div class="subtask-card rounded-lg p-2.5 flex items-start gap-2" data-subtask-id="${s.id}"
+            style="background:#fff;border:1px solid #e2e8f0;${s.is_done ? "opacity:0.6" : ""}">
+            <input type="checkbox" class="subtask-done mt-0.5" data-subtask-id="${s.id}" ${s.is_done ? "checked" : ""}
+              style="accent-color:#dc2626;flex-shrink:0" />
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold" style="color:#1e293b;${s.is_done ? "text-decoration:line-through" : ""}">${s.title}</div>
+              ${timeStr ? `<div class="text-[11px] mt-0.5" style="color:#64748b"><i class="far fa-clock mr-1"></i>${timeStr}</div>` : ""}
+              ${s.note ? `<div class="text-[11px] mt-0.5" style="color:#64748b">${s.note}</div>` : ""}
+            </div>
+            <button class="subtask-delete text-gray-400 hover:text-red-600" data-subtask-id="${s.id}" title="Xóa">
+              <i class="fas fa-trash text-xs"></i>
+            </button>
+          </div>`;
+      }).join("");
+    },
+
+    _bindSubtaskUi(eventId, event) {
+      const self = this;
+
+      // Load initial list.
+      this._loadSubtasks(eventId).then((items) => this._renderSubtaskList(items, eventId, event));
+
+      const list = document.getElementById("subtaskList");
+      const form = document.getElementById("addSubtaskForm");
+      const toggleBtn = document.getElementById("toggleAddSubtaskBtn");
+      const cancelBtn = document.getElementById("cancelAddSubtaskBtn");
+      const saveBtn = document.getElementById("saveAddSubtaskBtn");
+
+      toggleBtn?.addEventListener("click", () => {
+        form?.classList.toggle("hidden");
+        document.getElementById("subtaskTitleInput")?.focus();
+      });
+      cancelBtn?.addEventListener("click", () => form?.classList.add("hidden"));
+
+      // Hint time input bounds — browser shows picker limits, user sees valid range.
+      if (event.start && event.end) {
+        const evStart = new Date(event.start);
+        const evEnd = new Date(event.end);
+        const toHM = (d) => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+        const si = document.getElementById("subtaskStartInput");
+        const ei = document.getElementById("subtaskEndInput");
+        if (si) { si.min = toHM(evStart); si.max = toHM(evEnd); si.value = toHM(evStart); }
+        if (ei) { ei.min = toHM(evStart); ei.max = toHM(evEnd); ei.value = toHM(evEnd); }
+      }
+
+      saveBtn?.addEventListener("click", async () => {
+        const title = document.getElementById("subtaskTitleInput").value.trim();
+        if (!title) {
+          Utils.showToast?.("Nhập tên minitask", "error");
+          return;
+        }
+        // Combine event's date with picked HH:MM so backend gets full ISO.
+        const baseDay = event.start ? new Date(event.start) : new Date();
+        const combine = (hm) => {
+          if (!hm) return null;
+          const [h, m] = hm.split(":").map((v) => parseInt(v, 10));
+          const d = new Date(baseDay);
+          d.setHours(h, m, 0, 0);
+          return d.toISOString();
+        };
+        const sAtStr = combine(document.getElementById("subtaskStartInput").value);
+        const eAtStr = combine(document.getElementById("subtaskEndInput").value);
+
+        // Client-side validation: subtask must fit inside parent event's time range.
+        if (sAtStr && eAtStr && event.start && event.end) {
+          const sAt = new Date(sAtStr);
+          const eAt = new Date(eAtStr);
+          const evStart = new Date(event.start);
+          const evEnd = new Date(event.end);
+          if (sAt < evStart || eAt > evEnd) {
+            Utils.showToast?.("Thời gian minitask phải nằm trong thời gian task chính", "error");
+            return;
+          }
+          if (eAt <= sAt) {
+            Utils.showToast?.("Kết thúc phải sau bắt đầu", "error");
+            return;
+          }
+        }
+
+        const payload = {
+          event_id: eventId,
+          title,
+          start_at: sAtStr,
+          end_at: eAtStr,
+          note: document.getElementById("subtaskNoteInput").value.trim() || null,
+        };
+        saveBtn.disabled = true;
+        try {
+          const r = await Utils.makeRequest("/api/event-subtasks", "POST", payload);
+          if (!r.success) throw new Error(r.message || "Lỗi tạo");
+          // Reset form + reload list.
+          document.getElementById("subtaskTitleInput").value = "";
+          document.getElementById("subtaskStartInput").value = "";
+          document.getElementById("subtaskEndInput").value = "";
+          document.getElementById("subtaskNoteInput").value = "";
+          form?.classList.add("hidden");
+          const items = await self._loadSubtasks(eventId);
+          self._renderSubtaskList(items, eventId, event);
+          // Also nudge the event card to refresh its count badge.
+          // Update both count and full list so the stacked preview on the calendar card re-renders.
+          event.setExtendedProp("subtasks", items);
+          event.setExtendedProp("subtaskCount", items.length);
+        } catch (err) {
+          Utils.showToast?.(err.message || "Lỗi", "error");
+        } finally {
+          saveBtn.disabled = false;
+        }
+      });
+
+      // Delegation on list: toggle done + delete.
+      list?.addEventListener("change", async (e) => {
+        const cb = e.target.closest(".subtask-done");
+        if (!cb) return;
+        const id = cb.dataset.subtaskId;
+        try {
+          await Utils.makeRequest(`/api/event-subtasks/${id}`, "PATCH", { is_done: cb.checked });
+          const items = await self._loadSubtasks(eventId);
+          self._renderSubtaskList(items, eventId, event);
+          event.setExtendedProp("subtasks", items);
+          event.setExtendedProp("subtaskCount", items.length);
+        } catch (_) {}
+      });
+
+      list?.addEventListener("click", async (e) => {
+        const del = e.target.closest(".subtask-delete");
+        if (!del) return;
+        if (!confirm("Xóa minitask này?")) return;
+        const id = del.dataset.subtaskId;
+        try {
+          await Utils.makeRequest(`/api/event-subtasks/${id}`, "DELETE");
+          const items = await self._loadSubtasks(eventId);
+          self._renderSubtaskList(items, eventId, event);
+          // Update both count and full list so the stacked preview on the calendar card re-renders.
+          event.setExtendedProp("subtasks", items);
+          event.setExtendedProp("subtaskCount", items.length);
+        } catch (_) {}
+      });
+    },
+
+    /** Drag-to-delete entry point: confirm + delegate to _deleteEvent. */
+    _dragDeleteEvent(event) {
+      // Temp/drag events aren't persisted — just remove from UI without confirm.
+      const id = event.id?.toString() || "";
+      if (!id || id.startsWith("temp-") || id.startsWith("drag-")) {
+        try { event.remove(); } catch (_) {}
+        return;
+      }
+      const confirmed = confirm(
+        `Xóa sự kiện "${event.title}"?\nKéo thả vào danh sách công việc để xóa. Không thể hoàn tác.`
+      );
+      if (!confirmed) return;
+      this._deleteEvent(event);
     },
 
     async _deleteEvent(event) {
-      const rawId = event.id;
+      const eventId = event.id;
 
-      if (!rawId || rawId.toString().startsWith("temp-") || rawId.toString().startsWith("evt-")) {
+      if (!eventId || eventId.toString().startsWith("temp-")) {
         Utils.showToast?.("Sự kiện chưa được lưu vào database", "warning");
         document.getElementById("eventDetailModal")?.remove();
         event.remove();
         return;
       }
 
-      // Strip "lt_" prefix from LichTrinh IDs
-      const eventId = String(rawId).startsWith("lt_") ? rawId.slice(3) : rawId;
+      // Legacy modal had #confirmDeleteBtn; current modal uses native confirm() +
+      // #deleteEventBtn. Guard so the button's absence doesn't crash the delete flow.
+      const busyBtn =
+        document.getElementById("confirmDeleteBtn") ||
+        document.getElementById("deleteEventBtn");
+      const originalHtml = busyBtn?.innerHTML;
+      if (busyBtn) {
+        busyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang xóa...';
+        busyBtn.disabled = true;
+      }
 
       try {
-        // Disable delete button if it exists
-        const deleteBtn = document.getElementById("deleteEventBtn");
-        if (deleteBtn) {
-          deleteBtn.textContent = "Đang xóa...";
-          deleteBtn.disabled = true;
-        }
-
         const result = await Utils.makeRequest(
           `/api/calendar/events/${eventId}`,
           "DELETE"
         );
 
         if (!result.success) {
-          throw new Error(result.message || "Xóa sự kiện thất bại");
+          const msg = result.message || "";
+          if (msg.includes("liên quan") || msg.includes("task")) {
+            throw new Error(
+              "Sự kiện đang liên kết với công việc. Vui lòng kiểm tra lại."
+            );
+          }
+          throw new Error(msg || "Xóa sự kiện thất bại");
         }
 
-        // Close modal
-        document.getElementById("eventDetailModal")?.remove();
+        const modal = document.getElementById("eventDetailModal");
+        if (modal) {
+          modal.style.animation = "fadeOut 0.3s ease forwards";
+          setTimeout(() => modal.remove(), 300);
+        }
 
-        // Remove event from calendar
-        event.remove();
+        const eventEl =
+          document.querySelector(`[data-event-id="${eventId}"]`) ||
+          document.querySelector(
+            `.fc-event[title*="${event.title.substring(0, 20)}"]`
+          );
 
-        Utils.showToast?.("Đã xóa sự kiện", "success");
+        if (eventEl) {
+          eventEl.style.animation = "shrinkOut 0.5s ease forwards";
+          eventEl.style.transformOrigin = "center";
+          setTimeout(() => {
+            event.remove();
+          }, 500);
+        } else {
+          event.remove();
+        }
+
+        Utils.showToast?.("Đã xóa sự kiện thành công!", "success");
 
         document.dispatchEvent(
           new CustomEvent("eventDeleted", {
@@ -1625,28 +1851,38 @@
       } catch (error) {
         console.error("Error deleting event:", error);
 
-        const deleteBtn = document.getElementById("deleteEventBtn");
-        if (deleteBtn) {
-          deleteBtn.textContent = "Xóa";
-          deleteBtn.disabled = false;
+        if (busyBtn) {
+          busyBtn.innerHTML = originalHtml || '<i class="fas fa-trash mr-2"></i> Xóa';
+          busyBtn.disabled = false;
         }
 
-        Utils.showToast?.(error.message || "Lỗi khi xóa sự kiện", "error");
+        let errorMessage = "Lỗi khi xóa sự kiện";
+        if (
+          error.message.includes("liên kết") ||
+          error.message.includes("task")
+        ) {
+          errorMessage = "⛔ " + error.message;
+        } else if (
+          error.message.includes("database") ||
+          error.message.includes("ID hợp lệ")
+        ) {
+          errorMessage = "⚠️ " + error.message;
+        } else {
+          errorMessage = error.message || "Lỗi khi xóa sự kiện";
+        }
+
+        Utils.showToast?.(errorMessage, "error");
       }
     },
 
     async _updateEventStatus(event) {
       try {
-
-
         const checkbox = document.getElementById("eventCompletedCheckbox");
         if (!checkbox) {
-          console.error("❌ Checkbox not found");
           return;
         }
 
         const completed = checkbox.checked;
-
 
         const wasCompleted = event.extendedProps.completed;
 
@@ -1654,7 +1890,7 @@
         const originalBtnText = saveBtn.innerHTML;
         saveBtn.disabled = true;
         saveBtn.innerHTML =
-          'Đang cập nhật...';
+          '<i class="fas fa-spinner fa-spin mr-2"></i> Đang cập nhật...';
         const eventEls = document.querySelectorAll(
           `[data-event-id="${
             event.id
@@ -1663,44 +1899,37 @@
         // ✅ CHỈ TÌM EVENT CỤ THỂ THEO ID - KHÔNG DÙNG TITLE
         const eventEl = document.querySelector(`[data-event-id="${event.id}"]`);
 
-        if (!eventEl) {
-          console.warn(`⚠️ Could not find event element with ID ${event.id}`);
-        } else {
-
-
-          // Apply visual changes immediately
+        if (eventEl) {
+          // Let CSS (.event-completed) own the visual treatment. Previously
+          // inline opacity:0.6 overrode the CSS value and wiped the priority tint.
           if (completed) {
             eventEl.classList.add("event-completed", "completing");
-            eventEl.style.textDecoration = "line-through";
-            eventEl.style.opacity = "0.6";
           } else {
             eventEl.classList.remove("event-completed", "completing");
-            eventEl.style.textDecoration = "none";
-            eventEl.style.opacity = "1";
           }
+          eventEl.style.opacity = "";
+          eventEl.style.textDecoration = "";
         }
 
-        // Include note from textarea
         const noteInput = document.getElementById("eventNoteInput");
-        const note = noteInput ? noteInput.value.trim() : undefined;
+        const note = noteInput ? noteInput.value.trim() : (event.extendedProps.note || "");
 
-        const updateData = { completed: completed };
-        if (note !== undefined) updateData.note = note;
-
-        // Strip lt_ prefix for LichTrinh IDs
-        const evId = String(event.id).startsWith("lt_") ? event.id.slice(3) : event.id;
+        // Backend PUT expects `note` (see backend/routes/calendar.js). Previous
+        // `GhiChu` key was silently dropped → note vanished after F5.
+        const updateData = {
+          completed: completed,
+          note: note,
+        };
 
         const res = await Utils.makeRequest(
-          `/api/calendar/events/${evId}`,
+          `/api/calendar/events/${event.id}`,
           "PUT",
           updateData
         );
 
-
-
         if (res.success) {
           event.setExtendedProp("completed", completed);
-          if (note !== undefined) event.setExtendedProp("note", note);
+          event.setExtendedProp("note", note);
 
           // Re-render the event to apply CSS changes
           const calendar = this.getCalendar();
@@ -1718,12 +1947,12 @@
               statusEl.className =
                 "text-green-600 font-semibold flex items-center gap-2";
               statusEl.innerHTML =
-                'Đã hoàn thành';
+                '<i class="fas fa-check-circle"></i> Đã hoàn thành';
             } else {
               statusEl.className =
                 "text-orange-600 font-semibold flex items-center gap-2";
               statusEl.innerHTML =
-                'Chưa hoàn thành';
+                '<i class="fas fa-clock"></i> Chưa hoàn thành';
             }
           }
           Utils.showToast?.(
@@ -1742,13 +1971,14 @@
           eventEls.forEach((el) => {
             if (wasCompleted) {
               el.classList.add("event-completed");
-              el.style.textDecoration = "line-through";
-              el.style.opacity = "0.6";
             } else {
               el.classList.remove("event-completed");
-              el.style.textDecoration = "none";
-              el.style.opacity = "1";
             }
+            // Clear any stray inline styles so CSS (priority tint + stripes) wins
+            el.style.textDecoration = "";
+            el.style.opacity = "";
+            el.style.background = "";
+            el.style.filter = "";
           });
 
           saveBtn.disabled = false;
@@ -1758,7 +1988,7 @@
           throw new Error(res.message || "Cập nhật trạng thái thất bại");
         }
       } catch (err) {
-        console.error("❌ Cập nhật trạng thái lỗi:", err);
+        console.error("Cập nhật trạng thái lỗi:", err);
 
         Utils.showToast?.(
           "" + (err.message || "Lỗi cập nhật trạng thái"),
@@ -1768,7 +1998,7 @@
         const saveBtn = document.getElementById("saveEventStatus");
         if (saveBtn) {
           saveBtn.disabled = false;
-          saveBtn.innerHTML = 'Lưu thay đổi';
+          saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Lưu thay đổi';
         }
 
         // Restore checkbox
@@ -1813,24 +2043,18 @@
     },
 
     setActiveView(view) {
-      const viewMap = {
-        "timeGridDay": "cal-day-view",
-        "timeGridWeek": "cal-week-view",
-        "dayGridMonth": "cal-month-view",
+      const map = {
+        "cal-day-view": "timeGridDay",
+        "cal-week-view": "timeGridWeek",
+        "cal-month-view": "dayGridMonth",
       };
-      ["cal-day-view", "cal-week-view", "cal-month-view"].forEach((id) => {
+      Object.entries(map).forEach(([id, v]) => {
         const btn = document.getElementById(id);
         if (!btn) return;
-        if (viewMap[view] === id) {
-          // Active: newspaper paper bg + dark border
-          btn.style.background = "var(--np-bg-card, #faf7f2)";
-          btn.style.color = "var(--np-text, #1a1a1a)";
-          btn.style.boxShadow = "var(--np-shadow-sm, 2px 2px 0 #1a1a1a)";
-        } else {
-          btn.style.background = "transparent";
-          btn.style.color = "var(--np-text-muted, #6b5f4a)";
-          btn.style.boxShadow = "none";
-        }
+        const isActive = v === view;
+        btn.classList.toggle("bg-white", isActive);
+        btn.style.color = isActive ? "#1e293b" : "#64748b";
+        btn.style.boxShadow = isActive ? "0 1px 3px rgba(0,0,0,0.1)" : "none";
       });
     },
 
@@ -1871,18 +2095,18 @@
           <div class="p-4 select-none">
             <div class="flex items-center justify-between mb-3">
               <button id="mini-prev" class="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800 transition">
-                &#8249;
+                <i class="fas fa-chevron-left text-xs"></i>
               </button>
               <span class="text-sm font-bold text-gray-800">${monthNames[month]} ${year}</span>
               <button id="mini-next" class="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800 transition">
-                &#8250;
+                <i class="fas fa-chevron-right text-xs"></i>
               </button>
             </div>
             <div class="grid grid-cols-7 gap-0.5 mb-1">
               ${days.map(d => `<div class="text-center text-xs font-semibold text-gray-400 py-1">${d}</div>`).join("")}
             </div>
             <div class="grid grid-cols-7 gap-0.5">${cells}</div>
-            <button id="mini-today" class="mt-3 w-full text-xs text-blue-600 font-semibold hover:bg-blue-50 py-1.5 rounded-lg transition">
+            <button id="mini-today" class="mt-3 w-full text-xs text-red-600 font-semibold hover:bg-red-50 py-1.5 rounded-lg transition">
               Hôm nay
             </button>
           </div>`;
@@ -1932,40 +2156,16 @@
         this.calendar = null;
       }
       this.isInitialized = false;
-
     },
 
     refresh() {
-
       this.init();
     },
 
     getCalendar() {
       return this.calendar;
     },
-
-    // Methods referenced by AppNavigation
-    async refreshEvents() {
-      if (!this.calendar) return;
-      this.calendar.removeAllEvents();
-      const events = await this.loadEvents();
-      events.forEach(ev => this.calendar.addEvent(ev));
-    },
-
-    refreshDragDrop() {
-      this.setupDropZone();
-      this.setupTaskDragListeners();
-    },
-
-    setupExternalDraggable() {
-      this.initializeExternalDraggable();
-    },
-
-    setupNativeDragDrop() {
-      this.setupDropZone();
-    },
   };
 
   window.CalendarModule = CalendarModule;
-
 })();

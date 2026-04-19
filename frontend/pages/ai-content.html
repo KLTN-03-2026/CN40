@@ -1,231 +1,94 @@
-<div class="flex-1 flex flex-col ai-np-shell">
+<div class="flex-1 flex flex-col" style="background:var(--bg-app,#f1f5f9);min-height:0">
 
-  <!-- Newspaper toolbar -->
-  <nav class="ai-np-toolbar">
-    <div class="ai-np-toolbar-inner">
+  <!-- Navbar -->
+  <nav class="ai-toolbar bg-white border-b px-5 py-3 flex-shrink-0" style="border-color:#e2e8f0">
+    <div class="flex items-center justify-between gap-4">
 
-      <!-- Left: title + calendar nav -->
-      <div class="ai-np-left">
-        <h2 class="ai-np-section-title">Lịch AI</h2>
-        <div class="ai-np-cal-nav">
-          <button id="ai-cal-prev-btn" class="ai-np-nav-btn" title="Tháng trước">&#8249;</button>
-          <button id="ai-cal-today-btn" class="ai-np-today-btn">Hôm nay</button>
-          <button id="ai-cal-next-btn" class="ai-np-nav-btn" title="Tháng sau">&#8250;</button>
+      <!-- Left: icon + nav + title -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+             style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">
+          <i class="fas fa-robot text-white text-sm"></i>
         </div>
-        <h3 id="ai-calendar-title" class="ai-np-cal-title">Tháng 11 năm 2025</h3>
+
+        <div class="flex items-center gap-1">
+          <button id="ai-cal-prev-btn"
+            class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+            style="color:#6b7280"
+            onmouseover="this.style.background='#f3f4f6'"
+            onmouseout="this.style.background='transparent'"
+            title="Tháng trước">
+            <i class="fas fa-chevron-left text-xs"></i>
+          </button>
+          <button id="ai-cal-today-btn"
+            class="px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors"
+            style="color:#7c3aed"
+            onmouseover="this.style.background='#f5f3ff'"
+            onmouseout="this.style.background='transparent'">
+            Hôm nay
+          </button>
+          <button id="ai-cal-next-btn"
+            class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+            style="color:#6b7280"
+            onmouseover="this.style.background='#f3f4f6'"
+            onmouseout="this.style.background='transparent'"
+            title="Tháng sau">
+            <i class="fas fa-chevron-right text-xs"></i>
+          </button>
+        </div>
+
+        <h2 id="ai-calendar-title"
+          class="text-lg font-bold"
+          style="color:#1e293b;min-width:180px">
+          Tháng 11 năm 2025
+        </h2>
       </div>
 
-      <!-- Right: AI suggest + view switcher -->
-      <div class="ai-np-right">
-        <button id="ai-suggest-btn" class="np-button np-button--primary">
-          &#10024; Tham Khảo AI
+      <!-- Right: AI button + view switcher -->
+      <div class="flex items-center gap-3">
+        <button id="ai-suggest-btn"
+          class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white shadow-md transition-all"
+          style="background:linear-gradient(135deg,#7c3aed,#4f46e5);box-shadow:0 4px 15px rgba(124,58,237,0.35)"
+          onmouseover="this.style.boxShadow='0 6px 20px rgba(124,58,237,0.5)';this.style.transform='translateY(-1px)'"
+          onmouseout="this.style.boxShadow='0 4px 15px rgba(124,58,237,0.35)';this.style.transform='translateY(0)'">
+          <i class="fas fa-magic text-xs"></i>
+          <span>Tham Khảo AI</span>
         </button>
-        <div class="ai-np-views">
-          <button id="ai-cal-day-view"   data-view="timeGridDay"   class="ai-view-btn ai-np-view-btn">Ngày</button>
-          <button id="ai-cal-week-view"  data-view="timeGridWeek"  class="ai-view-btn ai-np-view-btn">Tuần</button>
-          <button id="ai-cal-month-view" data-view="dayGridMonth"  class="ai-view-btn ai-np-view-btn ai-np-view-btn--active">Tháng</button>
+
+        <div class="flex items-center gap-1 rounded-xl p-1" style="background:#f1f5f9">
+          <button id="ai-cal-day-view" data-view="timeGridDay"
+            class="ai-view-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+            style="color:#64748b">
+            Ngày
+          </button>
+          <button id="ai-cal-week-view" data-view="timeGridWeek"
+            class="ai-view-btn px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+            style="color:#64748b">
+            Tuần
+          </button>
+          <button id="ai-cal-month-view" data-view="dayGridMonth"
+            class="ai-view-btn px-3 py-1.5 rounded-lg text-sm font-medium bg-white transition-all"
+            style="color:#1e293b;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
+            Tháng
+          </button>
         </div>
       </div>
 
     </div>
-    <hr class="ai-np-rule" />
   </nav>
 
   <!-- Calendar -->
   <div id="ai-calendar" class="flex-1 overflow-hidden">
-    <div class="ai-np-loading">
-      <div class="ai-np-spinner"></div>
-      <p class="np-body" style="color:var(--np-text-muted);font-style:italic">Đang tải lịch trình AI...</p>
-      <p style="font-size:0.8rem;color:var(--np-text-muted);margin-top:0.25rem">Nhấn "Tham Khảo AI" để tạo lịch trình thông minh</p>
+    <div class="flex items-center justify-center h-full">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+        <p class="text-lg font-medium text-gray-500">Đang tải lịch trình AI...</p>
+        <p class="text-sm mt-2 text-gray-400">Nhấn "Tham Khảo AI" để tạo lịch trình thông minh</p>
+      </div>
     </div>
   </div>
 
 </div>
-
-<style>
-/* ===== AI PAGE — Newspaper toolbar ===== */
-.ai-np-shell {
-  background: var(--np-bg, #f4efe6);
-  min-height: 0;
-}
-
-.ai-np-toolbar {
-  background: var(--np-bg-card, #faf7f2);
-  border-bottom: 1.5px solid var(--np-border, #1a1a1a);
-  padding: 0.6rem 1.25rem 0;
-  flex-shrink: 0;
-}
-
-.ai-np-toolbar-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding-bottom: 0.5rem;
-}
-
-.ai-np-left {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.ai-np-section-title {
-  font-family: var(--np-font-heading, 'Playfair Display', serif);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--np-text, #1a1a1a);
-  margin: 0;
-  white-space: nowrap;
-}
-
-.ai-np-cal-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.ai-np-nav-btn {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid var(--np-border-muted, #c8b99a);
-  border-radius: var(--np-radius, 2px);
-  color: var(--np-text-muted, #6b5f4a);
-  cursor: pointer;
-  font-size: 1.1rem;
-  line-height: 1;
-  transition: background 0.12s, border-color 0.12s;
-}
-
-.ai-np-nav-btn:hover {
-  background: var(--np-bg, #f4efe6);
-  border-color: var(--np-border, #1a1a1a);
-  color: var(--np-text, #1a1a1a);
-}
-
-.ai-np-today-btn {
-  font-family: var(--np-font-ui, 'Inter', sans-serif);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: transparent;
-  border: 1px solid var(--np-border-muted, #c8b99a);
-  border-radius: var(--np-radius, 2px);
-  padding: 0.2rem 0.6rem;
-  color: var(--np-text-muted, #6b5f4a);
-  cursor: pointer;
-  transition: background 0.12s;
-}
-
-.ai-np-today-btn:hover {
-  background: var(--np-bg, #f4efe6);
-  border-color: var(--np-border, #1a1a1a);
-  color: var(--np-text, #1a1a1a);
-}
-
-.ai-np-cal-title {
-  font-family: var(--np-font-heading, 'Playfair Display', serif);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--np-text, #1a1a1a);
-  margin: 0;
-  min-width: 160px;
-}
-
-.ai-np-right {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.ai-np-views {
-  display: flex;
-  border: 1px solid var(--np-border, #1a1a1a);
-  border-radius: var(--np-radius, 2px);
-  overflow: hidden;
-}
-
-.ai-np-view-btn {
-  font-family: var(--np-font-ui, 'Inter', sans-serif);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 0.3rem 0.65rem;
-  background: transparent;
-  border: none;
-  border-right: 1px solid var(--np-border, #1a1a1a);
-  color: var(--np-text-muted, #6b5f4a);
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-}
-
-.ai-np-view-btn:last-child { border-right: none; }
-
-.ai-np-view-btn:hover,
-.ai-np-view-btn--active,
-.ai-np-view-btn.active {
-  background: var(--np-accent, #8b0000);
-  color: #fff;
-}
-
-.ai-np-rule {
-  border: none;
-  border-top: 1px solid var(--np-border-muted, #c8b99a);
-  margin: 0;
-}
-
-/* Loading state */
-.ai-np-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  min-height: 300px;
-  gap: 0.75rem;
-  text-align: center;
-  padding: 2rem;
-}
-
-.ai-np-spinner {
-  width: 36px;
-  height: 36px;
-  border: 2px solid var(--np-border-muted, #c8b99a);
-  border-top-color: var(--np-accent, #8b0000);
-  border-radius: 50%;
-  animation: ai-np-spin 0.8s linear infinite;
-}
-
-@keyframes ai-np-spin { to { transform: rotate(360deg); } }
-
-/* Dark mode */
-body.dark .ai-np-shell { background: var(--np-bg, #1a1612); }
-body.dark .ai-np-toolbar {
-  background: var(--np-bg-card, #221e19);
-  border-bottom-color: var(--np-border, #4a4238);
-}
-body.dark .ai-np-rule { border-top-color: var(--np-border-muted, #3a3028); }
-body.dark .ai-np-nav-btn { border-color: var(--np-border-muted, #3a3028); color: var(--np-text-muted, #8a7f6a); }
-body.dark .ai-np-today-btn { border-color: var(--np-border-muted, #3a3028); color: var(--np-text-muted, #8a7f6a); }
-body.dark .ai-np-views { border-color: var(--np-border, #4a4238); }
-body.dark .ai-np-view-btn { border-right-color: var(--np-border, #4a4238); }
-
-/* Responsive */
-@media (max-width: 600px) {
-  .ai-np-toolbar-inner { gap: 0.5rem; }
-  .ai-np-cal-title { min-width: 120px; font-size: 0.875rem; }
-  .ai-np-section-title { font-size: 0.95rem; }
-}
-</style>
 
 <script>
   (function () {

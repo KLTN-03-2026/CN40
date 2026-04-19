@@ -152,7 +152,7 @@ async function getTaskDetailsFromDatabase(taskIds, userId) {
 
     const { data: tasks, error } = await supabase
       .from("CongViec")
-      .select("MaCongViec, TieuDe, ThoiGianUocTinh, MucDoUuTien, MucDoPhucTap, MucDoTapTrung, ThoiDiemThichHop")
+      .select("MaCongViec, TieuDe, ThoiGianUocTinh, MucDoUuTien, MucDoPhucTap, MucDoTapTrung, ThoiDiemThichHop, MauSac")
       .in("MaCongViec", taskIds)
       .eq("UserID", userId)
       .eq("TrangThaiThucHien", 0);
@@ -178,7 +178,7 @@ async function getTaskDetailsFromDatabase(taskIds, userId) {
       complexity: task.MucDoPhucTap || 2,
       focusLevel: task.MucDoTapTrung || 2,
       suitableTime: timeMap[task.ThoiDiemThichHop] || "anytime",
-      color: getColorByPriority(task.MucDoUuTien || 2),
+      color: task.MauSac || getColorByPriority(task.MucDoUuTien || 2),
     }));
 
     console.log(`Loaded ${taskDetails.length} task details from database`);
@@ -855,7 +855,7 @@ router.get("/ai-events", authenticateToken, async (req, res) => {
 
     const { data: records, error } = await supabase
       .from("LichTrinh")
-      .select("MaLichTrinh, MaCongViec, GioBatDau, GioKetThuc, GhiChu, AI_DeXuat, CongViec(TieuDe, MucDoUuTien)")
+      .select("MaLichTrinh, MaCongViec, GioBatDau, GioKetThuc, GhiChu, AI_DeXuat, CongViec(TieuDe, MucDoUuTien, MauSac)")
       .eq("UserID", userId)
       .eq("AI_DeXuat", true)
       .order("GioBatDau", { ascending: false });
@@ -881,7 +881,7 @@ router.get("/ai-events", authenticateToken, async (req, res) => {
       GioBatDau: ev.GioBatDau,
       GioKetThuc: ev.GioKetThuc,
       GhiChu: ev.GhiChu || "Được AI tối ưu",
-      Color: getColorByPriority(ev.CongViec?.MucDoUuTien || 2),
+      Color: ev.CongViec?.MauSac || getColorByPriority(ev.CongViec?.MucDoUuTien || 2),
       priority: ev.CongViec?.MucDoUuTien,
       AI_DeXuat: ev.AI_DeXuat,
     }));
@@ -944,7 +944,7 @@ router.get("/events/ai", authenticateToken, async (req, res) => {
 
     const { data: records, error } = await supabase
       .from("LichTrinh")
-      .select("MaLichTrinh, MaCongViec, GioBatDau, GioKetThuc, GhiChu, CongViec!inner(TieuDe, MucDoUuTien)")
+      .select("MaLichTrinh, MaCongViec, GioBatDau, GioKetThuc, GhiChu, CongViec!inner(TieuDe, MucDoUuTien, MauSac)")
       .eq("UserID", userId)
       .eq("AI_DeXuat", true)
       .order("GioBatDau", { ascending: false });
@@ -961,7 +961,7 @@ router.get("/events/ai", authenticateToken, async (req, res) => {
       GioBatDau: ev.GioBatDau,
       GioKetThuc: ev.GioKetThuc,
       GhiChu: ev.GhiChu || "AI đề xuất",
-      Color: getColorByPriority(ev.CongViec?.MucDoUuTien || 2),
+      Color: ev.CongViec?.MauSac || getColorByPriority(ev.CongViec?.MucDoUuTien || 2),
       priority: ev.CongViec?.MucDoUuTien,
       AI_DeXuat: 1,
     }));
