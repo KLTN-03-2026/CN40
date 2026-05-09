@@ -1,0 +1,441 @@
+/* ===================================================================
+   NEWSPAPER THEME — Classic báo giấy style foundation
+   Phase 02 | Playfair Display + Merriweather + Inter
+   =================================================================== */
+
+/* ===== GOOGLE FONTS =====
+   Fonts loaded via <link rel="preconnect"> + <link rel="stylesheet"> in index.html
+   to avoid render-blocking @import. See index.html <head> section.
+   ======================== */
+
+/* ===== CSS VARIABLES — LIGHT (giấy ngà) ===== */
+:root {
+  /* Backgrounds */
+  --np-bg:          #f4efe6;   /* giấy ngà */
+  --np-bg-card:     #faf7f2;   /* slightly lighter card */
+  --np-bg-input:    #f0ebe1;
+
+  /* Text */
+  --np-text:        #1a1a1a;
+  --np-text-muted:  #6b5f4a;
+
+  /* Accent — đỏ báo */
+  --np-accent:      #8b0000;
+  --np-accent-hover:#a31212;
+
+  /* Borders */
+  --np-border:      #1a1a1a;
+  --np-border-muted:#c8b99a;
+
+  /* Hard shadow — 4 px offset, flat */
+  --np-shadow:      4px 4px 0 var(--np-border);
+  --np-shadow-sm:   2px 2px 0 var(--np-border);
+
+  /* Corner — almost square */
+  --np-radius:      2px;
+
+  /* Font stacks */
+  --np-font-heading: 'Playfair Display', Georgia, serif;
+  --np-font-body:    'Merriweather', 'Times New Roman', serif;
+  --np-font-ui:      'Inter', system-ui, sans-serif;
+}
+
+/* ===== CSS VARIABLES — DARK ===== */
+body.dark {
+  --np-bg:          #1a1612;
+  --np-bg-card:     #221e19;
+  --np-bg-input:    #2a2520;
+
+  --np-text:        #e8e0d0;
+  --np-text-muted:  #8a7f6a;
+
+  --np-accent:      #c44a4a;
+  --np-accent-hover:#d96060;
+
+  --np-border:      #4a4238;
+  --np-border-muted:#3a3028;
+
+  --np-shadow:      4px 4px 0 var(--np-border);
+  --np-shadow-sm:   2px 2px 0 var(--np-border);
+}
+
+/* ===== BASE ELEMENT RESETS ===== */
+body {
+  font-family: var(--np-font-body);
+  background: var(--np-bg);
+  color: var(--np-text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--np-font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--np-text);
+}
+
+/* ===== TYPOGRAPHY UTILITY CLASSES ===== */
+
+/* Headings */
+.np-h1 {
+  font-family: var(--np-font-heading);
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--np-text);
+  letter-spacing: -0.01em;
+}
+
+.np-h2 {
+  font-family: var(--np-font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--np-text);
+}
+
+.np-h3 {
+  font-family: var(--np-font-heading);
+  font-size: 1.125rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--np-text);
+}
+
+/* Small-caps label */
+.np-label {
+  font-family: var(--np-font-ui);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-variant: small-caps;
+  color: var(--np-text-muted);
+}
+
+/* Body copy */
+.np-body {
+  font-family: var(--np-font-body);
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--np-text);
+}
+
+/* Dividers */
+.np-divider {
+  border: none;
+  border-top: 1px solid var(--np-border);
+  margin: 1rem 0;
+}
+
+.np-divider-double {
+  border: none;
+  border-top: 3px double var(--np-border);
+  margin: 1rem 0;
+}
+
+/* ===== REUSABLE COMPONENTS ===== */
+
+/* Card — 1 px solid border + hard shadow */
+.np-card {
+  background: var(--np-bg-card);
+  border: 1px solid var(--np-border);
+  border-radius: var(--np-radius);
+  box-shadow: var(--np-shadow);
+  padding: 1.25rem;
+}
+
+.np-card:hover {
+  box-shadow: 6px 6px 0 var(--np-border);
+  transform: translate(-1px, -1px);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+/* Button — solid border, no radius, newspaper style */
+.np-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: var(--np-font-ui);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.25rem;
+  border: 1.5px solid var(--np-border);
+  border-radius: var(--np-radius);
+  background: transparent;
+  color: var(--np-text);
+  cursor: pointer;
+  box-shadow: var(--np-shadow-sm);
+  transition: box-shadow 0.12s ease, transform 0.12s ease;
+}
+
+.np-button:hover {
+  box-shadow: 3px 3px 0 var(--np-border);
+  transform: translate(-1px, -1px);
+}
+
+.np-button:active {
+  box-shadow: 1px 1px 0 var(--np-border);
+  transform: translate(1px, 1px);
+}
+
+/* Primary variant */
+.np-button--primary {
+  background: var(--np-accent);
+  border-color: var(--np-accent);
+  color: #fff;
+}
+
+.np-button--primary:hover {
+  background: var(--np-accent-hover);
+  border-color: var(--np-accent-hover);
+}
+
+/* Input — underline style */
+.np-input {
+  font-family: var(--np-font-body);
+  font-size: 0.9375rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--np-border-muted);
+  border-radius: 0;
+  padding: 0.4rem 0.25rem;
+  color: var(--np-text);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.np-input:focus {
+  border-bottom-color: var(--np-accent);
+}
+
+.np-input::placeholder {
+  color: var(--np-text-muted);
+  font-style: italic;
+}
+
+/* Chip / tag */
+.np-chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--np-font-ui);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--np-border-muted);
+  border-radius: var(--np-radius);
+  background: transparent;
+  color: var(--np-text-muted);
+}
+
+/* Accent chip */
+.np-chip--accent {
+  border-color: var(--np-accent);
+  color: var(--np-accent);
+}
+
+/* ===== DARK MODE OVERRIDES ===== */
+
+body.dark .np-card {
+  background: var(--np-bg-card);
+  border-color: var(--np-border);
+  box-shadow: var(--np-shadow);
+}
+
+body.dark .np-card:hover {
+  box-shadow: 6px 6px 0 var(--np-border);
+}
+
+body.dark .np-button {
+  border-color: var(--np-border);
+  color: var(--np-text);
+  box-shadow: var(--np-shadow-sm);
+}
+
+body.dark .np-button--primary {
+  background: var(--np-accent);
+  border-color: var(--np-accent);
+  color: #fff;
+}
+
+body.dark .np-input {
+  color: var(--np-text);
+  border-bottom-color: var(--np-border-muted);
+}
+
+body.dark .np-input::placeholder {
+  color: var(--np-text-muted);
+}
+
+body.dark .np-chip {
+  border-color: var(--np-border-muted);
+  color: var(--np-text-muted);
+}
+
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark h4,
+body.dark h5,
+body.dark h6 {
+  color: var(--np-text);
+}
+
+body.dark .np-label {
+  color: var(--np-text-muted);
+}
+
+body.dark .np-divider,
+body.dark .np-divider-double {
+  border-color: var(--np-border);
+}
+
+/* ===== GLOBAL MASTHEAD ===== */
+/* Top newspaper nameplate: double rule + title + date */
+#np-masthead {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background: var(--np-bg);
+  padding: 0.35rem 1.5rem 0.25rem;
+  border-bottom: 1px solid var(--np-border-muted);
+}
+
+.np-masthead-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 0.2rem;
+}
+
+.np-masthead-rule-thick {
+  height: 3px;
+  background: var(--np-border);
+}
+
+.np-masthead-rule-thin {
+  height: 1px;
+  background: var(--np-border);
+}
+
+.np-masthead-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.15rem 0;
+}
+
+.np-masthead-title {
+  font-family: var(--np-font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--np-text);
+  line-height: 1;
+  margin: 0;
+}
+
+.np-masthead-date {
+  font-family: var(--np-font-heading);
+  font-size: 0.8rem;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  color: var(--np-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.np-masthead-bottom-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 0.2rem;
+}
+
+/* Dark mode masthead */
+body.dark #np-masthead {
+  background: var(--np-bg);
+  border-bottom-color: var(--np-border);
+}
+
+/* Responsive masthead */
+@media (max-width: 640px) {
+  .np-masthead-title {
+    font-size: 1.2rem;
+  }
+  .np-masthead-date {
+    font-size: 0.7rem;
+    letter-spacing: 0.01em;
+  }
+  #np-masthead {
+    padding: 0.25rem 0.75rem 0.2rem;
+  }
+}
+
+/* ===== SWEETALERT2 NEWSPAPER THEME ===== */
+/* Apply newspaper palette to Swal2 popups */
+.swal2-popup.np-swal {
+  font-family: var(--np-font-body) !important;
+  background: var(--np-bg-card) !important;
+  border: 1.5px solid var(--np-border) !important;
+  border-radius: var(--np-radius) !important;
+  box-shadow: var(--np-shadow) !important;
+  color: var(--np-text) !important;
+}
+
+.swal2-popup.np-swal .swal2-title {
+  font-family: var(--np-font-heading) !important;
+  color: var(--np-text) !important;
+  font-size: 1.2rem !important;
+}
+
+.swal2-popup.np-swal .swal2-html-container {
+  font-family: var(--np-font-body) !important;
+  color: var(--np-text-muted) !important;
+  font-size: 0.875rem !important;
+}
+
+.swal2-popup.np-swal .swal2-confirm {
+  background: var(--np-accent) !important;
+  border: 1.5px solid var(--np-accent) !important;
+  border-radius: var(--np-radius) !important;
+  font-family: var(--np-font-ui) !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  box-shadow: var(--np-shadow-sm) !important;
+}
+
+.swal2-popup.np-swal .swal2-cancel {
+  background: transparent !important;
+  border: 1.5px solid var(--np-border) !important;
+  border-radius: var(--np-radius) !important;
+  color: var(--np-text) !important;
+  font-family: var(--np-font-ui) !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  box-shadow: var(--np-shadow-sm) !important;
+}
+
+/* Dark mode Swal */
+body.dark .swal2-popup.np-swal {
+  background: var(--np-bg-card) !important;
+  border-color: var(--np-border) !important;
+  color: var(--np-text) !important;
+}
+
+body.dark .swal2-popup.np-swal .swal2-title {
+  color: var(--np-text) !important;
+}
+
+body.dark .swal2-popup.np-swal .swal2-html-container {
+  color: var(--np-text-muted) !important;
+}

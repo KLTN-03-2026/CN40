@@ -1,0 +1,667 @@
+<style>
+  /*  CRITICAL: Scope sidebar styles to SIDEBAR ONLY - do NOT affect modals/buttons globally */
+  #sidebar-container * {
+    box-sizing: border-box !important;
+  }
+
+  #sidebar-container aside {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    background: #1e293b !important;
+    width: 256px !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    margin: 0 !important;
+    min-width: 256px !important;
+    max-width: 256px !important;
+    border-right: 1px solid #e5e7eb !important;
+    padding: 16px 12px !important;
+    user-select: none !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    height: 100vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  #sidebar-container nav {
+    display: block !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  #sidebar-container .space-y-1 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+
+  #sidebar-container .space-y-2 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  #sidebar-container aside button {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    background: transparent !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    width: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  #sidebar-container .bg-gray-200 {
+    background: #e5e7eb !important;
+  }
+
+  #sidebar-container .bg-red-500 {
+    background: #ef4444 !important;
+  }
+  #sidebar-container .bg-blue-600 {
+    background: #2563EB !important;
+  }
+
+  #sidebar-container .text-white {
+    color: white !important;
+  }
+
+  #sidebar-container .font-bold {
+    font-weight: bold !important;
+  }
+
+  #sidebar-container .rounded-full {
+    border-radius: 50% !important;
+  }
+
+  #sidebar-container .border-t {
+    border-top: 1px solid #e5e7eb !important;
+  }
+
+  #sidebar-container .pt-4 {
+    padding-top: 16px !important;
+  }
+
+  #sidebar-container .mt-4 {
+    margin-top: 16px !important;
+  }
+
+  #sidebar-container .px-4 {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  #sidebar-container .gap-3 {
+    gap: 12px !important;
+  }
+
+  #sidebar-container .items-center {
+    align-items: center !important;
+  }
+
+  #sidebar-container .flex {
+    display: flex !important;
+  }
+
+  #sidebar-container .flex-1 {
+    flex: 1 !important;
+  }
+
+  #sidebar-container .min-w-0 {
+    min-width: 0 !important;
+  }
+
+  #sidebar-container .truncate {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  #sidebar-container .text-sm {
+    font-size: 14px !important;
+  }
+
+  #sidebar-container .text-xs {
+    font-size: 12px !important;
+  }
+
+  #sidebar-container .font-semibold {
+    font-weight: 600 !important;
+  }
+
+  #sidebar-container .text-gray-900 {
+    color: #111827 !important;
+  }
+
+  #sidebar-container .text-gray-500 {
+    color: #6b7280 !important;
+  }
+
+  #sidebar-container .text-gray-600 {
+    color: #4b5563 !important;
+  }
+
+  #sidebar-container .text-gray-700 {
+    color: #374151 !important;
+  }
+
+  /* ===== Nav button state ===== */
+  #sidebar-container .nav-btn {
+    color: #94a3b8 !important;
+    background: transparent !important;
+    transition: background .15s, color .15s !important;
+  }
+  #sidebar-container .nav-btn > i {
+    color: inherit !important;
+    width: 18px;
+    text-align: center;
+  }
+  #sidebar-container .nav-btn:hover {
+    background: rgba(255,255,255,0.06) !important;
+    color: #cbd5e1 !important;
+  }
+  #sidebar-container .nav-btn.is-active {
+    background: color-mix(in srgb, var(--accent, #2563EB) 15%, transparent) !important;
+    color: #f1f5f9 !important;
+    font-weight: 600 !important;
+  }
+  #sidebar-container .nav-btn.is-active > i {
+    color: var(--accent, #60a5fa) !important;
+  }
+  body.dark #sidebar-container .nav-btn.is-active {
+    background: color-mix(in srgb, var(--accent, #2563EB) 12%, transparent) !important;
+  }
+
+  #sidebar-container .hover\:bg-gray-100:hover {
+    background: #f3f4f6 !important;
+  }
+
+  #sidebar-container .hover\:text-gray-700:hover {
+    color: #374151 !important;
+  }
+
+  #sidebar-container .hover\:text-red-600:hover {
+    color: #dc2626 !important;
+  }
+
+  #sidebar-container .hover\:bg-gray-50:hover {
+    background: #f9fafb !important;
+  }
+
+  #sidebar-container .rounded-lg {
+    border-radius: 8px !important;
+  }
+
+  #sidebar-container .rounded-xl {
+    border-radius: 12px !important;
+  }
+
+  #sidebar-container aside > div {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  #sidebar-container aside > div:first-child {
+    flex: 1 !important;
+  }
+
+  #sidebar-container aside > div:last-child {
+    flex: 0 0 auto !important;
+  }
+
+  #main-app {
+    display: flex !important;
+    position: relative !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+  }
+
+  #sidebar-container {
+    display: block !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 256px !important;
+    height: 100vh !important;
+    z-index: 999 !important;
+    background: #1e293b !important;
+    border-right: 1px solid #334155 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: hidden !important;
+  }
+
+  body.dark #sidebar-container {
+    background: #1a2332 !important;
+    border-right: 1px solid #2d3d50 !important;
+  }
+
+  body.dark #sidebar-container aside {
+    background: #1a2332 !important;
+  }
+
+  #sidebar-container aside {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+  }
+
+  /* Dark sidebar overrides */
+  #sidebar-container .text-gray-900 { color: #f1f5f9 !important; }
+  #sidebar-container .text-gray-700 { color: #cbd5e1 !important; }
+  #sidebar-container .text-gray-600 { color: #94a3b8 !important; }
+  #sidebar-container .text-gray-500 { color: #64748b !important; }
+  #sidebar-container .border-t { border-top: 1px solid #334155 !important; }
+  #sidebar-container .border-gray-200 { border-color: #334155 !important; }
+  #sidebar-container .bg-gray-200 { background: #334155 !important; }
+  #sidebar-container .hover\:bg-gray-100:hover { background: #334155 !important; }
+  #sidebar-container .hover\:bg-gray-50:hover { background: #273548 !important; }
+  #sidebar-container .hover\:text-gray-700:hover { color: #f1f5f9 !important; }
+  #sidebar-container .hover\:text-red-600:hover { color: #f87171 !important; }
+
+  /* ═══════ Settings Modal ═══════ */
+  #settingsModal { position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px; }
+  #settingsModal.hidden { display:none !important; }
+  #settingsModal .sm-overlay { position:absolute;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px); }
+  #settingsModal .sm-panel { position:relative;width:400px;max-width:100%;max-height:calc(100vh - 3rem);background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.2);display:flex;flex-direction:column;overflow:hidden;animation:smSlideUp .25s ease; }
+  #settingsModal .sm-header { background:var(--accent-header, linear-gradient(135deg,#2563EB,#1d4ed8));padding:20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0; }
+  #settingsModal .sm-user { display:flex;align-items:center;gap:12px; }
+  #settingsModal .sm-avatar { width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0; }
+  #settingsModal .sm-user-info { min-width:0; }
+  #settingsModal .settings-user-name { color:#fff;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+  #settingsModal .settings-user-email { color:rgba(255,255,255,0.7);font-size:11px;margin-top:2px; }
+  #settingsModal .sm-close { width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);font-size:12px;transition:background .2s;padding:0 !important; }
+  #settingsModal .sm-close:hover { background:rgba(255,255,255,0.25); }
+  #settingsModal .sm-body { padding:16px;overflow-y:auto;flex:1; }
+  #settingsModal .sm-section-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin-bottom:8px;padding-left:2px; }
+  #settingsModal .sm-card { background:#f8fafc;border-radius:12px;padding:14px;border:1px solid #e2e8f0;margin-bottom:10px; }
+  #settingsModal .sm-row { display:flex;align-items:center;justify-content:space-between; }
+  #settingsModal .sm-row-left { display:flex;align-items:center;gap:10px; }
+  #settingsModal .sm-icon { width:28px;height:28px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;color:var(--accent,#2563EB);font-size:12px;flex-shrink:0;text-align:center;line-height:28px; }
+  #settingsModal .sm-label { font-size:13px;font-weight:600;color:#1e293b; }
+  #settingsModal .sm-desc { font-size:11px;color:#94a3b8;margin-top:1px; }
+  #settingsModal .sm-toggle { position:relative;width:42px;height:24px;border-radius:12px;background:#cbd5e1;border:none;cursor:pointer;transition:background .3s;flex-shrink:0;padding:0 !important; }
+  #settingsModal .sm-toggle-thumb { position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:transform .3s; }
+  #settingsModal .sm-color-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:8px; }
+  #settingsModal .sm-color-grid button { width:100% !important;height:38px !important;border-radius:10px !important;border:none !important;cursor:pointer !important;position:relative !important;transition:transform .15s,box-shadow .15s !important;padding:0 !important;display:block !important; }
+  #settingsModal .sm-color-grid button:hover { transform:scale(1.05); }
+  #settingsModal .sm-color-grid button.active { outline:2.5px solid currentColor;outline-offset:3px;box-shadow:0 2px 10px rgba(0,0,0,0.15); }
+  #settingsModal .sm-color-grid button .swatch-name { position:absolute;bottom:3px;left:0;right:0;text-align:center;font-size:9px;color:#fff;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,0.4); }
+  #settingsModal .sm-color-grid button .swatch-check { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,0.4); }
+  #settingsModal .sm-footer { padding:12px 16px;border-top:1px solid #e2e8f0;flex-shrink:0; }
+  #settingsModal .sm-logout-btn { width:100%;padding:10px 16px;border-radius:10px;border:1.5px solid #fecaca;background:#fff5f5;cursor:pointer;transition:all .2s;color:#dc2626;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px; }
+  #settingsModal .sm-logout-btn:hover { background:#fee2e2;border-color:#f87171; }
+  body.dark #settingsModal .sm-panel { background:#1e293b; }
+  body.dark #settingsModal .sm-section-label { color:#475569; }
+  body.dark #settingsModal .sm-card { background:#162032;border-color:#334155; }
+  body.dark #settingsModal .sm-label { color:#f1f5f9; }
+  body.dark #settingsModal .sm-desc { color:#64748b; }
+  body.dark #settingsModal .sm-icon { background:#1e3a5f; }
+  body.dark #settingsModal .sm-footer { border-color:#334155; }
+  body.dark #settingsModal .sm-logout-btn { background:rgba(220,38,38,0.08);border-color:rgba(248,113,113,0.3); }
+  body.dark #settingsModal .sm-logout-btn:hover { background:rgba(220,38,38,0.15);border-color:#f87171; }
+  @keyframes smSlideUp { from{opacity:0;transform:translateY(20px) scale(0.96)} to{opacity:1;transform:none} }
+</style>
+
+<aside
+  class="flex flex-col justify-between w-64 py-4 px-3 select-none min-h-screen"
+  style="background:#1e293b;border-right:1px solid #334155;"
+>
+  <!-- Logo/Brand -->
+  <div>
+    <div class="px-4 mb-5 flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--accent, #2563EB)">
+        <i class="fas fa-calendar-check text-white text-sm"></i>
+      </div>
+      <span style="color:#f1f5f9;font-weight:700;font-size:15px;">Schedule AI</span>
+    </div>
+
+    <nav class="space-y-1">
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm font-medium rounded-lg px-4 py-3 is-active"
+        data-section="schedule"
+      >
+        <i class="far fa-calendar-alt"></i>
+        <span>Lịch trình</span>
+      </button>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="work"
+      >
+        <i class="far fa-clipboard"></i>
+        <span>Công việc</span>
+      </button>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="ai"
+      >
+        <i class="fas fa-magic"></i>
+        <span>Tham Khảo AI</span>
+      </button>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="salary"
+      >
+        <i class="fas fa-chart-line"></i>
+        <span>Thống kê</span>
+      </button>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="habits"
+      >
+        <i class="fas fa-leaf"></i>
+        <span>Thói quen</span>
+      </button>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="friends"
+        style="position:relative"
+      >
+        <i class="fas fa-user-friends"></i>
+        <span>Bạn bè</span>
+        <span id="sidebar-friend-badge" class="friend-badge hidden">0</span>
+      </button>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="groups"
+      >
+        <i class="fas fa-users"></i>
+        <span>Nhóm</span>
+      </button>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="chat"
+        style="position:relative"
+      >
+        <i class="fas fa-comments"></i>
+        <span>Tin nhắn</span>
+        <span id="sidebar-chat-badge" class="friend-badge hidden">0</span>
+      </button>
+      <button
+        type="button"
+        class="nav-btn w-full flex items-center gap-3 text-sm rounded-lg px-4 py-3"
+        data-section="notifications"
+      >
+        <i class="fas fa-link"></i>
+        <span>Liên kết</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- User Info Bottom -->
+  <div style="border-top:1px solid #334155;padding-top:16px;margin-top:16px;">
+    <!-- Profile area (shown when authenticated) -->
+    <div id="sidebarProfileBtn" class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all hover:opacity-80" style="background:#0f172a;" title="Cập nhật hồ sơ">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden" style="background:var(--accent, #2563EB)" id="sidebarAvatarContainer">
+        <span class="avatar-letter">?</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold truncate user-name" style="color:#f1f5f9;">Người dùng</p>
+        <p class="text-xs truncate user-email" style="color:#64748b;">email@example.com</p>
+      </div>
+    </div>
+    <div class="mt-2 space-y-1">
+      <button
+        id="settingsBtn"
+        class="w-full text-left text-xs flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
+        style="color:#64748b;"
+        onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#cbd5e1';"
+        onmouseout="this.style.background='transparent';this.style.color='#64748b';"
+      >
+        <i class="fas fa-cog"></i>
+        <span>Cài đặt</span>
+      </button>
+      <!-- Toggle: Đăng nhập (chưa auth) / Đăng xuất (đã auth) -->
+      <button
+        id="sidebarAuthToggleBtn"
+        class="w-full text-left text-xs flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
+        style="color:#64748b;"
+      >
+        <i class="fas fa-sign-out-alt" id="authToggleIcon"></i>
+        <span id="authToggleText">Đăng xuất</span>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════ SETTINGS MODAL ═══════ -->
+<div id="settingsModal" class="modal hidden">
+  <div class="sm-overlay"></div>
+  <div class="sm-panel">
+    <div class="sm-header">
+      <div class="sm-user">
+        <div class="sm-avatar"><span class="settings-avatar-letter">?</span></div>
+        <div class="sm-user-info">
+          <div class="settings-user-name">Người dùng</div>
+          <div class="settings-user-email">email@example.com</div>
+        </div>
+      </div>
+      <button class="sm-close" id="closeSettingsModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="sm-body">
+      <div class="sm-section-label">Giao diện</div>
+
+      <div class="sm-card sm-row">
+        <div class="sm-row-left">
+          <i class="fas fa-moon sm-icon"></i>
+          <div>
+            <div class="sm-label">Chế độ tối</div>
+            <div class="sm-desc">Bảo vệ mắt, giảm ánh sáng xanh</div>
+          </div>
+        </div>
+        <button class="sm-toggle" id="sidebarThemeToggle" onclick="if(window.ThemeManager){ThemeManager.toggle();updateSidebarThemeToggle();}">
+          <span class="sm-toggle-thumb" id="sidebarThemeThumb"></span>
+        </button>
+      </div>
+
+      <div class="sm-card">
+        <div class="sm-row-left" style="margin-bottom:12px">
+          <i class="fas fa-palette sm-icon"></i>
+          <div>
+            <div class="sm-label">Màu chủ đạo</div>
+            <div class="sm-desc">Tuỳ chỉnh màu giao diện</div>
+          </div>
+        </div>
+        <div class="sm-color-grid" id="accentColorGrid"></div>
+      </div>
+    </div>
+
+    <div class="sm-footer">
+      <button class="sm-logout-btn" id="modalLogoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Move modal out of sidebar-container to avoid overflow:hidden clipping
+  (function() {
+    const modal = document.getElementById('settingsModal');
+    if (modal && modal.closest('#sidebar-container')) {
+      document.body.appendChild(modal);
+    }
+  })();
+
+  function updateSidebarThemeToggle() {
+    const isDark = document.body.classList.contains('dark');
+    const btn = document.getElementById('sidebarThemeToggle');
+    const thumb = document.getElementById('sidebarThemeThumb');
+    if (btn) btn.style.background = isDark ? 'var(--accent, #2563EB)' : '#cbd5e1';
+    if (thumb) thumb.style.transform = isDark ? 'translateX(20px)' : 'translateX(0)';
+  }
+  function updateSettingsThemeUI() { updateSidebarThemeToggle(); }
+  document.addEventListener('theme-changed', () => updateSidebarThemeToggle());
+  updateSidebarThemeToggle();
+
+  function renderAccentPicker() {
+    const grid = document.getElementById('accentColorGrid');
+    if (!grid) return;
+    if (!window.AccentTheme) { setTimeout(renderAccentPicker, 100); return; }
+    const current = AccentTheme.get();
+    grid.innerHTML = AccentTheme.PRESETS.map(p => {
+      const isActive = p.hex.toUpperCase() === current.toUpperCase();
+      return `<button style="background:${p.hex} !important;color:${p.hex}" class="${isActive ? 'active' : ''}" onclick="AccentTheme.set('${p.hex}');renderAccentPicker();">
+        <span class="swatch-name">${p.name}</span>
+        ${isActive ? '<i class="fas fa-check swatch-check"></i>' : ''}
+      </button>`;
+    }).join('');
+  }
+  renderAccentPicker();
+
+  (function () {
+    const settingsModal = document.getElementById("settingsModal");
+    const openBtn = document.getElementById("settingsBtn");
+    const closeBtn = document.getElementById("closeSettingsModal");
+    const modalLogoutBtn = document.getElementById("modalLogoutBtn");
+
+    function updateUserInfo(user) {
+      if (!user) return;
+      const name = user.hoten || user.username || "Người dùng";
+      const email = user.email || "email@example.com";
+      const initial = (user.hoten || user.username || "?").charAt(0).toUpperCase();
+
+      const set = (sel, val) => { const el = document.querySelector(sel); if (el) el.textContent = val; };
+      set(".user-name", name);
+      set(".user-email", email);
+      set(".settings-user-name", name);
+      set(".settings-user-email", email);
+      set(".settings-avatar-letter", initial);
+
+      const avatarUrl = user.avatarUrl || user.AvatarUrl || localStorage.getItem("user_avatar_url") || localStorage.getItem("user_avatar");
+      const container = document.getElementById("sidebarAvatarContainer");
+      if (container) {
+        if (avatarUrl) {
+          container.innerHTML = "";
+          container.style.backgroundImage = `url(${avatarUrl})`;
+          container.style.backgroundSize = "cover";
+          container.style.backgroundPosition = "center";
+        } else {
+          container.style.backgroundImage = "";
+          if (!container.querySelector(".avatar-letter")) {
+            const span = document.createElement("span");
+            span.className = "avatar-letter";
+            span.textContent = initial;
+            container.appendChild(span);
+          } else {
+            container.querySelector(".avatar-letter").textContent = initial;
+          }
+        }
+      }
+    }
+
+    // Load immediately (sidebar loads after DOMContentLoaded)
+    const userData = localStorage.getItem("user_data");
+    if (userData) { try { updateUserInfo(JSON.parse(userData)); } catch (e) {} }
+
+    document.addEventListener("user-avatar-updated", (e) => {
+      const container = document.getElementById("sidebarAvatarContainer");
+      if (container && e.detail?.url) {
+        container.innerHTML = "";
+        container.style.backgroundImage = `url(${e.detail.url})`;
+        container.style.backgroundSize = "cover";
+        container.style.backgroundPosition = "center";
+      }
+    });
+
+    openBtn?.addEventListener("click", (e) => { e.preventDefault(); settingsModal.classList.remove("hidden"); });
+    const closeModal = () => settingsModal.classList.add("hidden");
+    closeBtn?.addEventListener("click", closeModal);
+    settingsModal?.querySelector(".sm-overlay")?.addEventListener("click", closeModal);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !settingsModal.classList.contains("hidden")) closeModal(); });
+
+    function syncAuthUI() {
+      const token = localStorage.getItem('auth_token');
+      let isLoggedIn = false;
+      if (token) { try { const p = JSON.parse(atob(token.split('.')[1])); isLoggedIn = Date.now() < p.exp * 1000; } catch (e) {} }
+      const profileBtn = document.getElementById('sidebarProfileBtn');
+      const settBtn = document.getElementById('settingsBtn');
+      const toggleIcon = document.getElementById('authToggleIcon');
+      const toggleText = document.getElementById('authToggleText');
+      const toggleBtn = document.getElementById('sidebarAuthToggleBtn');
+
+      if (profileBtn) profileBtn.style.display = isLoggedIn ? 'flex' : 'none';
+      if (settBtn) settBtn.style.display = isLoggedIn ? 'flex' : 'none';
+      if (toggleIcon && toggleText && toggleBtn) {
+        toggleIcon.className = isLoggedIn ? 'fas fa-sign-out-alt' : 'fas fa-sign-in-alt';
+        toggleText.textContent = isLoggedIn ? 'Đăng xuất' : 'Đăng nhập';
+        toggleBtn.style.color = isLoggedIn ? '#64748b' : '#94a3b8';
+      }
+    }
+    syncAuthUI();
+    document.addEventListener('auth-success', syncAuthUI);
+    document.addEventListener('auth-logout', syncAuthUI);
+
+    const doLogout = async () => {
+      try { if (typeof Utils !== "undefined") await Utils.makeRequest("/api/auth/logout", "POST"); } catch (e) {}
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user_data");
+      if (typeof AuthManager !== "undefined") AuthManager.logout();
+      else document.dispatchEvent(new CustomEvent('auth-logout'));
+      syncAuthUI();
+    };
+
+    document.getElementById('sidebarAuthToggleBtn')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (window.Utils?.isLoggedIn()) { if (!await Utils.confirm("Bạn có chắc chắn muốn đăng xuất?", "Đăng xuất")) return; await doLogout(); }
+      else if (window.AuthModalController) { AuthModalController.init(); AuthModalController.open('login'); }
+    });
+
+    modalLogoutBtn?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (!await Utils.confirm("Bạn có chắc chắn muốn đăng xuất?", "Đăng xuất")) return;
+      await doLogout();
+    });
+
+    window.updateSidebarUser = updateUserInfo;
+
+    document.getElementById("sidebarProfileBtn")?.addEventListener("click", (e) => {
+      e.preventDefault(); e.stopPropagation();
+      const tryOpen = (n = 0) => {
+        if (window.ProfileManager?.openProfileModal) { if (!window.ProfileManager.initialized) window.ProfileManager.init(); window.ProfileManager.openProfileModal(); return; }
+        if (n > 20) { const m = document.getElementById("profileModal"); if (m) { m.classList.remove("hidden"); m.style.display = "flex"; } return; }
+        setTimeout(() => tryOpen(n + 1), 100);
+      };
+      tryOpen();
+    });
+
+    const initNav = setInterval(() => {
+      if (window.AppNavigation?.navigateToSection) {
+        clearInterval(initNav);
+        document.querySelectorAll("[data-section]").forEach((btn) => {
+          btn.addEventListener("click", (e) => { e.preventDefault(); AppNavigation.navigateToSection(btn.dataset.section); });
+        });
+      }
+    }, 100);
+    setTimeout(() => clearInterval(initNav), 5000);
+  })();
+</script>

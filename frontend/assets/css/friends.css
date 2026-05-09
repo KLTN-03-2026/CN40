@@ -1,0 +1,56 @@
+/* friends.css — Friends section styling */
+
+/* Dark mode overrides */
+body.dark #friends-section .bg-white {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark #friends-section .bg-slate-50,
+body.dark #friends-section .hover\:bg-slate-100:hover {
+  background: #0f172a;
+}
+
+body.dark #friends-section .text-slate-800 {
+  color: #f1f5f9;
+}
+
+body.dark #friends-section .text-slate-500 {
+  color: #94a3b8;
+}
+
+body.dark #friends-section .text-slate-400 {
+  color: #64748b;
+}
+
+body.dark #friends-section .border-slate-200 {
+  border-color: #334155;
+}
+
+body.dark #friends-section input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+/* Friend request badge in sidebar */
+.friend-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+
+.friend-badge.hidden {
+  display: none;
+}

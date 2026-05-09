@@ -1,0 +1,96 @@
+<!-- habits.html — Habit Tracker page loaded into #habits-section -->
+<div style="padding: 24px; max-width: 860px; margin: 0 auto;">
+
+  <!-- ── Header ── -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="habits-header-icon">
+        <i class="fas fa-leaf"></i>
+      </div>
+      <div>
+        <h1 style="font-size:22px;font-weight:700;margin:0;" class="dark-text hb-text-primary">Thói quen</h1>
+        <p style="font-size:13px;color:var(--text-muted,#94a3b8);margin:2px 0 0;">Xây dựng thói quen tốt mỗi ngày</p>
+      </div>
+    </div>
+    <button id="habit-add-btn" style="
+      display:flex;align-items:center;gap:8px;
+      padding:10px 18px;border-radius:12px;border:none;
+      background:var(--accent, #2563EB);
+      color:#fff;font-size:14px;font-weight:600;cursor:pointer;
+      box-shadow:0 4px 12px color-mix(in srgb, var(--accent, #2563EB) 35%, transparent);
+      transition:opacity 0.15s;
+    " onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+      <i class="fas fa-plus"></i>
+      <span>Thêm thói quen</span>
+    </button>
+  </div>
+
+  <!-- ── Today's check-in card ── -->
+  <div class="hb-card" style="margin-bottom:24px;">
+    <div class="hb-card-header">
+      <span style="font-size:16px;">☀️</span>
+      <span class="hb-card-title">Hôm nay</span>
+      <span id="habit-today-date" style="font-size:12px;color:var(--text-muted,#94a3b8);margin-left:4px;"></span>
+    </div>
+    <div id="habit-today-list" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;">
+      <div style="text-align:center;padding:32px;color:var(--text-muted,#94a3b8);font-size:13px;">Đang tải...</div>
+    </div>
+  </div>
+
+  <!-- ── Stats summary ── -->
+  <div id="habit-stats-row" class="hb-stats-row" style="display:none;">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- ── Monthly calendar view ── -->
+  <div class="hb-card" style="margin-bottom:20px;">
+    <div class="hb-card-header">
+      <span style="font-size:16px;">📅</span>
+      <span class="hb-card-title">Tháng này</span>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+        <button id="month-prev" class="year-nav-btn" title="Tháng trước"><i class="fas fa-chevron-left"></i></button>
+        <span id="month-label" style="font-size:13px;font-weight:600;min-width:90px;text-align:center;" class="hb-text-primary"></span>
+        <button id="month-next" class="year-nav-btn" title="Tháng sau"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+    <!-- Habit selector pills -->
+    <div id="habit-selector-row" style="padding:12px 20px 0;display:flex;flex-wrap:wrap;gap:8px;min-height:36px;"></div>
+    <!-- Monthly calendar grid -->
+    <div style="padding:12px 20px 20px;">
+      <div id="habit-month-grid"></div>
+    </div>
+  </div>
+
+  <!-- ── Yearly heatmap ── -->
+  <div class="hb-card">
+    <div class="hb-card-header">
+      <span style="font-size:16px;">📊</span>
+      <span class="hb-card-title">Tổng quan năm</span>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+        <button id="heatmap-prev-year" class="year-nav-btn" title="Năm trước"><i class="fas fa-chevron-left"></i></button>
+        <span id="heatmap-year-label" style="font-size:13px;font-weight:600;min-width:44px;text-align:center;" class="hb-text-primary"></span>
+        <button id="heatmap-next-year" class="year-nav-btn" title="Năm sau"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+    <div style="padding:12px 20px 20px;">
+      <div id="habit-heatmap" class="heatmap-wrapper">
+        <p style="text-align:center;color:var(--text-muted,#94a3b8);font-size:13px;padding:24px;">
+          Chưa có dữ liệu. Thêm thói quen để bắt đầu.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  (function () {
+    const el = document.getElementById("habit-today-date");
+    if (el) {
+      const d = new Date();
+      el.textContent = d.toLocaleDateString("vi-VN", {
+        weekday: "long", day: "numeric", month: "long",
+      });
+    }
+  })();
+</script>

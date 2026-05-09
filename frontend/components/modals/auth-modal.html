@@ -1,0 +1,64 @@
+<div class="auth-modal-overlay hidden" id="authModalOverlay">
+  <div class="auth-modal-panel">
+    <!-- Header — Apple style: clean, centered -->
+    <div class="auth-modal-header" style="position:relative">
+      <button id="authModalCloseBtn" type="button" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,0.06);color:#86868b;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.2s" onmouseover="this.style.background='rgba(0,0,0,0.1)'" onmouseout="this.style.background='rgba(0,0,0,0.06)'">
+        <i class="fas fa-times"></i>
+      </button>
+      <h2>Đăng nhập</h2>
+      <p>Quản lý lịch trình thông minh với AI</p>
+    </div>
+
+    <!-- Tab Bar — pill toggle -->
+    <div class="auth-tab-bar">
+      <button class="auth-tab-btn is-active" data-auth-tab="login">Đăng nhập</button>
+      <button class="auth-tab-btn" data-auth-tab="register">Đăng ký</button>
+    </div>
+
+    <!-- Login Form -->
+    <div class="auth-form-body" id="authTabLogin">
+      <div class="auth-error-msg" id="authLoginError"></div>
+      <form id="authLoginForm" autocomplete="on">
+        <div class="auth-form-group">
+          <label for="authLoginUsername">Tên đăng nhập</label>
+          <input type="text" id="authLoginUsername" name="username" placeholder="Tên đăng nhập" autocomplete="username" required />
+        </div>
+        <div class="auth-form-group">
+          <label for="authLoginPassword">Mật khẩu</label>
+          <input type="password" id="authLoginPassword" name="password" placeholder="Mật khẩu" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="auth-submit-btn" id="authLoginBtn">
+          <span class="auth-btn-text">Đăng nhập</span>
+          <span class="auth-loading-spinner" id="authLoginSpinner"></span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Register Form -->
+    <div class="auth-form-body hidden" id="authTabRegister">
+      <div class="auth-error-msg" id="authRegisterError"></div>
+      <form id="authRegisterForm" autocomplete="on">
+        <div class="auth-form-group">
+          <label for="authRegHoten">Họ và tên</label>
+          <input type="text" id="authRegHoten" name="name" placeholder="Họ và tên" autocomplete="name" required />
+        </div>
+        <div class="auth-form-group">
+          <label for="authRegUsername">Tên đăng nhập</label>
+          <input type="text" id="authRegUsername" name="username" placeholder="Tên đăng nhập" autocomplete="username" required />
+        </div>
+        <div class="auth-form-group">
+          <label for="authRegEmail">Email</label>
+          <input type="email" id="authRegEmail" name="email" placeholder="email@example.com" autocomplete="email" required />
+        </div>
+        <div class="auth-form-group">
+          <label for="authRegPassword">Mật khẩu</label>
+          <input type="password" id="authRegPassword" name="new-password" placeholder="Tối thiểu 6 ký tự" autocomplete="new-password" required minlength="6" />
+        </div>
+        <button type="submit" class="auth-submit-btn" id="authRegisterBtn">
+          <span class="auth-btn-text">Tạo tài khoản</span>
+          <span class="auth-loading-spinner" id="authRegisterSpinner"></span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

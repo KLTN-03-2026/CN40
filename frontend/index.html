@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <style>
+    #sidebar-container,
+    #sidebar-container * {
+      box-sizing: border-box !important;
+    }
+
+    #sidebar-container {
+      position: fixed !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 256px !important;
+      height: 100vh !important;
+      overflow: hidden !important;
+      z-index: 999 !important;
+    }
+
+    #sidebar-container aside {
+      position: relative !important;
+      left: 0 !important;
+      right: 0 !important;
+      top: 0 !important;
+      margin-left: 0 !important;
+      box-sizing: border-box !important;
+      width: 256px !important;
+      height: 100vh !important;
+    }
+  </style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý công việc</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/calendar.css" />
+    <link rel="stylesheet" href="assets/css/ai-calendar.css" />
+    <link rel="stylesheet" href="assets/css/work.css" />
+    <link rel="stylesheet" href="assets/css/ai-modal-fix.css" />
+    <link rel="stylesheet" href="assets/css/login.css" />
+    <link rel="stylesheet" href="assets/css/salary.css" />
+    <link rel="stylesheet" href="assets/css/connections.css" />
+    <link rel="stylesheet" href="assets/css/auth-modal.css" />
+    <link rel="stylesheet" href="assets/css/tags.css" />
+    <link rel="stylesheet" href="assets/css/pomodoro.css" />
+    <link rel="stylesheet" href="assets/css/calendar-shares.css" />
+    <link rel="stylesheet" href="assets/css/friends.css" />
+    <link rel="stylesheet" href="assets/css/habits.css" />
+    <link rel="stylesheet" href="assets/css/groups.css" />
+    <link rel="stylesheet" href="assets/css/chat.css" />
+    <link rel="stylesheet" href="assets/css/gamification.css" />
+
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+      }
+
+      #auth-loading {
+        position: fixed;
+        inset: 0;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #2563EB;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      #main-app {
+        display: none;
+      }
+
+      #main-app.ready {
+        display: block;
+      }
+
+      body:not(.fa-loaded) i[class*="fa-"],
+      body:not(.fa-loaded) span[class*="fa-"] {
+        opacity: 0;
+      }
+
+      body.fa-loaded i[class*="fa-"],
+      body.fa-loaded span[class*="fa-"] {
+        opacity: 1;
+        transition: opacity 0.2s ease-in-out;
+      }
+
+      #calendar {
+        min-height: 600px;
+        height: calc(100vh - 200px);
+      }
+
+      .fc-event-dragging {
+        opacity: 0.7;
+        cursor: move !important;
+      }
+
+      [draggable="true"] {
+        cursor: move;
+        transition: opacity 0.2s;
+      }
+
+      [draggable="true"]:hover {
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      (function forceSidebarEarly() {
+        const style = document.createElement("style");
+        style.innerHTML = `
+          #sidebar-container {
+            display: block !important;
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 256px !important;
+            min-width: 256px !important;
+            height: 100vh !important;
+            z-index: 999 !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          }
+          #sidebar-container.hidden,
+          #sidebar-container.hidden * {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          }
+        `;
+        document.head.appendChild(style);
+        console.log(" Sidebar force styles injected at page start");
+      })();
+    </script>
+
+    <div id="auth-loading">
+      <div class="text-center">
+        <div class="loading-spinner mx-auto"></div>
+        <p class="mt-4 text-gray-600">Đang kiểm tra đăng nhập...</p>
+      </div>
+    </div>
+
+    <div id="main-app" class="flex min-h-screen">
+      <div id="sidebar-container"></div>
+
+      <div class="flex-1 flex flex-col" style="margin-left: 256px">
+        <div class="flex-1 overflow-auto">
+          <main id="schedule-section" class="section active"></main>
+          <main id="work-section" class="section"></main>
+          <main id="ai-section" class="section"></main>
+          <main id="salary-section" class="section"></main>
+          <main id="profile-section" class="section"></main>
+          <main id="notifications-section" class="section"></main>
+          <main id="habits-section" class="section"></main>
+          <main id="friends-section" class="section"></main>
+          <main id="groups-section" class="section"></main>
+          <main id="chat-section" class="section"></main>
+        </div>
+      </div>
+    </div>
+
+    <div id="authModalContainer"></div>
+    <div id="shareModalContainer"></div>
+    <div id="createTaskModal" class="modal hidden"></div>
+    <div id="settingsModal" class="modal hidden"></div>
+
+    <!-- AI Chat Advisor — floating widget (only visible to authed users). -->
+    <div id="chatAdvisorWidget"></div>
+
+    <!-- Pomodoro Timer — floating widget bottom-left (z-index 998, does not overlap chat advisor). -->
+    <div id="pomodoroWidgetContainer"></div>
+
+    <!-- Theme (must load first) -->
+    <script src="assets/js/theme/theme.js"></script>
+    <script src="assets/js/theme/accent-theme.js"></script>
+    <script src="assets/js/theme/priority-theme.js"></script>
+
+    <!-- Core -->
+    <script src="assets/js/core/utils.js"></script>
+    <script src="assets/js/core/modal-manager.js"></script>
+    <script src="assets/js/core/app-navigation.js"></script>
+    <script src="assets/js/core/component-loader.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+    <!-- Modules: Calendar -->
+    <script src="assets/js/modules/calendar/calendar-share-manager.js"></script>
+    <script src="assets/js/modules/calendar/calendar-module.js"></script>
+    <script src="assets/js/modules/calendar/calendar-events.js"></script>
+    <script src="assets/js/modules/calendar/calendar-interactions.js"></script>
+    <script src="assets/js/modules/calendar/calendar-event-detail.js"></script>
+    <script src="assets/js/modules/calendar/calendar-bulk-complete.js"></script>
+    <script src="assets/js/modules/calendar/calendar-heatmap.js"></script>
+
+    <!-- Modules: Work -->
+    <script src="assets/js/modules/work/task-sorter.js"></script>
+    <script src="assets/js/modules/work/sort-controls.js"></script>
+    <script src="assets/js/widgets/tag-input-widget.js"></script>
+    <script src="assets/js/modules/work/work-manager.js"></script>
+    <script src="assets/js/modules/work/work-manager-render.js"></script>
+    <script src="assets/js/modules/work/work-manager-actions.js"></script>
+
+    <!-- Modules: AI -->
+    <script src="assets/js/modules/ai/ai-suggestion-handler.js"></script>
+    <script src="assets/js/modules/ai/ai-suggestion-render.js"></script>
+    <script src="assets/js/modules/ai/ai-module.js"></script>
+    <script src="assets/js/modules/ai/ai-module-render.js"></script>
+    <script src="assets/js/modules/ai/ai-reference-module.js"></script>
+    <script src="assets/js/modules/ai/ai-task-edit.js"></script>
+
+    <!-- Modules: Salary & Stats -->
+    <script src="assets/js/modules/salary/salary-manager.js"></script>
+    <script src="assets/js/modules/salary/salary-full-time-calendar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <script src="assets/js/modules/salary/stats-charts.js"></script>
+    <script src="assets/js/modules/salary/stats-advanced-charts.js"></script>
+    <script src="assets/js/modules/salary/stats-manager.js"></script>
+    <script src="assets/js/modules/salary/tab-manager.js"></script>
+    <!-- Export libraries (PDF + Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js" defer></script>
+    <script src="assets/js/modules/salary/stats-export.js" defer></script>
+
+    <div id="eventDetailModal" class="modal hidden"></div>
+    <div id="aiSuggestionModal" class="modal hidden"></div>
+    <div id="createCategoryModal" class="modal hidden"></div>
+    <div id="profileModal" class="modal hidden"></div>
+    <div id="priorityManagerModal" class="modal hidden"></div>
+    <div id="scheduleImportModal" class="modal hidden"></div>
+    <div id="aiTaskEditModal" class="modal hidden"></div>
+
+    <!-- Widgets -->
+    <script src="assets/js/widgets/schedule-image-upload.js"></script>
+    <script src="assets/js/widgets/profile-manager.js"></script>
+
+    <!-- Modules: Habits & Connections -->
+    <script src="assets/js/modules/habits/google-calendar-connection.js"></script>
+    <script src="assets/js/modules/habits/connections-section.js"></script>
+    <script src="assets/js/modules/habits/notifications-section.js"></script>
+    <script src="assets/js/modules/habits/habits-section.js"></script>
+
+    <!-- Modules: Friends -->
+    <script src="assets/js/modules/friends/friends-section.js"></script>
+
+    <!-- Modules: Groups -->
+    <script src="assets/js/modules/groups/group-detail-render.js"></script>
+    <script src="assets/js/modules/groups/group-list-section.js"></script>
+    <script src="assets/js/modules/groups/group-detail-section.js"></script>
+
+    <!-- Modules: Gamification -->
+    <script src="assets/js/modules/gamification/gamification-badges.js"></script>
+    <script src="assets/js/modules/gamification/badge-display-helper.js"></script>
+    <script src="assets/js/modules/gamification/gamification-section.js"></script>
+
+    <!-- Modules: Chat -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/modules/chat/chat-utils.js"></script>
+    <script src="assets/js/modules/chat/chat-message-renderer.js"></script>
+    <script src="assets/js/modules/chat/chat-realtime-client.js"></script>
+    <script src="assets/js/modules/chat/chat-conversation.js"></script>
+    <script src="assets/js/modules/chat/chat-list-section.js"></script>
+
+    <!-- Widgets: Chat & Pomodoro -->
+    <script src="assets/js/widgets/chat-advisor/chat-advisor-widget.js"></script>
+    <script src="assets/js/widgets/pomodoro/pomodoro-widget-render.js"></script>
+    <script src="assets/js/widgets/pomodoro/pomodoro-widget.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Auth & App (must load last) -->
+    <script src="assets/js/auth/auth.js"></script>
+    <script src="assets/js/auth/auth-modal-controller.js"></script>
+    <script src="assets/js/core/app.js"></script>
+
+    <script>
+      // Load auth modal HTML early, then start app
+      (function () {
+        function loadAuthModal(callback) {
+          const container = document.getElementById('authModalContainer');
+          if (!container) return callback();
+          fetch('components/modals/auth-modal.html')
+            .then(r => r.text())
+            .then(html => { container.innerHTML = html; callback(); })
+            .catch(() => callback());
+        }
+
+        function startApp() {
+          if (window.App?.init) {
+            App.init();
+          } else {
+            setTimeout(startApp, 100);
+          }
+        }
+
+        loadAuthModal(() => {
+          if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", startApp);
+          } else {
+            startApp();
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,213 @@
+<div class="modal-overlay" data-modal-close></div>
+
+<div class="modal-content-wrapper">
+  <div
+    class="modal-content overflow-hidden"
+    id="aiTaskEditModalContent"
+    style="
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: min(620px, 94vw);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    "
+  >
+    <!-- Header -->
+    <div
+      style="
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border);
+      "
+    >
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div
+          style="
+            width:36px; height:36px;
+            border-radius: var(--radius-sm);
+            background: var(--accent-light);
+            color: var(--accent);
+            display:flex; align-items:center; justify-content:center;
+          "
+        >
+          <i class="fas fa-sliders"></i>
+        </div>
+        <div>
+          <h2 style="font-size:17px; font-weight:600; letter-spacing:-0.374px; color:var(--text-primary);">
+            Tinh chỉnh công việc cho AI
+          </h2>
+          <p id="aiTaskEditSubtitle" style="font-size:13px; color:var(--text-secondary);"></p>
+        </div>
+      </div>
+      <button
+        id="aiTaskEditCloseBtn"
+        aria-label="Close"
+        style="
+          width:32px; height:32px;
+          border-radius: var(--radius-sm);
+          background: transparent;
+          color: var(--text-secondary);
+          border: 1px solid var(--border);
+          display:flex; align-items:center; justify-content:center;
+          cursor: pointer;
+        "
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 20px 22px; overflow-y:auto; display:flex; flex-direction:column; gap:18px;">
+
+      <!-- Title (read-only hint) -->
+      <div>
+        <label style="font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">
+          Tên công việc
+        </label>
+        <input
+          id="aiTaskEditTitle"
+          type="text"
+          style="
+            width:100%; padding:8px 12px; font-size:14px;
+            border-radius: var(--radius-sm);
+            border:1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text-primary);
+          "
+        >
+      </div>
+
+      <!-- Row: priority + duration -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+        <div>
+          <label style="font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">
+            Độ ưu tiên
+          </label>
+          <div id="aiTaskEditPriority" class="ai-chip-row"></div>
+        </div>
+        <div>
+          <label style="font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">
+            Thời lượng (phút)
+          </label>
+          <input
+            id="aiTaskEditDuration" type="number" min="5" step="5"
+            style="
+              width:100%; padding:8px 12px; font-size:14px;
+              border-radius: var(--radius-sm);
+              border:1px solid var(--border);
+              background: var(--bg-input);
+              color: var(--text-primary);
+            "
+          >
+        </div>
+      </div>
+
+      <!-- Complexity -->
+      <div>
+        <label style="font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">
+          Độ phức tạp <span style="color:var(--text-muted); font-weight:400;">(1 = đơn giản, 5 = rất phức tạp)</span>
+        </label>
+        <div id="aiTaskEditComplexity" class="ai-chip-row"></div>
+      </div>
+
+      <!-- Focus -->
+      <div>
+        <label style="font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">
+          Độ tập trung cần <span style="color:var(--text-muted); font-weight:400;">(1 = thoáng, 5 = cần rất tập trung)</span>
+        </label>
+        <div id="aiTaskEditFocus" class="ai-chip-row"></div>
+      </div>
+
+      <!-- Preferred time -->
+      <div>
+        <label style="font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">
+          Thời điểm phù hợp
+        </label>
+        <div id="aiTaskEditTimeSlot" class="ai-chip-row"></div>
+      </div>
+
+      <!-- Tag -->
+      <div>
+        <label style="font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">
+          Tag <span style="color:var(--text-muted); font-weight:400;">(tuỳ chọn, tách bằng dấu phẩy)</span>
+        </label>
+        <input
+          id="aiTaskEditTag" type="text" placeholder="VD: học, deadline, deep-work"
+          style="
+            width:100%; padding:8px 12px; font-size:14px;
+            border-radius: var(--radius-sm);
+            border:1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text-primary);
+          "
+        >
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div
+      style="
+        padding: 14px 22px;
+        display:flex; justify-content:flex-end; gap:8px;
+        border-top: 1px solid var(--border);
+      "
+    >
+      <button
+        id="aiTaskEditCancelBtn"
+        style="
+          padding:8px 15px; font-size:15px; font-weight:500;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-hover);
+          background: var(--bg-card);
+          color: var(--text-primary);
+          cursor: pointer;
+          letter-spacing: -0.374px;
+        "
+      >Huỷ</button>
+      <button
+        id="aiTaskEditSaveBtn"
+        style="
+          padding:8px 15px; font-size:15px; font-weight:500;
+          color:#ffffff;
+          background: var(--accent);
+          border: 1px solid transparent;
+          border-radius: var(--radius-sm);
+          cursor: pointer;
+          letter-spacing: -0.374px;
+        "
+      ><i class="fas fa-check" style="margin-right:6px;"></i>Lưu</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ai-chip-row {
+    display:flex; flex-wrap:wrap; gap:6px;
+  }
+  .ai-chip {
+    padding: 6px 12px; font-size:13px; font-weight:500;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+  }
+  .ai-chip:hover { background: var(--bg-card-hover); }
+  .ai-chip.active {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  #aiTaskEditSaveBtn:hover { background: var(--accent-hover); }
+  #aiTaskEditCancelBtn:hover,
+  #aiTaskEditCloseBtn:hover { background: var(--bg-card-hover); }
+</style>

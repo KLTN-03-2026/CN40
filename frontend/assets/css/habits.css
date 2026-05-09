@@ -1,0 +1,381 @@
+/* habits.css — Habit Tracker — Apple Design System compliant */
+
+/* ── Habit row ── */
+.habit-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--bg-card, #fff);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.habit-row:hover {
+  background: var(--bg-card-alt, #f5f5f7);
+}
+body.dark .habit-row { background: #272729; }
+body.dark .habit-row:hover { background: #2a2a2d; }
+
+/* ── Custom checkbox — Apple Blue ── */
+.habit-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+.habit-checkbox:checked {
+  background: var(--apple-blue, #0071e3);
+  border-color: var(--apple-blue, #0071e3);
+}
+.habit-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  top: 3px; left: 6px;
+  width: 5px; height: 9px;
+  border: 2px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
+body.dark .habit-checkbox { border-color: rgba(255, 255, 255, 0.2); }
+
+/* ── Habit icon ── */
+.habit-icon {
+  font-size: 16px;
+  width: 32px; height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--bg-card-alt, #f5f5f7);
+  color: var(--apple-blue, #0071e3);
+  flex-shrink: 0;
+}
+body.dark .habit-icon { background: #2a2a2d; color: #2997ff; }
+
+/* ── Habit name ── */
+.habit-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-primary, #1d1d1f);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.224px;
+}
+body.dark .habit-name { color: #fff; }
+.habit-row.done .habit-name { text-decoration: line-through; opacity: 0.5; }
+
+/* ── Streak badge (inline) — Apple Blue accent ── */
+.habit-row .streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-card-alt, #f5f5f7);
+  color: var(--text-primary, #1d1d1f);
+  border: none;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  letter-spacing: -0.12px;
+}
+.habit-row .streak-badge i { color: var(--apple-blue, #0071e3); }
+body.dark .habit-row .streak-badge { background: #2a2a2d; color: #fff; }
+body.dark .habit-row .streak-badge i { color: #2997ff; }
+
+/* ── Habit action buttons ── */
+.habit-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.habit-row:hover .habit-actions { opacity: 1; }
+.habit-action-btn {
+  width: 28px; height: 28px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.48);
+  transition: background 0.15s, color 0.15s;
+}
+.habit-action-btn:hover { background: var(--bg-card-alt, #f5f5f7); color: var(--text-primary, #1d1d1f); }
+body.dark .habit-action-btn { color: rgba(255, 255, 255, 0.48); }
+body.dark .habit-action-btn:hover { background: #2a2a2d; color: #fff; }
+.habit-action-btn.delete:hover { color: #ff3b30; }
+
+/* ── Heatmap wrapper ── */
+.heatmap-wrapper {
+  overflow-x: auto;
+  padding: 8px 0 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Heatmap tooltip ── */
+.ch-tooltip {
+  position: fixed;
+  background: #1d1d1f;
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  display: none;
+  z-index: 9999;
+  white-space: nowrap;
+  letter-spacing: -0.12px;
+}
+
+/* ── Habits section header ── */
+.habits-header-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: var(--apple-blue, #0071e3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* ── Nav buttons ── */
+.year-nav-btn {
+  width: 32px; height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: var(--bg-card-alt, #f5f5f7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.48);
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+}
+.year-nav-btn:hover {
+  background: var(--bg-card, #fff);
+  color: var(--apple-blue, #0071e3);
+}
+body.dark .year-nav-btn { background: #2a2a2d; color: rgba(255, 255, 255, 0.48); }
+body.dark .year-nav-btn:hover { background: #3a3a3c; color: #2997ff; }
+
+/* ── Habit modal ── */
+.habit-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: saturate(180%) blur(20px);
+  z-index: 8000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.habit-modal-panel {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px;
+  overflow: hidden;
+}
+body.dark .habit-modal-panel { background: #272729; }
+
+/* ── Emoji picker ── */
+.emoji-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+.emoji-picker-item {
+  width: 38px; height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  background: var(--bg-card-alt, #f5f5f7);
+  color: rgba(0, 0, 0, 0.8);
+  transition: all 0.15s;
+}
+.emoji-picker-item:hover {
+  background: var(--bg-card, #fff);
+  color: var(--apple-blue, #0071e3);
+}
+.emoji-picker-item.selected {
+  border-color: var(--apple-blue, #0071e3);
+  color: var(--apple-blue, #0071e3);
+}
+body.dark .emoji-picker-item { background: #2a2a2d; color: rgba(255, 255, 255, 0.8); }
+body.dark .emoji-picker-item:hover { background: #3a3a3c; color: #2997ff; }
+body.dark .emoji-picker-item.selected { border-color: #2997ff; color: #2997ff; }
+
+/* ── Empty state ── */
+.habits-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: rgba(0, 0, 0, 0.48);
+}
+.habits-empty .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+
+/* ── Habit selector pills ── */
+.habit-select-btn {
+  padding: 6px 14px;
+  border-radius: 980px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.8);
+  transition: all 0.15s;
+  white-space: nowrap;
+  letter-spacing: -0.224px;
+}
+.habit-select-btn.active {
+  background: var(--apple-blue, #0071e3);
+  border-color: var(--apple-blue, #0071e3);
+  color: #fff;
+  font-weight: 400;
+}
+.habit-select-btn:not(.active):hover {
+  background: var(--bg-card-alt, #f5f5f7);
+}
+body.dark .habit-select-btn { border-color: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); }
+body.dark .habit-select-btn.active { background: #0071e3; border-color: #0071e3; color: #fff; }
+body.dark .habit-select-btn:not(.active):hover { background: #2a2a2d; }
+
+/* ── Card containers ── */
+.hb-card {
+  background: var(--bg-card, #f5f5f7);
+  border-radius: 12px;
+  overflow: hidden;
+}
+body.dark .hb-card { background: #272729; }
+.hb-card-header {
+  padding: 16px 20px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hb-card-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary, #1d1d1f);
+  letter-spacing: -0.374px;
+}
+body.dark .hb-card-title { color: #fff; }
+.hb-text-primary { color: var(--text-primary, #1d1d1f); }
+body.dark .hb-text-primary { color: #fff; }
+
+/* ── Stats summary — solid backgrounds ── */
+.hb-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.hb-stat-card {
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-align: center;
+  background: var(--bg-card, #f5f5f7);
+}
+body.dark .hb-stat-card { background: #272729; }
+.hb-stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.14;
+  color: var(--text-primary, #1d1d1f);
+  letter-spacing: -0.28px;
+}
+.hb-stat-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.48);
+  margin-top: 4px;
+  letter-spacing: -0.12px;
+}
+body.dark .hb-stat-value { color: #fff; }
+body.dark .hb-stat-label { color: rgba(255, 255, 255, 0.48); }
+
+/* ── Monthly calendar (circle day cells) ── */
+.hb-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  max-width: 380px;
+  margin: 0 auto;
+}
+.hb-month-header {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.48);
+  padding: 4px 0 10px;
+  letter-spacing: -0.12px;
+}
+body.dark .hb-month-header { color: rgba(255, 255, 255, 0.48); }
+.hb-day-cell {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-primary, #1d1d1f);
+  transition: all 0.15s;
+  cursor: default;
+  letter-spacing: -0.224px;
+}
+.hb-day-cell.empty { visibility: hidden; }
+.hb-day-cell.future { color: rgba(0, 0, 0, 0.2); }
+.hb-day-cell.today {
+  font-weight: 600;
+  color: var(--apple-blue, #0071e3);
+  box-shadow: inset 0 0 0 2px var(--apple-blue, #0071e3);
+}
+.hb-day-cell.done {
+  background: var(--apple-blue, #0071e3);
+  color: #fff;
+  font-weight: 600;
+}
+.hb-day-cell.done.today {
+  box-shadow: none;
+}
+.hb-day-cell.missed {
+  color: rgba(0, 0, 0, 0.3);
+}
+body.dark .hb-day-cell { color: #fff; }
+body.dark .hb-day-cell.future { color: rgba(255, 255, 255, 0.15); }
+body.dark .hb-day-cell.today { color: #2997ff; box-shadow: inset 0 0 0 2px #2997ff; }
+body.dark .hb-day-cell.done { background: #0071e3; color: #fff; }
+body.dark .hb-day-cell.missed { color: rgba(255, 255, 255, 0.2); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .habits-header-icon { width: 40px; height: 40px; font-size: 18px; }
+  .habit-row { padding: 10px 12px; }
+  .hb-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .hb-day-cell { font-size: 12px; }
+}

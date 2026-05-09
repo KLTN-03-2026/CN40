@@ -1,0 +1,70 @@
+<!-- groups.html — loaded into #groups-section by componentLoader -->
+<div class="p-6 max-w-5xl mx-auto">
+
+  <!-- Header -->
+  <div class="groups-header flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white"
+        style="background:var(--accent-gradient, linear-gradient(135deg, #2563EB, #1d4ed8))">
+        <i class="fas fa-users"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800">Nhóm làm việc</h1>
+        <p class="text-sm text-slate-500">Quản lý nhóm và công việc nhóm</p>
+      </div>
+    </div>
+    <button id="create-group-btn"
+      class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+      style="background:var(--accent, #2563EB)">
+      <i class="fas fa-plus"></i> Tạo nhóm
+    </button>
+  </div>
+
+  <!-- Group List View -->
+  <div id="groups-list-view">
+    <div id="groups-grid" class="groups-grid"></div>
+    <p id="groups-empty" class="hidden text-center text-slate-400 py-12 text-sm">
+      <i class="fas fa-users text-3xl mb-3 block text-slate-300"></i>
+      Bạn chưa tham gia nhóm nào
+    </p>
+  </div>
+
+  <!-- Group Detail View -->
+  <div id="group-detail-view" class="hidden">
+    <button id="back-to-groups"
+      class="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 mb-5 transition">
+      <i class="fas fa-arrow-left"></i> Quay lại
+    </button>
+    <div id="group-detail-content"></div>
+  </div>
+
+</div>
+
+<!-- Create Group Modal -->
+<div id="create-group-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+  <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
+    <h2 class="text-lg font-bold text-slate-800 mb-4">Tạo nhóm mới</h2>
+    <div class="space-y-3">
+      <input id="new-group-name" type="text" placeholder="Tên nhóm *"
+        class="w-full px-4 py-2.5 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:border-transparent" />
+      <textarea id="new-group-desc" placeholder="Mô tả (tuỳ chọn)" rows="2"
+        class="w-full px-4 py-2.5 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:border-transparent resize-none"></textarea>
+    </div>
+    <div class="flex gap-3 mt-5 justify-end">
+      <button id="cancel-create-group"
+        class="px-4 py-2 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">Huỷ</button>
+      <button id="submit-create-group"
+        class="px-5 py-2 rounded-xl text-sm font-semibold text-white"
+        style="background:var(--accent, #2563EB)">Tạo nhóm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    if (window.GroupDetailSection) {
+      document.getElementById("back-to-groups")
+        ?.addEventListener("click", () => GroupListSection.backToList());
+    }
+  })();
+</script>

@@ -1,0 +1,243 @@
+/* groups.css — Groups section styling */
+
+/* ── Grid layout ── */
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+/* ── Group card ── */
+.group-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+}
+
+.group-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  border-color: var(--accent, #2563eb);
+}
+
+/* ── Progress bar ── */
+.group-progress {
+  width: 100%;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.group-progress-fill {
+  height: 100%;
+  background: var(--accent, #2563eb);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+  min-width: 4px;
+}
+
+/* ── Detail header ── */
+.group-detail-header {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+}
+
+/* ── Member list ── */
+.group-members-list { gap: 0.5rem; }
+
+/* ── Role badges ── */
+.role-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.role-owner {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.role-admin {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.role-member {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ── Task card ── */
+.gt-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.gt-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-color: #cbd5e1; }
+.gt-card-done { opacity: 0.6; }
+.gt-card-cancelled { opacity: 0.5; }
+.gt-card-overdue { border-color: #fca5a5; background: #fef2f2; }
+
+.gt-card-prio { width: 4px; border-radius: 4px; flex-shrink: 0; align-self: stretch; }
+.gt-card-title { font-size: 13px; font-weight: 600; color: #1e293b; }
+.gt-card-desc { font-size: 11px; color: #64748b; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.gt-card-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 500; padding: 2px 8px;
+  border-radius: 999px; background: #f1f5f9; color: #475569;
+  white-space: nowrap;
+}
+.gt-tag-overdue { background: #fef2f2; color: #dc2626; font-weight: 600; }
+
+.gt-action-btn {
+  width: 28px; height: 28px; border-radius: 8px; border: none;
+  background: transparent; color: #94a3b8; cursor: pointer;
+  font-size: 11px; transition: all 0.12s;
+  display: flex; align-items: center; justify-content: center;
+}
+.gt-action-btn:hover { background: #f1f5f9; color: #3b82f6; }
+.gt-action-danger:hover { background: #fef2f2; color: #ef4444; }
+
+/* ── Status select ── */
+.gt-status-select {
+  font-size: 11px; font-weight: 600; padding: 3px 8px;
+  border: 1px solid #e2e8f0; border-radius: 8px;
+  background: #fff; cursor: pointer; outline: none;
+}
+
+/* ── Stats ring ── */
+.gt-stats-ring {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: conic-gradient(var(--accent,#2563EB) calc(var(--pct) * 1%), #e2e8f0 0);
+  position: relative;
+}
+.gt-stats-ring::before {
+  content: ''; position: absolute;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #fff;
+}
+.gt-stats-ring span { position: relative; z-index: 1; }
+
+.gt-stat-item { display: flex; flex-direction: column; gap: 1px; }
+.gt-stat-num { font-size: 18px; font-weight: 700; }
+.gt-stat-label { font-size: 10px; color: #94a3b8; }
+
+/* ── Filter bar ── */
+.gt-filter-btn {
+  font-size: 11px; font-weight: 600; padding: 4px 10px;
+  border-radius: 8px; border: 1px solid #e2e8f0;
+  background: #fff; cursor: pointer; transition: all 0.12s;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.gt-filter-btn.active { border-color: transparent; }
+.gt-filter-btn:not(.active):hover { background: #f8fafc; }
+.gt-filter-count { font-size: 10px; opacity: 0.7; }
+
+.gt-assignee-select {
+  font-size: 11px; padding: 4px 8px;
+  border: 1px solid #e2e8f0; border-radius: 8px;
+  background: #fff; cursor: pointer; outline: none;
+}
+
+/* ── Form elements ── */
+.gt-form-input {
+  width: 100%; padding: 8px 12px; border-radius: 10px;
+  border: 1px solid #e2e8f0; font-size: 12px; outline: none;
+  background: #fff; transition: border-color 0.15s;
+}
+.gt-form-input:focus { border-color: var(--accent, #2563EB); }
+.gt-form-label { font-size: 10px; font-weight: 600; color: #64748b; margin-bottom: 3px; display: block; }
+
+.gt-btn-primary {
+  padding: 6px 16px; border-radius: 10px; border: none;
+  background: var(--accent, #2563EB); color: #fff;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.gt-btn-cancel {
+  padding: 6px 16px; border-radius: 10px;
+  border: 1px solid #e2e8f0; background: #fff;
+  font-size: 12px; color: #64748b; cursor: pointer;
+}
+
+/* ── Add-member form (friends picker) ── */
+#add-member-form.hidden { display: none; }
+
+#add-member-friends-list::-webkit-scrollbar { width: 4px; }
+#add-member-friends-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+
+.add-member-item:hover { background: #f1f5f9 !important; }
+
+/* ── Dark mode ── */
+body.dark #groups-section .bg-white,
+body.dark #groups-section .group-card,
+body.dark #groups-section .group-detail-header {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark #groups-section .group-card:hover { border-color: var(--accent, #2563eb); }
+
+body.dark #groups-section .bg-slate-50,
+body.dark #groups-section .group-task-item,
+body.dark #groups-section .group-members-list .bg-slate-50 {
+  background: #0f172a !important;
+}
+
+body.dark #groups-section .text-slate-800 { color: #f1f5f9; }
+body.dark #groups-section .text-slate-500 { color: #94a3b8; }
+body.dark #groups-section .text-slate-400 { color: #64748b; }
+body.dark #groups-section .border-slate-200 { border-color: #334155; }
+
+body.dark #groups-section input,
+body.dark #groups-section select,
+body.dark #groups-section textarea {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark #groups-section .group-progress { background: #334155; }
+
+body.dark .gt-card { background: #1e293b; border-color: #334155; }
+body.dark .gt-card:hover { border-color: #475569; }
+body.dark .gt-card-overdue { background: #1a0505; border-color: #7f1d1d; }
+body.dark .gt-card-title { color: #f1f5f9; }
+body.dark .gt-card-desc { color: #94a3b8; }
+body.dark .gt-card-tag { background: #334155; color: #94a3b8; }
+body.dark .gt-action-btn:hover { background: #334155; }
+body.dark .gt-status-select { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+body.dark .gt-filter-btn { background: #1e293b; border-color: #334155; }
+body.dark .gt-assignee-select { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+body.dark .gt-stats-ring::before { background: #1e293b; }
+body.dark .gt-form-input { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+body.dark .gt-btn-cancel { background: #1e293b; border-color: #334155; color: #94a3b8; }
+
+body.dark #create-group-modal .bg-white {
+  background: #1e293b;
+}
+
+body.dark #create-group-modal .text-slate-800 { color: #f1f5f9; }
+body.dark #create-group-modal input,
+body.dark #create-group-modal textarea {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark #groups-section .add-member-item:hover { background: #1e293b !important; }
+body.dark #groups-section #add-member-friends-list::-webkit-scrollbar-thumb { background: #475569; }

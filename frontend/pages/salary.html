@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý lương</title>
+    <link rel="stylesheet" href="/frontend/assets/css/salary.css" />
+</head>
+<body>
+    <div class="salary-page">
+        <div class="container">
+            <div class="header">
+                <h1>Thống kê</h1>
+                <div class="tabs">
+                    <button class="tab active" data-tab="stats">Thống kê</button>
+                    <button class="tab" data-tab="salary">Tính lương</button>
+                    <button class="tab" data-tab="gamification">Thành tích</button>
+                </div>
+            </div>
+
+            <!-- View tính lương -->
+            <div id="salary-view" class="hidden">
+                <!-- Toolbar: date range + presets + search -->
+                <div class="flex flex-wrap items-center gap-3 mb-4 p-3 bg-white rounded-xl border border-slate-200">
+                    <input type="date" id="filter-from" class="px-2 py-1.5 rounded-lg border border-slate-200 text-sm">
+                    <span class="text-slate-400 text-sm">→</span>
+                    <input type="date" id="filter-to" class="px-2 py-1.5 rounded-lg border border-slate-200 text-sm">
+                    <button id="btn-apply" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-white" style="background:var(--accent, #2563EB)">Áp dụng</button>
+                    <div class="flex gap-1 ml-1">
+                        <button class="np-preset px-2.5 py-1 rounded-lg text-xs font-semibold border border-slate-200 text-slate-600 bg-white" data-preset="week">Tuần</button>
+                        <button class="np-preset px-2.5 py-1 rounded-lg text-xs font-semibold border border-slate-200 text-slate-600 bg-white" data-preset="month">Tháng</button>
+                        <button class="np-preset px-2.5 py-1 rounded-lg text-xs font-semibold border border-slate-200 text-slate-600 bg-white" data-preset="year">Năm</button>
+                    </div>
+                    <input type="text" id="filter-search" placeholder="Tìm công việc..." class="flex-1 min-w-[160px] px-3 py-1.5 rounded-lg border border-slate-200 text-sm">
+                </div>
+
+                <!-- Stat cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                    <div class="p-3 rounded-xl border border-slate-200 bg-white">
+                        <div class="text-xs text-slate-500">Tổng lương</div>
+                        <div class="text-xl font-bold" style="color:#166534" id="stat-total-salary">0 ₫</div>
+                    </div>
+                    <div class="p-3 rounded-xl border border-slate-200 bg-white">
+                        <div class="text-xs text-slate-500">Tổng giờ làm (part-time)</div>
+                        <div class="text-xl font-bold" id="stat-total-hours">0h</div>
+                    </div>
+                    <div class="p-3 rounded-xl border border-slate-200 bg-white">
+                        <div class="text-xs text-slate-500">Số công việc có lương</div>
+                        <div class="text-xl font-bold" id="stat-job-count">0</div>
+                    </div>
+                </div>
+
+                <!-- Groups: part-time + full-time jobs (expandable) -->
+                <div id="salary-groups"></div>
+
+                <!-- Trend chart -->
+                <div class="mt-4 p-3 rounded-xl border border-slate-200 bg-white">
+                    <div class="text-xs font-semibold text-slate-600 mb-2">Thu nhập theo ngày (part-time)</div>
+                    <div style="position:relative;height:200px">
+                        <canvas id="salary-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View thành tích / gamification -->
+            <div id="gamification-view" class="hidden">
+              <div class="gamification-header"></div>
+              <div class="gamification-streaks"></div>
+              <div class="gamification-badges"></div>
+              <div class="gamification-leaderboard"></div>
+            </div>
+
+            <!-- View thống kê -->
+            <div id="stats-view">
+                <div class="date-filter">
+                    <label>Chọn khoảng thời gian:</label>
+                    <input type="date" id="stats-from">
+                    <span>đến</span>
+                    <input type="date" id="stats-to">
+                    <button class="btn-apply" id="apply-stats-btn">Áp dụng</button>
+                    <div class="flex items-center gap-2 ml-auto">
+                        <button id="btn-export-pdf" class="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50" title="Xuất PDF">
+                            <i class="fas fa-file-pdf text-red-500"></i> PDF
+                        </button>
+                        <button id="btn-export-excel" class="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white hover:bg-slate-50" title="Xuất Excel">
+                            <i class="fas fa-file-excel text-green-600"></i> Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="main-grid">
+                    <div>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">Tổng công việc</div>
+                                <div class="stat-value" id="stats-total">0</div>
+                                <div class="stat-meta">
+                                    Hoàn thành: <strong id="stats-completed">0</strong> | 
+                                    Chưa hoàn thành: <strong id="stats-pending">0</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-title">Biểu đồ công việc theo ngày</div>
+                            <div style="position:relative;height:200px">
+                              <canvas id="bar-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-title">Tỷ lệ hoàn thành</div>
+                            <div style="position:relative;height:180px;display:flex;align-items:center;justify-content:center">
+                              <canvas id="donut-chart" style="max-width:260px"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-title">Phân bố theo độ ưu tiên</div>
+                            <div style="position:relative;height:200px">
+                              <canvas id="priority-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-title">Phân bố theo danh mục</div>
+                            <div style="position:relative;height:200px;display:flex;align-items:center;justify-content:center">
+                              <canvas id="category-chart" style="max-width:280px"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Streak -->
+                        <div id="streak-display" class="flex items-center gap-2 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl mb-4">
+                            <i class="fas fa-fire text-2xl text-orange-500"></i>
+                            <span id="streak-count" class="text-3xl font-bold text-orange-600">0</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-300">ngày liên tiếp</span>
+                        </div>
+
+                        <!-- Comparison chart: planned vs actual per week/month -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm mb-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-semibold text-gray-700 dark:text-gray-200">Kế hoạch vs Thực tế</h3>
+                                <div class="flex gap-1">
+                                    <button class="comparison-toggle active px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700" data-mode="weekly">Tuần</button>
+                                    <button class="comparison-toggle px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600" data-mode="monthly">Tháng</button>
+                                </div>
+                            </div>
+                            <div style="position:relative;height:220px"><canvas id="comparison-chart"></canvas></div>
+                        </div>
+
+                        <!-- Activity heatmap -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm mb-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-semibold text-gray-700 dark:text-gray-200">Heatmap hoàn thành</h3>
+                                <select id="heatmap-year-select" class="text-sm border rounded px-2 py-1 dark:bg-gray-700 dark:border-gray-600"></select>
+                            </div>
+                            <div id="stats-heatmap"></div>
+                        </div>
+                    </div>
+
+                    <div class="quick-stats">
+                        <div class="quick-stats-header">
+                            <h3>Thống kê nhanh</h3>
+                        </div>
+                        <div class="quick-stats-tabs">
+                            <button class="quick-tab active" data-period="week">Tuần</button>
+                            <button class="quick-tab" data-period="month">Tháng</button>
+                            <button class="quick-tab" data-period="year">Năm</button>
+                        </div>
+                        <div class="quick-stats-body">
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Tổng công việc</span>
+                                <span class="quick-stat-value" id="side-total">0</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Đã hoàn thành</span>
+                                <span class="quick-stat-value" id="side-completed">0</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Tỷ lệ hoàn thành</span>
+                                <span class="quick-stat-value" id="side-percent">0%</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Thời gian ước tính</span>
+                                <span class="quick-stat-value" id="side-minutes">0h</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Đã hoàn thành (giờ)</span>
+                                <span class="quick-stat-value" id="side-done-minutes">0h</span>
+                            </div>
+                            <div class="quick-stat-item">
+                                <span class="quick-stat-label">Chuỗi ngày liên tiếp</span>
+                                <span class="quick-stat-value" id="side-streak">0 ngày</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Import các module JS - THỨ TỰ QUAN TRỌNG -->
+    <script src="/frontend/assets/js/statsManager.js"></script>
+    <script src="/frontend/assets/js/salary-manager.js"></script>
+    
+    <!-- Khởi tạo StatsManager sau khi DOM ready -->
+    <script>
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", function() {
+                if (window.StatsManager) {
+                    window.StatsManager.init();
+                }
+            });
+        } else {
+            if (window.StatsManager) {
+                window.StatsManager.init();
+            }
+        }
+    </script>
+</body>
+</html>

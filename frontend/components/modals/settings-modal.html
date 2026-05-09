@@ -1,0 +1,154 @@
+<div class="modal-content p-6 w-80 max-w-full">
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="text-lg font-semibold text-gray-800">Cài đặt</h3>
+    <button
+      id="settingsBtn"
+      class="text-gray-500 hover:text-gray-700 text-xl"
+      type="button"
+    >
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="space-y-4">
+    <div class="bg-gray-50 p-4 rounded-lg">
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center"
+        >
+          <span class="text-white font-semibold text-sm">U</span>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-800">Người dùng</p>
+          <p class="text-xs text-gray-500">user@example.com</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <!-- "Cập nhật hồ sơ" moved to sidebar user area (click name/email). -->
+      <!-- "Thông báo" moved to its own sidebar nav section. -->
+
+      <div class="w-full flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
+        <span class="flex items-center text-sm text-gray-700">
+          <i class="fas fa-palette text-gray-400 mr-3 text-xs"></i>
+          Giao diện
+        </span>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-500" id="theme-label">Sáng</span>
+          <button
+            id="themeToggleBtn"
+            class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none"
+            style="background:#cbd5e1"
+            onclick="window.ThemeManager && ThemeManager.toggle(); updateThemeToggle();"
+            title="Chuyển chế độ sáng/tối"
+          >
+            <span
+              id="themeToggleThumb"
+              class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+              style="transform:translateX(2px)"
+            ></span>
+          </button>
+          <i class="fas fa-moon text-gray-400 text-xs"></i>
+        </div>
+      </div>
+
+      <button
+        class="w-full flex items-center justify-between p-3 text-left text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors"
+      >
+        <span class="flex items-center">
+          <i class="fas fa-globe text-gray-400 mr-3 text-xs"></i>
+          Ngôn ngữ
+        </span>
+        <span class="text-xs text-gray-500">Tiếng Việt</span>
+      </button>
+
+      <button
+        class="w-full flex items-center justify-between p-3 text-left text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors"
+      >
+        <span class="flex items-center">
+          <i class="fas fa-question-circle text-gray-400 mr-3 text-xs"></i>
+          Trợ giúp & Hỗ trợ
+        </span>
+        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+      </button>
+    </div>
+
+    <div class="border-t border-gray-200 my-4"></div>
+
+    <div class="space-y-2">
+      <button
+        class="w-full text-left p-3 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+      >
+        <i class="fas fa-shield-alt text-gray-400 mr-3 text-xs"></i>
+        Chính sách bảo mật
+      </button>
+
+      <button
+        class="w-full text-left p-3 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+      >
+        <i class="fas fa-file-contract text-gray-400 mr-3 text-xs"></i>
+        Điều khoản dịch vụ
+      </button>
+
+      <button
+        id="logoutBtn"
+        class="w-full text-left p-3 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors mt-2"
+      >
+        <i class="fas fa-sign-out-alt text-red-500 mr-3 text-xs"></i>
+        Đăng xuất
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-6 pt-4 border-t border-gray-200 text-center">
+    <p class="text-xs text-gray-500">Phiên bản 1.0.0</p>
+  </div>
+</div>
+
+<style>
+  .settings-option {
+    transition: all 0.2s ease;
+  }
+
+  .settings-option:hover {
+    transform: translateX(2px);
+  }
+</style>
+
+<script>
+  function updateThemeToggle() {
+    const isDark = document.body.classList.contains('dark');
+    const btn = document.getElementById('themeToggleBtn');
+    const thumb = document.getElementById('themeToggleThumb');
+    const label = document.getElementById('theme-label');
+    if (btn) btn.style.background = isDark ? '#dc2626' : '#cbd5e1';
+    if (thumb) thumb.style.transform = isDark ? 'translateX(18px)' : 'translateX(2px)';
+    if (label) label.textContent = isDark ? 'Tối' : 'Sáng';
+  }
+
+  // Init on load
+  updateThemeToggle();
+  document.addEventListener('theme-changed', updateThemeToggle);
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const settingButtons = document.querySelectorAll(
+      "#settingsModal button:not(#closeSettingsBtn)"
+    );
+    settingButtons.forEach((button) => {
+      button.addEventListener("mouseenter", function () {
+        this.classList.add("settings-option");
+      });
+
+      button.addEventListener("mouseleave", function () {
+        this.classList.remove("settings-option");
+      });
+    });
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", function () {
+      });
+    }
+  });
+</script>

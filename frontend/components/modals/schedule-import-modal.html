@@ -1,0 +1,327 @@
+<div class="modal-overlay" data-modal-close></div>
+
+<div class="modal-content-wrapper">
+  <div
+    class="modal-content overflow-hidden"
+    id="scheduleImportModalContent"
+    style="
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: min(760px, 94vw);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    "
+  >
+    <!-- Header: solid surface per DESIGN (no gradients). -->
+    <div
+      class="modal-header"
+      style="
+        background: var(--bg-card);
+        color: var(--text-primary);
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border);
+      "
+    >
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div
+          style="
+            width:36px; height:36px;
+            border-radius: var(--radius-sm);
+            background: var(--accent-light);
+            color: var(--accent);
+            display:flex; align-items:center; justify-content:center;
+          "
+        >
+          <i class="fas fa-camera"></i>
+        </div>
+        <div>
+          <h2 style="font-size:17px; font-weight:600; letter-spacing:-0.374px; line-height:1.24; color:var(--text-primary);">
+            Import lịch từ ảnh
+          </h2>
+          <p style="font-size:13px; color:var(--text-secondary); line-height:1.33;">
+            Upload ảnh lịch học/làm — AI sẽ đọc và tạo công việc tự động
+          </p>
+        </div>
+      </div>
+      <button
+        id="scheduleImportCloseBtn"
+        aria-label="Close"
+        style="
+          width:32px; height:32px;
+          border-radius: var(--radius-sm);
+          background: transparent;
+          color: var(--text-secondary);
+          border: 1px solid var(--border);
+          display:flex; align-items:center; justify-content:center;
+        "
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body" style="padding: 20px 22px; overflow-y:auto; background: var(--bg-card);">
+      <!-- Step 1: type + level -->
+      <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label style="font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">
+            Loại lịch
+          </label>
+          <div class="flex gap-2" id="scheduleImportTypeRow">
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="si-type" value="study" class="hidden peer" checked>
+              <div
+                class="si-chip"
+                style="
+                  padding:8px 12px; text-align:center; font-size:14px;
+                  border-radius: var(--radius-sm);
+                  border:1px solid var(--border);
+                  background: var(--bg-card);
+                  color: var(--text-secondary);
+                "
+              >
+                <i class="fas fa-graduation-cap" style="margin-right:6px;"></i>Lịch học
+              </div>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="si-type" value="work" class="hidden peer">
+              <div
+                class="si-chip"
+                style="
+                  padding:8px 12px; text-align:center; font-size:14px;
+                  border-radius: var(--radius-sm);
+                  border:1px solid var(--border);
+                  background: var(--bg-card);
+                  color: var(--text-secondary);
+                "
+              >
+                <i class="fas fa-briefcase" style="margin-right:6px;"></i>Lịch làm
+              </div>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:13px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">
+            Cấp học vấn
+          </label>
+          <select
+            id="scheduleImportLevel"
+            style="
+              width:100%; padding:8px 12px; font-size:14px;
+              border-radius: var(--radius-sm);
+              border:1px solid var(--border);
+              background: var(--bg-input);
+              color: var(--text-primary);
+            "
+          >
+            <option value="dai_hoc">Đại học</option>
+            <option value="thpt">Cấp 3 (THPT)</option>
+            <option value="thcs">Cấp 2 (THCS)</option>
+            <option value="di_lam">Đang đi làm</option>
+            <option value="khac">Khác</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Step 2: dropzone -->
+      <div
+        id="scheduleImportDropzone"
+        style="
+          border: 2px dashed var(--border-hover);
+          border-radius: var(--radius-lg);
+          padding: 24px;
+          text-align: center;
+          cursor: pointer;
+          background: var(--bg-card-alt);
+          transition: background .15s ease, border-color .15s ease;
+        "
+      >
+        <i class="fas fa-cloud-upload-alt" style="font-size:28px; color: var(--text-muted); margin-bottom:6px;"></i>
+        <p style="font-size:14px; font-weight:600; color:var(--text-primary);">Kéo ảnh vào đây, bấm chọn, hoặc Ctrl+V</p>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">JPG / PNG / WEBP — tối đa 8MB</p>
+        <input type="file" id="scheduleImportFileInput" class="hidden" accept="image/jpeg,image/png,image/webp">
+      </div>
+
+      <!-- Thumbnail + parse action -->
+      <div id="scheduleImportThumbWrap" class="hidden" style="margin-top:12px; display:flex; align-items:center; gap:12px;">
+        <img
+          id="scheduleImportThumb"
+          alt=""
+          style="
+            width:80px; height:80px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            border:1px solid var(--border);
+          "
+        >
+        <div style="flex:1; min-width:0;">
+          <p id="scheduleImportFileName" style="font-size:14px; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></p>
+          <p id="scheduleImportFileMeta" style="font-size:12px; color:var(--text-muted);"></p>
+        </div>
+        <button
+          id="scheduleImportParseBtn"
+          style="
+            padding:8px 15px; font-size:15px; font-weight:500;
+            color: #ffffff;
+            background: var(--accent);
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            letter-spacing: -0.374px;
+          "
+        >
+          <i class="fas fa-wand-magic-sparkles" style="margin-right:6px;"></i>Phân tích ảnh
+        </button>
+      </div>
+
+      <!-- Loading / error banners -->
+      <div id="scheduleImportStatus" class="hidden" style="margin-top:12px; padding:10px 12px; border-radius: var(--radius-sm); font-size:14px;"></div>
+
+      <!-- Step 3: extracted items table -->
+      <div id="scheduleImportPreview" class="hidden" style="margin-top:16px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <h3 style="font-size:14px; font-weight:600; color:var(--text-primary);">
+            <i class="fas fa-list-check" style="margin-right:6px; color:var(--accent);"></i>Công việc trích xuất
+            (<span id="scheduleImportCount">0</span>)
+          </h3>
+          <div style="display:flex; gap:8px;">
+            <button
+              id="scheduleImportAddBtn"
+              style="
+                padding:6px 12px; font-size:13px; font-weight:500;
+                border-radius: var(--radius-sm);
+                border: 1px solid var(--border);
+                background: var(--bg-card);
+                color: var(--text-primary);
+                cursor: pointer;
+              "
+            >
+              <i class="fas fa-plus" style="margin-right:4px;"></i>Thêm thủ công
+            </button>
+            <button
+              id="scheduleImportRescanBtn"
+              style="
+                padding:6px 12px; font-size:13px; font-weight:500;
+                border-radius: var(--radius-sm);
+                border: 1px solid var(--border);
+                background: var(--bg-card);
+                color: var(--text-primary);
+                cursor: pointer;
+              "
+            >
+              <i class="fas fa-rotate" style="margin-right:4px;"></i>Quét lại
+            </button>
+          </div>
+        </div>
+        <div style="overflow-x:auto; border:1px solid var(--border); border-radius: var(--radius-sm);">
+          <table class="w-full" id="scheduleImportTable" style="width:100%; font-size:13px; color:var(--text-primary);">
+            <thead style="background: var(--bg-card-alt); color: var(--text-secondary);">
+              <tr>
+                <th style="padding:8px; text-align:left; font-weight:600;">Tên</th>
+                <th style="padding:8px; text-align:left; font-weight:600;">Bắt đầu</th>
+                <th style="padding:8px; text-align:left; font-weight:600;">Kết thúc</th>
+                <th style="padding:8px; text-align:left; font-weight:600;">Ghi chú</th>
+                <th style="padding:8px;"></th>
+              </tr>
+            </thead>
+            <tbody id="scheduleImportTbody"></tbody>
+          </table>
+        </div>
+        <div
+          id="scheduleImportWarnings"
+          class="hidden"
+          style="
+            margin-top:8px; padding:8px 12px; font-size:13px;
+            border-radius: var(--radius-sm);
+            background: var(--warning-light);
+            color: #7a4a00;
+            border: 1px solid rgba(255, 159, 10, 0.25);
+          "
+        ></div>
+      </div>
+
+      <!-- Step 4: footer actions -->
+      <div
+        id="scheduleImportFooter"
+        class="hidden"
+        style="
+          display:flex; justify-content:flex-end; gap:8px;
+          padding-top:16px; margin-top:16px;
+          border-top: 1px solid var(--border);
+        "
+      >
+        <button
+          id="scheduleImportSaveBtn"
+          style="
+            padding:8px 15px; font-size:15px; font-weight:500;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-hover);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            cursor: pointer;
+            letter-spacing: -0.374px;
+          "
+        >
+          <i class="fas fa-floppy-disk" style="margin-right:6px;"></i>Lưu việc
+        </button>
+        <button
+          id="scheduleImportApplyBtn"
+          style="
+            padding:8px 15px; font-size:15px; font-weight:500;
+            color:#ffffff;
+            background: var(--accent);
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            letter-spacing: -0.374px;
+          "
+        >
+          <i class="fas fa-bolt" style="margin-right:6px;"></i>Áp dụng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Keep chip colors in line with design tokens (no Tailwind blue-50 leakage). */
+  #scheduleImportTypeRow .peer:checked ~ .si-chip {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  #scheduleImportDropzone:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  #scheduleImportParseBtn:hover,
+  #scheduleImportApplyBtn:hover { background: var(--accent-hover); }
+  #scheduleImportSaveBtn:hover,
+  #scheduleImportAddBtn:hover,
+  #scheduleImportRescanBtn:hover { background: var(--bg-card-hover); }
+  #scheduleImportCloseBtn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+  #scheduleImportModalContent table tbody tr { border-top: 1px solid var(--border); }
+  #scheduleImportModalContent table input[type="text"],
+  #scheduleImportModalContent table input[type="datetime-local"],
+  #scheduleImportModalContent table input:not([type]) {
+    width: 100%;
+    padding: 4px 6px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-primary);
+  }
+</style>
+
+<script>
+  // Lazy init: once the modal HTML is loaded, boot the controller if module is ready
+  if (window.ScheduleImageUpload && typeof window.ScheduleImageUpload.init === 'function') {
+    window.ScheduleImageUpload.init();
+  }
+</script>

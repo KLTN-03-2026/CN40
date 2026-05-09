@@ -1,0 +1,150 @@
+<!-- Connections section — loaded into #notifications-section by componentLoader -->
+<div class="p-6 max-w-4xl mx-auto">
+
+  <!-- Page header -->
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white" style="background:var(--accent-gradient, linear-gradient(135deg, #2563EB, #1d4ed8))">
+      <i class="fas fa-link"></i>
+    </div>
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">Liên kết</h1>
+      <p class="text-sm text-slate-500">Quản lý các kết nối và tích hợp dịch vụ ngoài</p>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="conn-tab-bar">
+    <button class="conn-tab is-active" data-conn-tab="telegram">
+      <i class="fab fa-telegram-plane mr-1.5"></i>Telegram
+    </button>
+    <button class="conn-tab" data-conn-tab="google-calendar">
+      <i class="fab fa-google mr-1.5"></i>Google Calendar
+    </button>
+  </div>
+
+  <!-- ===================== TELEGRAM PANEL ===================== -->
+  <div data-conn-panel="telegram">
+
+    <!-- Telegram link card -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 mb-5">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-[#229ED9] flex items-center justify-center text-white text-xl">
+            <i class="fab fa-telegram-plane"></i>
+          </div>
+          <div>
+            <div class="font-semibold text-slate-800">Telegram</div>
+            <div id="tg-status-text" class="text-sm text-slate-500">Đang kiểm tra...</div>
+          </div>
+        </div>
+        <div id="tg-status-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">
+          ...
+        </div>
+      </div>
+      <div class="mt-4 flex gap-2">
+        <button id="btn-tg-connect" class="hidden px-4 py-2 rounded-lg text-sm font-semibold text-white"
+          style="background:linear-gradient(135deg,#229ED9,#1e88e5)">
+          <i class="fab fa-telegram-plane mr-1"></i>Kết nối Telegram
+        </button>
+        <button id="btn-tg-disconnect" class="hidden px-4 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 bg-white hover:bg-red-50">
+          <i class="fas fa-unlink mr-1"></i>Ngắt kết nối
+        </button>
+        <button id="btn-tg-refresh" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 border border-slate-200 bg-white hover:bg-slate-50">
+          <i class="fas fa-sync mr-1"></i>Làm mới
+        </button>
+      </div>
+      <div id="tg-link-hint" class="hidden mt-3 p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm text-blue-800"></div>
+    </section>
+
+    <!-- Toggles -->
+    <section id="notif-prefs-card" class="bg-white rounded-2xl border border-slate-200 p-5 mb-5 opacity-60 pointer-events-none">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-slate-800">Loại thông báo</h2>
+        <span id="prefs-save-state" class="text-xs text-slate-400">Đã đồng bộ</span>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+        <!-- rows injected by script -->
+      </div>
+
+      <div id="notif-toggle-list" class="grid grid-cols-1 gap-2"></div>
+
+      <div class="mt-5 pt-5 border-t border-slate-100">
+        <div class="flex items-center gap-3">
+          <i class="fas fa-calendar-day text-slate-400"></i>
+          <label class="text-sm font-medium text-slate-700 flex-1">Ngày nhận thông báo lương hàng tháng</label>
+          <select id="pref-ngay-luong" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white"></select>
+        </div>
+        <p class="text-xs text-slate-400 mt-1 ml-7">
+          Ví dụ chọn ngày 15 → kỳ lương từ 15 tháng trước đến 15 tháng này.
+        </p>
+      </div>
+    </section>
+
+    <!-- Scheduled times -->
+    <section id="notif-times-card" class="bg-white rounded-2xl border border-slate-200 p-5 mb-5 opacity-60 pointer-events-none">
+      <h2 class="font-semibold text-slate-800 mb-4">Giờ nhận thông báo định kỳ</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label class="flex flex-col gap-1">
+          <span class="text-sm text-slate-600"><i class="fas fa-sun text-amber-500 mr-1"></i>Lịch trình sáng</span>
+          <input type="time" id="time-lich-ngay" class="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-sm text-slate-600"><i class="fas fa-coffee text-orange-500 mr-1"></i>Nhắc giữa ngày</span>
+          <input type="time" id="time-nhac-nhiem-vu" class="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+        </label>
+        <label class="flex flex-col gap-1">
+          <span class="text-sm text-slate-600"><i class="fas fa-moon text-indigo-500 mr-1"></i>Tổng kết tối</span>
+          <input type="time" id="time-tong-ket" class="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+        </label>
+      </div>
+    </section>
+
+    <!-- Pre-task reminder (custom minutes) -->
+    <section id="notif-prereminder-card" class="bg-white rounded-2xl border border-slate-200 p-5 mb-5 opacity-60 pointer-events-none">
+      <div class="flex items-center justify-between mb-1">
+        <h2 class="font-semibold text-slate-800">Nhắc trước mỗi công việc</h2>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="pref-thongbao-15phut" class="sr-only peer" />
+          <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-indigo-500 transition"></div>
+          <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transition peer-checked:translate-x-5"></div>
+        </label>
+      </div>
+      <p class="text-xs text-slate-400 mb-4">Bot sẽ ping Telegram trước khi tới giờ bắt đầu công việc.</p>
+
+      <div class="flex items-center gap-3">
+        <i class="fas fa-bell text-slate-400 w-5 text-center"></i>
+        <label for="pref-phut-nhac-truoc" class="text-sm font-medium text-slate-700 flex-1">
+          Gửi trước
+        </label>
+        <input
+          type="number"
+          id="pref-phut-nhac-truoc"
+          min="1"
+          max="180"
+          step="1"
+          class="w-24 px-3 py-1.5 rounded-lg border border-slate-200 text-sm bg-white text-right"
+        />
+        <span class="text-sm text-slate-500">phút</span>
+      </div>
+      <p class="text-xs text-slate-400 mt-1 ml-7">Tối thiểu 1 phút, tối đa 180 phút.</p>
+    </section>
+
+    <div id="notif-status-msg" class="hidden p-3 rounded-lg text-sm"></div>
+
+  </div>
+  <!-- end telegram panel -->
+
+  <!-- ===================== GOOGLE CALENDAR PANEL ===================== -->
+  <!-- Content rendered dynamically by GoogleCalendarConnection.render() -->
+  <div data-conn-panel="google-calendar" class="hidden">
+    <section class="bg-white rounded-2xl border border-slate-200 p-8 mb-5 flex flex-col items-center justify-center text-center min-h-[180px]">
+      <div class="w-8 h-8 border-4 border-slate-200 border-t-blue-500 rounded-full animate-spin mb-3"></div>
+      <p class="text-sm text-slate-400">Đang tải...</p>
+    </section>
+  </div>
+  <!-- end google-calendar panel -->
+
+</div>
+
+<script src="/frontend/assets/js/connections-section.js"></script>

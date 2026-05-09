@@ -1,0 +1,243 @@
+/* ============================================================
+   Login / Register — Apple-inspired (per DESIGN.md)
+   Binary surface rhythm: #f5f5f7 form side, #000000 hero side.
+   Apple Blue accent, SF Pro typography, pill CTAs.
+   ============================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #f5f5f7;
+  min-height: 100vh;
+  color: #1d1d1f;
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.auth-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f7;
+  padding: 2rem;
+}
+
+.form-wrapper {
+  width: 100%;
+  max-width: 440px;
+  padding: 0 2rem;
+}
+
+.form-title {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 56px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 2.5rem;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+}
+
+/* ===== INPUTS — soft rounded fields on white surface ===== */
+.input-group {
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: 17px;
+  letter-spacing: -0.374px;
+  color: #1d1d1f;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+.input-group input::placeholder {
+  color: rgba(0, 0, 0, 0.48);
+}
+.input-group input:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+
+/* ===== PASSWORD CHECKLIST ===== */
+.password-requirements {
+  display: none;
+  margin-top: 0.75rem;
+  padding: 14px 16px;
+  font-size: 14px;
+  letter-spacing: -0.224px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: rgba(0, 0, 0, 0.08) 0 2px 12px 0;
+}
+.password-requirements.visible { display: block; }
+.password-requirements ul { list-style: none; padding: 0; }
+.password-requirements li {
+  margin-bottom: 0.4rem;
+  transition: color 0.3s ease;
+  color: rgba(0, 0, 0, 0.48);
+}
+.password-requirements li.valid {
+  color: #30d158;
+  text-decoration: line-through;
+}
+.password-requirements li::before {
+  content: "•";
+  margin-right: 0.5rem;
+  font-weight: bold;
+}
+.password-requirements li.valid::before { content: "✓"; }
+
+/* ===== PRIMARY CTA — Brand Blue, 8px radius ===== */
+.submit-btn {
+  width: 100%;
+  padding: 14px 16px;
+  background-color: #2563EB;
+  color: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.374px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  margin-top: 1.5rem;
+}
+.submit-btn:hover { background-color: #1d4ed8; }
+.submit-btn:active { transform: scale(0.99); }
+.submit-btn:focus-visible {
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
+}
+
+/* ===== WELCOME PANEL — Apple cinematic black, pill CTA ===== */
+.welcome-panel {
+  flex: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000;
+  padding: 3rem;
+}
+.welcome-panel-left { border-radius: 0 200px 200px 0; }
+.welcome-panel-right { border-radius: 200px 0 0 200px; }
+
+.welcome-content {
+  text-align: center;
+  color: #fff;
+}
+.welcome-title {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 56px;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+}
+.welcome-content p {
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1.19;
+  letter-spacing: 0.011em;
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 2rem;
+}
+
+/* Pill link — signature Apple CTA shape */
+.switch-btn {
+  display: inline-block;
+  padding: 10px 26px;
+  border: 1px solid #2997ff;
+  color: #2997ff;
+  text-decoration: none;
+  border-radius: 980px;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.374px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.switch-btn:hover {
+  background-color: #2997ff;
+  color: #000;
+}
+
+/* ===== MOBILE LINK ===== */
+.mobile-link {
+  display: none;
+  text-align: center;
+  margin-top: 1.25rem;
+}
+.mobile-link p {
+  color: rgba(0, 0, 0, 0.64);
+  font-size: 14px;
+  letter-spacing: -0.224px;
+}
+.mobile-link a {
+  color: #0066cc;
+  font-weight: 400;
+  text-decoration: none;
+  margin-left: 0.25rem;
+}
+.mobile-link a:hover { text-decoration: underline; }
+
+/* ===== LOADING ===== */
+.loading {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+.loading.hidden { display: none; }
+.spinner {
+  display: inline-block;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 3px solid rgba(0, 0, 0, 0.08);
+  border-top-color: #2563EB;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading p {
+  color: rgba(0, 0, 0, 0.48);
+  margin-top: 0.75rem;
+  font-size: 14px;
+  letter-spacing: -0.224px;
+}
+
+.hidden { display: none !important; }
+
+/* ===== RESPONSIVE ===== */
+@media (min-width: 1024px) {
+  .welcome-panel { display: flex; }
+}
+@media (max-width: 1023px) {
+  .auth-container { flex-direction: column; }
+  .form-panel { min-height: 100vh; }
+  .form-title { font-size: 40px; line-height: 1.10; }
+  .mobile-link { display: block; }
+}
+@media (max-width: 640px) {
+  .form-wrapper { padding: 0 1rem; }
+  .form-title { font-size: 32px; margin-bottom: 1.5rem; }
+  .welcome-title { font-size: 32px; }
+}

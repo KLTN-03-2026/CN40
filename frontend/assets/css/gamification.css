@@ -1,0 +1,321 @@
+/* Gamification tab — Apple Design System compliant */
+
+/* ── Header: avatar + level + XP + streak ── */
+.gamification-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--bg-card, #f5f5f7);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.gam-profile-avatar { flex-shrink: 0; line-height: 0; }
+
+.level-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--apple-blue, #0071e3);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.xp-info { flex: 1; min-width: 120px; }
+
+.xp-text {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-primary, #1d1d1f);
+  letter-spacing: -0.224px;
+}
+
+.xp-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-card-alt, #e2e8f0);
+  overflow: hidden;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--apple-blue, #0071e3);
+  transition: width 0.6s ease;
+}
+
+.xp-sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.48);
+  margin-top: 4px;
+  letter-spacing: -0.12px;
+}
+
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: var(--bg-card-alt, #f5f5f7);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary, #1d1d1f);
+  letter-spacing: -0.224px;
+}
+.streak-badge.streak-hot { background: var(--bg-card-alt, #f5f5f7); }
+.streak-badge i { color: var(--apple-blue, #0071e3); }
+.streak-badge .streak-count { font-size: 18px; font-weight: 600; }
+.streak-badge .streak-label { font-size: 11px; font-weight: 400; opacity: 0.6; }
+
+.btn-refresh {
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.48);
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-refresh:hover {
+  background: var(--bg-card-alt, #f5f5f7);
+  color: var(--text-primary, #1d1d1f);
+}
+
+/* ── Streak stats ── */
+.gamification-streaks {
+  background: var(--bg-card, #f5f5f7);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.gam-streak-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 640px) {
+  .gam-streak-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.gam-streak-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--bg-card, #fff);
+}
+.gam-streak-icon { font-size: 20px; flex-shrink: 0; color: var(--apple-blue, #0071e3); }
+.gam-streak-info { min-width: 0; }
+.gam-streak-name {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.48);
+  letter-spacing: -0.12px;
+}
+.gam-streak-nums { display: flex; align-items: baseline; gap: 4px; margin-top: 2px; }
+.gam-streak-current {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.19;
+  color: var(--text-primary, #1d1d1f);
+  letter-spacing: 0.231px;
+}
+.gam-streak-sep { color: rgba(0, 0, 0, 0.48); font-size: 12px; }
+.gam-streak-longest { font-size: 12px; color: rgba(0, 0, 0, 0.48); letter-spacing: -0.12px; }
+
+/* ── Section title ── */
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-primary, #1d1d1f);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.224px;
+}
+.badge-counter {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.48);
+  background: var(--bg-card-alt, #f5f5f7);
+  padding: 2px 8px;
+  border-radius: 8px;
+  letter-spacing: -0.12px;
+}
+
+/* ── Badge grid ── */
+.gamification-badges {
+  background: var(--bg-card, #f5f5f7);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-bottom: 0;
+}
+.badge-card {
+  padding: 14px 8px;
+  border-radius: 8px;
+  text-align: center;
+  background: var(--bg-card, #fff);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.badge-card:not(.locked):hover {
+  transform: translateY(-2px);
+  box-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px;
+}
+.badge-card.locked {
+  opacity: 0.4;
+  filter: grayscale(0.8);
+  cursor: default;
+}
+.badge-card.equipped {
+  box-shadow: inset 0 0 0 2px var(--apple-blue, #0071e3);
+}
+.badge-equipped-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--apple-blue, #0071e3);
+  margin-top: 4px;
+  letter-spacing: -0.12px;
+}
+.badge-equip-hint {
+  font-size: 10px;
+  color: rgba(0, 0, 0, 0.48);
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.badge-card:not(.locked):hover .badge-equip-hint { opacity: 1; }
+.badge-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+  color: var(--text-primary, #1d1d1f);
+  letter-spacing: -0.12px;
+}
+.badge-desc {
+  font-size: 10px;
+  color: rgba(0, 0, 0, 0.48);
+  margin-top: 2px;
+}
+
+/* ── Leaderboard ── */
+.gamification-leaderboard {
+  background: var(--bg-card, #f5f5f7);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.gamification-leaderboard .section-title { margin-bottom: 8px; }
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: background 0.12s;
+}
+.leaderboard-row:hover { background: var(--bg-card, #fff); }
+.leaderboard-row:nth-child(even of :not(.section-title)) { background: rgba(0, 0, 0, 0.02); }
+.leaderboard-row.self {
+  background: rgba(0, 113, 227, 0.06);
+}
+
+.rank-num {
+  font-weight: 600;
+  font-size: 14px;
+  width: 32px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.48);
+  flex-shrink: 0;
+  letter-spacing: -0.224px;
+}
+.rank-1 .rank-num,
+.rank-2 .rank-num,
+.rank-3 .rank-num { color: var(--text-primary, #1d1d1f); font-size: 16px; }
+
+.lb-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--bg-card-alt, #e2e8f0);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.48);
+}
+.lb-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.lb-info { flex: 1; min-width: 0; }
+.lb-name {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-primary, #1d1d1f);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.224px;
+}
+.lb-you { font-size: 12px; font-weight: 400; color: var(--apple-blue, #0071e3); }
+.lb-meta {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.48);
+  margin-top: 1px;
+  letter-spacing: -0.12px;
+}
+.lb-stats { font-size: 12px; color: rgba(0, 0, 0, 0.48); }
+
+/* ── Dark mode ── */
+.dark .gamification-header { background: var(--bg-card, #272729); }
+.dark .gamification-streaks { background: var(--bg-card, #272729); }
+.dark .gamification-badges { background: var(--bg-card, #272729); }
+.dark .gamification-leaderboard { background: var(--bg-card, #272729); }
+.dark .gam-streak-card { background: var(--bg-card-alt, #2a2a2d); }
+
+.dark .xp-text,
+.dark .section-title,
+.dark .badge-name,
+.dark .lb-name,
+.dark .gam-streak-current { color: #fff; }
+
+.dark .xp-sub,
+.dark .gam-streak-name,
+.dark .gam-streak-longest,
+.dark .gam-streak-sep,
+.dark .badge-desc,
+.dark .lb-meta,
+.dark .lb-stats,
+.dark .rank-num,
+.dark .badge-equip-hint { color: rgba(255, 255, 255, 0.48); }
+
+.dark .xp-bar { background: #3a3a3c; }
+.dark .streak-badge { background: #2a2a2d; color: #fff; }
+.dark .streak-badge i { color: #2997ff; }
+.dark .badge-counter { background: #2a2a2d; color: rgba(255, 255, 255, 0.48); }
+.dark .badge-card { background: var(--bg-card-alt, #2a2a2d); }
+.dark .badge-card.equipped { box-shadow: inset 0 0 0 2px #2997ff; }
+.dark .badge-equipped-tag { color: #2997ff; }
+.dark .leaderboard-row:nth-child(even of :not(.section-title)) { background: rgba(255, 255, 255, 0.03); }
+.dark .leaderboard-row:hover { background: rgba(255, 255, 255, 0.05); }
+.dark .leaderboard-row.self { background: rgba(0, 113, 227, 0.12); }
+.dark .btn-refresh { color: rgba(255, 255, 255, 0.48); }
+.dark .btn-refresh:hover { background: #2a2a2d; color: #fff; }
+.dark .lb-you { color: #2997ff; }
+.dark .gam-streak-icon { color: #2997ff; }

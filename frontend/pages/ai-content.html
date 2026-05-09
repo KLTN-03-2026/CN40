@@ -1,0 +1,271 @@
+<style>
+  /* ===== AI-reference page — token-driven polish (per DESIGN.md) ===== */
+  .ai-ref-section .ai-icon-btn {
+    width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+    border-radius: var(--radius-sm);
+    background: transparent; color: var(--text-secondary);
+    border: 1px solid var(--border); cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .ai-ref-section .ai-icon-btn:hover {
+    background: var(--bg-card-hover); color: var(--text-primary);
+  }
+  .ai-ref-section .ai-chip-btn {
+    padding:5px 10px; font-size:12px; font-weight:500;
+    border-radius: var(--radius-sm); background: var(--bg-card);
+    color: var(--text-secondary); border: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .ai-ref-section .ai-chip-btn:hover {
+    background: var(--bg-card-hover); color: var(--text-primary);
+  }
+  .ai-ref-section .ai-view-btn {
+    padding:6px 12px; font-size:13px; font-weight:500;
+    border-radius: calc(var(--radius-sm) - 2px);
+    background: transparent; color: var(--text-muted);
+    border: 0; cursor: pointer;
+  }
+  .ai-ref-section .ai-view-btn.active,
+  .ai-ref-section .ai-view-btn:hover {
+    background: var(--bg-card); color: var(--text-primary);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  #ai-ref-suggest-btn:hover { background: var(--accent-hover) !important; }
+
+  /* Task card */
+  .ai-ref-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 18px 18px 1fr;
+    gap: 8px; align-items: flex-start;
+    padding: 10px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color .15s ease, box-shadow .15s ease, transform .08s ease;
+  }
+  .ai-ref-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+  .ai-ref-card.dragging { opacity: 0.5; transform: scale(0.98); }
+  .ai-ref-card.needs-attention { border-color: rgba(255,159,10,0.5); }
+  .ai-ref-card.flash-warn {
+    animation: ai-flash-warn 1.6s ease;
+  }
+  @keyframes ai-flash-warn {
+    0%,100% { background: var(--bg-card); }
+    30%     { background: rgba(255,159,10,0.12); border-color: #ff9f0a; }
+  }
+  .ai-ref-card .ai-card-grip {
+    color: var(--text-muted); cursor: grab; font-size: 12px;
+    padding: 2px 0;
+  }
+  .ai-ref-card .ai-ref-task-cb {
+    margin-top: 3px; cursor: pointer;
+  }
+  .ai-ref-card .ai-card-body { min-width: 0; }
+  .ai-ref-card .ai-card-title-row {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ai-ref-card .ai-card-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .ai-ref-card .ai-card-title {
+    font-size: 14px; font-weight: 600; color: var(--text-primary);
+    letter-spacing: -0.2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex: 1; min-width: 0;
+  }
+  .ai-ref-card .ai-card-warn {
+    color: #ff9f0a; font-size: 12px; flex-shrink: 0;
+  }
+  .ai-ref-card .ai-card-chips {
+    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;
+  }
+  .ai-ref-card .ai-card-chip {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 2px 7px; font-size: 11px; font-weight: 500;
+    border-radius: calc(var(--radius-sm) - 2px);
+    background: var(--bg-card-alt); color: var(--text-secondary);
+    letter-spacing: -0.1px;
+  }
+  .ai-ref-card .ai-card-chip i { font-size: 10px; }
+</style>
+
+<div class="flex h-full ai-ref-section" style="background:var(--bg-app); color:var(--text-primary);">
+  <!-- Sidebar: task pool, rendered as clickable cards -->
+  <div id="ai-ref-sidebar"
+    class="flex flex-col flex-shrink-0"
+    style="width:288px; background:var(--bg-card); border-right:1px solid var(--border); height:100%; min-height:0;">
+    <div style="padding:16px 18px; border-bottom:1px solid var(--border); flex-shrink:0;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <h3 style="font-size:17px; font-weight:600; letter-spacing:-0.374px; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+          <i class="fas fa-list-check" style="color:var(--accent);"></i>Công việc
+        </h3>
+        <button id="ai-ref-refresh-btn"
+          class="ai-icon-btn"
+          title="Tải lại">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">
+        Bấm vào thẻ để tinh chỉnh · tick chọn để AI sắp lịch
+      </p>
+      <div style="margin-top:10px; display:flex; align-items:center; gap:6px; font-size:13px;">
+        <button id="ai-ref-select-all-btn" class="ai-chip-btn" title="Chọn tất cả">
+          <i class="fas fa-check-double"></i> Tất cả
+        </button>
+        <button id="ai-ref-clear-sel-btn" class="ai-chip-btn" title="Bỏ chọn">
+          Bỏ chọn
+        </button>
+        <span style="margin-left:auto; font-weight:600; color:var(--accent);">
+          <span id="ai-ref-selected-count">0</span> đã chọn
+        </span>
+      </div>
+    </div>
+
+    <div id="ai-ref-task-list"
+      style="flex:1; overflow-y:auto; overflow-x:hidden; padding:14px; min-height:0; display:flex; flex-direction:column; gap:10px;">
+      <div class="text-center text-sm" style="color:var(--text-muted); padding:30px 0;">
+        <div class="animate-pulse">Đang tải công việc...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main calendar area -->
+  <div class="flex-1 flex flex-col min-w-0" style="background:var(--bg-app);">
+
+    <!-- Toolbar -->
+    <nav class="ai-toolbar" style="background:var(--bg-card); border-bottom:1px solid var(--border); padding:12px 20px; flex-shrink:0;">
+      <div class="flex items-center justify-between gap-4">
+
+        <!-- Left: brand + date nav -->
+        <div class="flex items-center gap-3">
+          <div style="width:36px; height:36px; border-radius:var(--radius-sm); background:var(--accent-light); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i class="fas fa-robot"></i>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <button id="ai-cal-prev-btn" class="ai-icon-btn" title="Tháng trước">
+              <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button id="ai-cal-today-btn"
+              style="padding:6px 12px; font-size:14px; font-weight:600; border-radius:var(--radius-sm); background:transparent; color:var(--accent); border:1px solid var(--border); cursor:pointer;">
+              Hôm nay
+            </button>
+            <button id="ai-cal-next-btn" class="ai-icon-btn" title="Tháng sau">
+              <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+          </div>
+
+          <h2 id="ai-calendar-title"
+            style="font-size:18px; font-weight:600; letter-spacing:-0.374px; color:var(--text-primary); min-width:180px;">
+            Tháng
+          </h2>
+        </div>
+
+        <!-- Right: AI actions + view switcher -->
+        <div class="flex items-center gap-2">
+          <button id="ai-ref-suggest-btn"
+            title="Gợi ý lịch trình bằng AI"
+            style="display:flex; align-items:center; gap:8px; padding:8px 15px; font-size:15px; font-weight:500; color:#ffffff; background:var(--accent); border:1px solid transparent; border-radius:var(--radius-sm); letter-spacing:-0.374px; cursor:pointer;">
+            <i class="fas fa-wand-magic-sparkles"></i>
+            <span>Lập lịch tự động</span>
+          </button>
+
+          <div style="display:flex; align-items:center; gap:2px; padding:3px; border-radius:var(--radius-sm); background:var(--bg-card-alt); margin-left:8px;">
+            <button id="ai-cal-day-view" data-view="timeGridDay" class="ai-view-btn">Ngày</button>
+            <button id="ai-cal-week-view" data-view="timeGridWeek" class="ai-view-btn active">Tuần</button>
+            <button id="ai-cal-month-view" data-view="dayGridMonth" class="ai-view-btn">Tháng</button>
+          </div>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- Pending proposals action bar -->
+    <div id="ai-ref-proposal-bar"
+      class="hidden"
+      style="align-items:center; justify-content:space-between; gap:12px; padding:10px 20px; border-bottom:1px solid var(--border); background:var(--accent-light);">
+      <span style="font-size:14px; color:var(--accent); font-weight:500;">
+        <i class="fas fa-sparkles" style="margin-right:6px;"></i>
+        <strong id="ai-ref-proposal-count">0</strong> đề xuất chờ xác nhận
+      </span>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button id="ai-ref-accept-all-btn"
+          style="padding:6px 12px; font-size:13px; font-weight:500; color:#ffffff; background:var(--accent); border:1px solid transparent; border-radius:var(--radius-sm); cursor:pointer;">
+          <i class="fas fa-check" style="margin-right:4px;"></i> Chấp nhận tất cả
+        </button>
+        <button id="ai-ref-reject-all-btn"
+          style="padding:6px 12px; font-size:13px; font-weight:500; border:1px solid var(--border); background:var(--bg-card); color:var(--text-primary); border-radius:var(--radius-sm); cursor:pointer;">
+          Bỏ tất cả
+        </button>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div id="ai-calendar" class="flex-1 overflow-hidden">
+      <div class="flex items-center justify-center h-full">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+            style="border-color:var(--ai-ref-primary)"></div>
+          <p class="text-lg font-medium text-gray-500">Đang tải lịch trình AI...</p>
+          <p class="text-sm mt-2 text-gray-400">Chọn công việc bên trái rồi bấm "Lập lịch tự động"</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    let isInitializing = false;
+    let isInitialized = false;
+
+    function waitForModule() {
+      if (window.AIModule && window.AIReferenceModule) {
+        if (isInitializing) return;
+        if (isInitialized && AIModule.isInitialized && AIModule.calendar) {
+          AIModule.refreshUI();
+          AIReferenceModule.onSectionEnter();
+          return;
+        }
+
+        isInitializing = true;
+        AIModule.calendarElementId = "ai-calendar";
+        AIModule.titleElementId = "ai-calendar-title";
+        AIModule.prevBtnId = "ai-cal-prev-btn";
+        AIModule.nextBtnId = "ai-cal-next-btn";
+        AIModule.todayBtnId = "ai-cal-today-btn";
+        AIModule.dayBtnId = "ai-cal-day-view";
+        AIModule.weekBtnId = "ai-cal-week-view";
+        AIModule.monthBtnId = "ai-cal-month-view";
+
+        AIModule.init()
+          .then(() => {
+            isInitialized = true;
+            isInitializing = false;
+            AIReferenceModule.onSectionEnter();
+          })
+          .catch(() => { isInitialized = false; isInitializing = false; });
+      } else {
+        setTimeout(waitForModule, 100);
+      }
+    }
+
+    setTimeout(waitForModule, 300);
+
+    document.addEventListener("section-changed", (e) => {
+      if (e.detail?.section === "ai") {
+        setTimeout(() => {
+          if (window.AIModule?.refreshFromDatabase) AIModule.refreshFromDatabase();
+          if (window.AIReferenceModule?.onSectionEnter) AIReferenceModule.onSectionEnter();
+        }, 500);
+      }
+    });
+  })();
+</script>

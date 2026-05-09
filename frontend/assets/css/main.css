@@ -1,0 +1,611 @@
+/* ============================================================
+   Apple-inspired design system (per DESIGN.md)
+   - SF Pro Display (≥20px) / SF Pro Text (<20px) with optical sizing
+   - Binary surface rhythm: #000 ↔ #f5f5f7
+   - Single accent: Brand Blue #2563EB for interactive only
+   - One soft diffused shadow, 980px pill radius for CTAs
+   ============================================================ */
+
+/* ===== DESIGN TOKENS ===== */
+:root {
+  /* Apple core palette */
+  --apple-black: #000000;
+  --apple-near-black: #1d1d1f;
+  --apple-surface: #f5f5f7;
+  --apple-white: #ffffff;
+  --apple-blue: #2563EB;
+  --apple-link: #2563EB;
+  --apple-link-dark: #60a5fa;
+  --apple-text-secondary: rgba(0, 0, 0, 0.8);
+  --apple-text-tertiary: rgba(0, 0, 0, 0.48);
+  --apple-btn-active: #ededf2;
+  --apple-btn-default: #fafafc;
+  --apple-nav-glass: rgba(0, 0, 0, 0.8);
+  --apple-overlay: rgba(210, 210, 215, 0.64);
+
+  /* App-aliased tokens (backwards-compatible with existing consumers) */
+  --bg-app: var(--apple-surface);
+  --bg-card: var(--apple-white);
+  --bg-card-alt: var(--apple-surface);
+  --bg-card-hover: #ededf0;
+  --bg-input: var(--apple-white);
+  --bg-sidebar: var(--apple-near-black);
+  --bg-sidebar-hover: #2a2a2d;
+  --bg-sidebar-active: #28282a;
+  --bg-badge: var(--apple-surface);
+  --text-primary: var(--apple-near-black);
+  --text-secondary: var(--apple-text-secondary);
+  --text-muted: var(--apple-text-tertiary);
+  --text-sidebar: rgba(255, 255, 255, 0.72);
+  --text-sidebar-active: var(--apple-white);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.16);
+
+  /* Accent = Blue (only chromatic color, reserved for interactive) */
+  --accent: var(--apple-blue);
+  --accent-hover: #1d4ed8;
+  --accent-light: rgba(37, 99, 235, 0.08);
+  --accent-gradient: linear-gradient(135deg, #2563EB, #1d4ed8);
+
+  /* Semantic */
+  --success: #30d158;
+  --success-light: #d7f4e0;
+  --warning: #ff9f0a;
+  --warning-light: #fff1d6;
+  --danger: #ff3b30;
+  --danger-light: #ffe0de;
+
+  /* Apple-style single diffused shadow + minor elevations */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px; /* Apple card shadow */
+
+  /* Radius scale (DESIGN §5) */
+  --radius-xs: 5px;   /* Link tags, small chips */
+  --radius-sm: 8px;   /* Buttons, cards, images */
+  --radius: 8px;      /* Default alias */
+  --radius-md: 11px;  /* Search / filter */
+  --radius-lg: 12px;  /* Feature panels */
+  --radius-xl: 12px;  /* (capped at 12 per DESIGN — 980 is for pills only) */
+  --radius-pill: 980px;
+  --radius-circle: 50%;
+
+  /* Typography tracking (DESIGN §3) */
+  --track-hero: -0.28px;
+  --track-body: -0.374px;
+  --track-caption: -0.224px;
+  --track-micro: -0.12px;
+
+  /* Priority palette — independent axis, preserved from user customization. */
+  --prio-1: #14B8A6; /* Low — teal-500 */
+  --prio-2: #6366F1; /* Normal — indigo-500 */
+  --prio-3: #F59E0B; /* High — amber-500 */
+  --prio-4: #E11D48; /* Urgent — rose-600 */
+}
+
+/* ===== DARK THEME ===== */
+body.dark {
+  --bg-app: #000000;
+  --bg-card: #1d1d1f;
+  --bg-card-alt: #272729;
+  --bg-card-hover: #2a2a2d;
+  --bg-input: #1d1d1f;
+  --bg-badge: #272729;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.88);
+  --text-muted: rgba(255, 255, 255, 0.56);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-hover: rgba(255, 255, 255, 0.24);
+  --accent: #0a84ff; /* iOS system blue on dark */
+  --accent-hover: #409cff;
+  --accent-light: rgba(10, 132, 255, 0.15);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: rgba(0, 0, 0, 0.5) 3px 5px 30px 0px;
+}
+
+/* ===== RESET ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===== TYPOGRAPHY — SF Pro stack, Apple body defaults ===== */
+body {
+  /* SF Pro Text at body sizes (<20px). Mac / iOS use native SF. */
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: var(--track-body);
+  overflow-x: hidden;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Headings use SF Pro Display at ≥20px per DESIGN §3. */
+h1, h2, h3, h4, h5, h6,
+.apple-display {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+h1 { font-size: 56px; line-height: 1.07; letter-spacing: -0.28px; }
+h2 { font-size: 40px; line-height: 1.10; }
+h3 { font-size: 28px; line-height: 1.14; font-weight: 400; letter-spacing: 0.196px; }
+h4 { font-size: 21px; line-height: 1.19; letter-spacing: 0.231px; }
+h5 { font-size: 19px; line-height: 1.21; }
+h6 { font-size: 17px; line-height: 1.24; font-weight: 600; }
+
+p, .apple-body {
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: var(--track-body);
+}
+small, .apple-caption {
+  font-size: 14px;
+  line-height: 1.29;
+  letter-spacing: var(--track-caption);
+}
+.apple-micro {
+  font-size: 12px;
+  line-height: 1.33;
+  letter-spacing: var(--track-micro);
+}
+
+a {
+  color: var(--apple-link);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+a:hover { text-decoration: underline; }
+
+/* ===== SECTIONS ===== */
+.section {
+  display: none;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-app);
+}
+.section.active { display: block; }
+
+/* ===== APPLE BUTTONS (opt-in utility classes) ===== */
+.apple-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: var(--track-body);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  line-height: 1;
+  min-height: 36px;
+}
+.apple-btn:focus-visible {
+  outline: 2px solid var(--apple-blue);
+  outline-offset: 2px;
+}
+.apple-btn-primary {
+  background: var(--apple-blue);
+  color: #fff;
+}
+.apple-btn-primary:hover { background: var(--accent-hover); }
+.apple-btn-primary:active { transform: scale(0.98); }
+.apple-btn-dark {
+  background: var(--apple-near-black);
+  color: #fff;
+}
+.apple-btn-dark:hover { background: #2a2a2d; }
+.apple-btn-pill {
+  background: transparent;
+  color: var(--apple-link);
+  border: 1px solid var(--apple-link);
+  border-radius: var(--radius-pill);
+  padding: 6px 18px;
+  font-size: 14px;
+  letter-spacing: var(--track-caption);
+}
+.apple-btn-pill:hover {
+  background: var(--apple-link);
+  color: #fff;
+  text-decoration: none;
+}
+body.dark .apple-btn-pill {
+  color: var(--apple-link-dark);
+  border-color: var(--apple-link-dark);
+}
+body.dark .apple-btn-pill:hover { background: var(--apple-link-dark); color: #000; }
+
+.apple-btn-filter {
+  background: var(--apple-btn-default);
+  color: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  font-size: 14px;
+}
+.apple-btn-media {
+  background: var(--apple-overlay);
+  color: rgba(0, 0, 0, 0.48);
+  border-radius: var(--radius-circle);
+  width: 36px; height: 36px;
+  border: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+
+/* ===== APPLE CARD ===== */
+.apple-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 0;
+  padding: 20px;
+}
+.apple-card-elevated {
+  box-shadow: var(--shadow-lg);
+}
+
+/* ===== SIDEBAR NAV (dark) ===== */
+.nav-btn {
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+  border-radius: 8px;
+  font-weight: 500;
+  letter-spacing: var(--track-body);
+}
+
+.nav-btn.bg-gray-200 {
+  background: #2a2a2d !important;
+  border-left: 3px solid var(--apple-blue) !important;
+  padding-left: calc(1rem - 3px) !important;
+  color: #f5f5f7 !important;
+}
+.nav-btn.bg-gray-200 i {
+  color: var(--apple-blue) !important;
+}
+.nav-btn:hover:not(.bg-gray-200) {
+  background-color: #272729 !important;
+  color: #f5f5f7 !important;
+}
+
+/* ===== AVATAR ===== */
+.avatar-letter {
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== SIDEBAR BOTTOM BUTTONS ===== */
+#settingsBtn, [data-logout] {
+  color: rgba(255, 255, 255, 0.72) !important;
+  transition: background 0.15s ease, color 0.15s ease;
+  border-radius: 8px;
+}
+#settingsBtn:hover {
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-logout]:hover {
+  color: var(--danger) !important;
+  background-color: rgba(255, 59, 48, 0.1) !important;
+}
+
+/* ===== CATEGORY MODAL GUARD ===== */
+#createCategoryModal {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: 10050 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: saturate(180%) blur(20px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(20px) !important;
+}
+#createCategoryModal.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+#createCategoryModal:not(.hidden) {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+#category-container {
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* ===== MAIN CONTENT DARK MODE ===== */
+body.dark #main-app > .flex-1 { background: var(--bg-app); }
+body.dark .section { background: var(--bg-app); }
+
+/* Tailwind class bridges — so existing pages pick up Apple palette automatically */
+body.dark .bg-gray-50,
+body.dark .bg-gray-100 {
+  background-color: var(--bg-app) !important;
+}
+body.dark .bg-white { background-color: var(--bg-card) !important; }
+body.dark .text-gray-800,
+body.dark .text-gray-900,
+body.dark .text-gray-700 { color: var(--text-primary) !important; }
+body.dark .text-gray-600,
+body.dark .text-gray-500 { color: var(--text-secondary) !important; }
+body.dark .border-gray-200,
+body.dark .border-gray-300 { border-color: var(--border) !important; }
+
+body.dark input,
+body.dark select,
+body.dark textarea {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+body.dark input::placeholder,
+body.dark textarea::placeholder { color: var(--text-muted) !important; }
+
+/* ===== FORMS — Apple-ish inputs ===== */
+input, select, textarea {
+  font-family: inherit;
+  font-size: 17px;
+  letter-spacing: var(--track-body);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--apple-blue);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+/* ===== FA LOADING ===== */
+body:not(.fa-loaded) i[class*="fa-"],
+body:not(.fa-loaded) span[class*="fa-"] { opacity: 0; }
+body.fa-loaded i[class*="fa-"],
+body.fa-loaded span[class*="fa-"] {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* ===== MODAL BASE — Apple glass backdrop ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+.modal.hidden { display: none !important; }
+
+/* ═══════ Utility Dialog (Utils.alert / Utils.confirm) ═══════ */
+.util-dialog-overlay {
+  position: fixed; inset: 0; z-index: 99999;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0); padding: 16px;
+  transition: background .2s;
+}
+.util-dialog-overlay.visible { background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
+.util-dialog-overlay.closing { background: rgba(0,0,0,0); }
+.util-dialog-panel {
+  background: #fff; border-radius: 16px; padding: 28px 24px 20px; width: 360px; max-width: 100%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center;
+  transform: scale(0.95) translateY(10px); opacity: 0; transition: all .2s ease;
+}
+.util-dialog-overlay.visible .util-dialog-panel { transform: none; opacity: 1; }
+.util-dialog-overlay.closing .util-dialog-panel { transform: scale(0.95) translateY(10px); opacity: 0; }
+.util-dialog-icon { font-size: 36px; margin-bottom: 12px; }
+.util-dialog-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.util-dialog-msg { font-size: 13px; color: #64748b; line-height: 1.5; margin-bottom: 20px; }
+.util-dialog-btns { display: flex; gap: 8px; justify-content: center; }
+.util-btn-secondary {
+  padding: 8px 20px; border-radius: 10px; border: 1px solid #e2e8f0;
+  background: #fff; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.util-btn-secondary:hover { background: #f1f5f9; }
+.util-btn-primary {
+  padding: 8px 20px; border-radius: 10px; border: none;
+  background: var(--accent, #2563EB); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.util-btn-primary:hover { filter: brightness(1.1); }
+.util-btn-danger { background: #dc2626 !important; }
+.util-btn-danger:hover { background: #b91c1c !important; filter: none; }
+body.dark .util-dialog-panel { background: #1e293b; }
+body.dark .util-dialog-title { color: #f1f5f9; }
+body.dark .util-dialog-msg { color: #94a3b8; }
+body.dark .util-btn-secondary { background: #334155; border-color: #475569; color: #e2e8f0; }
+body.dark .util-btn-secondary:hover { background: #475569; }
+
+/* Lift any inline .modal-content to Apple card elevation */
+.modal-content {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 0;
+}
+
+/* ===== APPLE NAVIGATION GLASS (optional, opt-in) ===== */
+.apple-nav {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  height: 48px;
+  background: var(--apple-nav-glass);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.32); }
+body.dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+body.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.32); }
+
+/* ===== DARK MODE: MODAL CONTENT ===== */
+body.dark .modal-content,
+body.dark #createTaskModal .modal-content,
+body.dark #settingsModal .modal-content {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border) !important;
+}
+body.dark .modal-content .border-b,
+body.dark .modal-content .border-t { border-color: var(--border) !important; }
+
+/* Priority badges in create-task modal and work section */
+body.dark .priority-badge,
+body.dark [class*="priority-"] { filter: brightness(0.88); }
+
+/* Legacy Tailwind chip bridges (dark mode) */
+body.dark .bg-green-100  { background-color: rgba(48, 209, 88, 0.16) !important; }
+body.dark .bg-blue-100   { background-color: rgba(10, 132, 255, 0.16) !important; }
+body.dark .bg-yellow-100 { background-color: rgba(255, 159, 10, 0.16) !important; }
+body.dark .bg-red-100    { background-color: rgba(255, 59, 48, 0.16) !important; }
+body.dark .text-green-700, body.dark .text-green-800 { color: #30d158 !important; }
+body.dark .text-blue-700, body.dark .text-blue-800   { color: #0a84ff !important; }
+body.dark .text-yellow-700, body.dark .text-yellow-800 { color: #ff9f0a !important; }
+body.dark .text-red-700, body.dark .text-red-800     { color: #ff453a !important; }
+
+/* Settings modal user card gradient (dark) */
+body.dark .from-blue-50   { --tw-gradient-from: rgba(10, 132, 255, 0.12) !important; }
+body.dark .to-indigo-50   { --tw-gradient-to: rgba(94, 92, 230, 0.12) !important; }
+body.dark .border-blue-100 { border-color: rgba(10, 132, 255, 0.24) !important; }
+
+body.dark #openProfileBtn:hover,
+body.dark #modalLogoutBtn:hover { background: rgba(255, 255, 255, 0.06) !important; }
+body.dark #openNotificationBtn:hover { background: rgba(10, 132, 255, 0.12) !important; }
+body.dark #settingsModal .rounded-lg[style*="f8fafc"] {
+  background: var(--bg-card-alt) !important;
+}
+
+/* Task sidebar items dark mode */
+body.dark .task-item {
+  background: var(--bg-card) !important;
+  border-top-color: var(--border) !important;
+  border-right-color: var(--border) !important;
+  border-bottom-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+body.dark .task-item:hover {
+  background: var(--bg-card-hover) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+body.dark .task-item .font-medium { color: var(--text-primary) !important; }
+body.dark .task-item .text-sm,
+body.dark .task-item .text-gray-500,
+body.dark .task-item .text-gray-600 { color: var(--text-secondary) !important; }
+body.dark .task-item .px-2.py-1 {
+  background: var(--bg-badge) !important;
+  color: var(--text-secondary) !important;
+  border-color: var(--border) !important;
+}
+body.dark .task-item .fa-grip-vertical {
+  color: var(--border-hover) !important;
+  background: var(--bg-card-alt) !important;
+}
+body.dark #calendar-sidebar {
+  background: var(--bg-card) !important;
+  border-right-color: var(--border) !important;
+}
+body.dark #calendar-sidebar .p-3 {
+  background: var(--bg-card) !important;
+  border-bottom-color: var(--border) !important;
+}
+body.dark #mini-cal-container { background: var(--bg-card) !important; }
+body.dark #calendar-sidebar .mini-cal-day { color: var(--text-primary) !important; }
+body.dark #calendar-sidebar .mini-cal-day:hover {
+  background: var(--bg-card-hover) !important;
+  color: var(--text-primary) !important;
+}
+body.dark #calendar-sidebar #mini-prev,
+body.dark #calendar-sidebar #mini-next { color: var(--text-muted) !important; }
+body.dark #calendar-sidebar #mini-prev:hover,
+body.dark #calendar-sidebar #mini-next:hover {
+  background: var(--bg-card-hover) !important;
+  color: var(--text-primary) !important;
+}
+body.dark #task-list { background: transparent; }
+
+/* ===== PREVENT UNWANTED HOVER TRANSFORMS ON ICON BUTTONS ===== */
+#closeSettingsModal,
+[id*="close"][id*="Modal"],
+[id*="Close"][id*="Modal"] {
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+#closeSettingsModal:hover,
+[id*="close"][id*="Modal"]:hover,
+[id*="Close"][id*="Modal"]:hover { transform: none !important; }
+
+/* ===== SWEETALERT2 Z-INDEX FIX ===== */
+.swal2-container { z-index: 99998 !important; }
+.swal2-popup { z-index: 99999 !important; }
+
+/* ===== TOAST ===== */
+.toast-container {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+.toast-container > div {
+  font-size: 13px !important;
+  padding: 8px 14px !important;
+  border-radius: var(--radius-sm) !important;
+  max-width: 320px;
+  pointer-events: auto;
+  box-shadow: var(--shadow-md) !important;
+  letter-spacing: var(--track-caption);
+}
+
+/* ============================================================
+   Global Tailwind-class bridges — pull existing markup into the
+   Apple palette without rewriting every HTML file.
+   ============================================================ */
+
+/* Primary CTA reds → Brand Blue */
+.bg-red-600, .bg-red-700, .bg-blue-600, .bg-blue-700 {
+  background-color: var(--apple-blue) !important;
+}
+.hover\:bg-red-700:hover, .hover\:bg-red-800:hover,
+.hover\:bg-blue-700:hover, .hover\:bg-blue-800:hover {
+  background-color: var(--accent-hover) !important;
+}
+.text-red-600, .text-red-700 { color: var(--apple-blue); }
+.ring-red-500, .focus\:ring-red-500:focus { --tw-ring-color: var(--apple-blue) !important; }
+.border-red-500, .focus\:border-red-500:focus { border-color: var(--apple-blue) !important; }
+
+/* Subtle card lift — apply to any .bg-white or .shadow element */
+.shadow, .shadow-md, .shadow-lg {
+  box-shadow: var(--shadow-lg) !important;
+}

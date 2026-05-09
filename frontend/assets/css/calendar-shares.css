@@ -1,0 +1,115 @@
+/* calendar-shares.css — Styles for collaborative calendar sharing UI */
+
+/* ── Shared event in FullCalendar ── */
+.fc-event.shared-event {
+  border-style: dashed !important;
+  border-width: 2px !important;
+  opacity: 0.85;
+}
+
+.shared-event-label {
+  font-size: 9px;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1;
+  padding: 1px 0;
+}
+
+/* ── Share modal overlay ── */
+.share-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.share-modal-overlay.hidden {
+  display: none;
+}
+
+/* ── Share modal panel ── */
+.share-modal-panel {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+body.dark .share-modal-panel {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+body.dark .share-modal-panel input,
+body.dark .share-modal-panel select {
+  background: #0f172a;
+  border-color: #334155 !important;
+  color: #e2e8f0;
+}
+
+/* ── Share user row (sent/received) ── */
+.share-user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  margin-bottom: 8px;
+}
+
+body.dark .share-user-row {
+  background: #0f172a;
+}
+
+/* ── Invitation row ── */
+.share-invitation-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 12px;
+  background: #eff6ff;
+  margin-bottom: 8px;
+  border: 1px solid #bfdbfe;
+}
+
+body.dark .share-invitation-row {
+  background: #172554;
+  border-color: #1e40af;
+}
+
+/* ── Badge on share button ── */
+.share-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+
+.share-badge.hidden {
+  display: none;
+}

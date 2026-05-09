@@ -1,0 +1,49 @@
+/* Connections section — tab bar styling */
+
+.conn-tab-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.conn-tab {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-bottom-color 0.15s;
+}
+
+.conn-tab:hover {
+  color: #334155;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.conn-tab.is-active {
+  color: var(--accent, #2563EB);
+  border-bottom-color: var(--accent, #2563EB);
+  background: #fff;
+}
+
+/* Dark mode */
+body.dark .conn-tab {
+  color: #94a3b8;
+  background: transparent;
+}
+
+body.dark .conn-tab:hover {
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark .conn-tab.is-active {
+  color: var(--accent, #60a5fa);
+  border-bottom-color: var(--accent, #60a5fa);
+  background: rgba(255, 255, 255, 0.04);
+}

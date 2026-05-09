@@ -1,0 +1,60 @@
+<!-- Friends section — loaded into #friends-section by componentLoader -->
+<div class="p-6 max-w-4xl mx-auto">
+
+  <!-- Page header -->
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white" style="background:var(--accent-gradient, linear-gradient(135deg, #2563EB, #1d4ed8))">
+      <i class="fas fa-user-friends"></i>
+    </div>
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">Bạn bè</h1>
+      <p class="text-sm text-slate-500">Quản lý bạn bè và lời mời kết bạn</p>
+    </div>
+  </div>
+
+  <!-- Search / Add friend -->
+  <section class="bg-white rounded-2xl border border-slate-200 p-5 mb-5">
+    <p class="text-sm font-semibold text-slate-800 mb-3">Tìm kiếm & kết bạn</p>
+    <div class="flex gap-2">
+      <input id="friend-search-input" type="text" placeholder="Nhập email hoặc tên..."
+        class="flex-1 px-4 py-2.5 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:border-transparent"
+        style="--tw-ring-color:var(--accent, #2563EB)"
+        autocomplete="off" />
+      <button id="friend-search-btn"
+        class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0"
+        style="background:var(--accent, #2563EB)">
+        <i class="fas fa-search mr-1"></i>Tìm
+      </button>
+    </div>
+    <div id="friend-search-results" class="mt-3 space-y-2 hidden"></div>
+  </section>
+
+  <!-- Pending requests received -->
+  <section id="friend-requests-section" class="bg-white rounded-2xl border border-slate-200 p-5 mb-5 hidden">
+    <p class="text-sm font-semibold text-slate-800 mb-3">
+      <i class="fas fa-bell text-amber-500 mr-1"></i>Lời mời kết bạn
+      <span id="friend-request-count" class="text-xs px-2 py-0.5 rounded-full font-medium" style="background:#fef3c7;color:#d97706">0</span>
+    </p>
+    <div id="friend-requests-list" class="space-y-2"></div>
+  </section>
+
+  <!-- Pending requests sent -->
+  <section id="friend-sent-section" class="bg-white rounded-2xl border border-slate-200 p-5 mb-5 hidden">
+    <p class="text-sm font-semibold text-slate-800 mb-3">
+      <i class="fas fa-paper-plane text-slate-400 mr-1"></i>Đã gửi lời mời
+    </p>
+    <div id="friend-sent-list" class="space-y-2"></div>
+  </section>
+
+  <!-- Friends list -->
+  <section class="bg-white rounded-2xl border border-slate-200 p-5">
+    <p class="text-sm font-semibold text-slate-800 mb-3">
+      <i class="fas fa-users mr-1" style="color:var(--accent, #2563EB)"></i>Danh sách bạn bè
+      <span id="friend-count" class="text-xs px-2 py-0.5 rounded-full font-medium" style="background:#dcfce7;color:#16a34a">0</span>
+    </p>
+    <div id="friends-list" class="space-y-2">
+      <p class="text-sm text-center py-6 text-slate-400">Chưa có bạn bè nào</p>
+    </div>
+  </section>
+
+</div>
